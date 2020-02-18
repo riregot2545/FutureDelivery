@@ -1,4 +1,4 @@
-package com.nix.futuredelivery.entity;
+package com.nix.futuredelivery.entity.value;
 
 import com.nix.futuredelivery.entity.value.Location;
 import lombok.Data;
