@@ -1,4 +1,7 @@
 package com.nix.futuredelivery.repository;
 
-public interface CarRepository {
+import com.nix.futuredelivery.entity.Car;
+import org.springframework.data.repository.CrudRepository;
+
+public interface CarRepository extends CrudRepository<Car,Long> {
 }
