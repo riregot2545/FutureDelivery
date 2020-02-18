@@ -9,4 +9,6 @@ import javax.persistence.Entity;
 public class Location {
     private final LocationPoint latitude;
     private final LocationPoint longitude;
+
+    private final Address address;
 }
