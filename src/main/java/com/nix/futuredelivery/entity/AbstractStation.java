@@ -1,5 +1,6 @@
 package com.nix.futuredelivery.entity;
 
+import com.nix.futuredelivery.entity.value.Location;
 import lombok.Data;
 
 import javax.persistence.GeneratedValue;

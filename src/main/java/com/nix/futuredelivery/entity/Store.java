@@ -1,15 +1,13 @@
 package com.nix.futuredelivery.entity;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import com.nix.futuredelivery.entity.value.Location;
 
-import lombok.Data;
+import javax.persistence.Column;
+import javax.persistence.Entity;
 
-import java.util.Set;
-
-
+@Entity
 public class Store extends AbstractStation{
+    @Column(name = "store_manager")
     private final StoreManager storeManager;
     public Store(Location location, String name, StoreManager storeManager) {
         super(location, name);

@@ -1,5 +1,6 @@
-package com.nix.futuredelivery.entity;
+package com.nix.futuredelivery.entity.value;
 
+import com.nix.futuredelivery.entity.value.DomainName;
 import lombok.Data;
 
 @Data

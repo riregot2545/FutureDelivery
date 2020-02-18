@@ -1,8 +1,7 @@
 package com.nix.futuredelivery.entity;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import com.nix.futuredelivery.entity.value.Location;
 
 import javax.persistence.*;
 import java.util.Set;
