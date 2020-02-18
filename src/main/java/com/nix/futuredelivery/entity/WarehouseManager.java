@@ -4,8 +4,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-public class WarehouseManager {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class WarehouseManager extends SystemUser{
+    public WarehouseManager(String firstName, String lastName, String login, String password) {
+        super(firstName, lastName, login, password);
+    }
 }

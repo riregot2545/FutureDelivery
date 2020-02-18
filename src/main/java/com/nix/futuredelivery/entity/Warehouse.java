@@ -1,17 +1,19 @@
 package com.nix.futuredelivery.entity;
 
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
-@Data
-public class Warehouse {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-    private final Location location;
-    private final String name;
+public class Warehouse extends AbstractStation{
+    private final Set<Product> warehouseProductCategory;
+    private final WarehouseManager warehouseManager;
+    public Warehouse(Location location, String name, Set<Product> warehouseProductCategory, WarehouseManager warehouseManager) {
+        super(location, name);
+        this.warehouseProductCategory = warehouseProductCategory;
+        this.warehouseManager = warehouseManager;
+    }
 }
