@@ -1,0 +1,9 @@
+server:
+  port: 6660
+
+spring:
+  datasource:
+    password: Admin123
+    url: jdbc:postgresql://localhost:5432/test
+    username: postgres
+    driverClassName: org.postgresql.Driver
