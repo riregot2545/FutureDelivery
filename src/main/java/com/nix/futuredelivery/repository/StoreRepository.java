@@ -1,4 +1,7 @@
 package com.nix.futuredelivery.repository;
 
-public interface StoreRepository {
+import com.nix.futuredelivery.entity.Store;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface StoreRepository extends JpaRepository<Store, Long> {
 }
