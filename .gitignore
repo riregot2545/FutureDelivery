@@ -4,6 +4,8 @@ target/
 !**/src/main/**
 !**/src/test/**
 
+application.yml
+
 ### STS ###
 .apt_generated
 .classpath
@@ -29,3 +31,5 @@ build/
 
 ### VS Code ###
 .vscode/
+
+

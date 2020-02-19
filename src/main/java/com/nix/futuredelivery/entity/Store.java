@@ -1,17 +1,19 @@
 package com.nix.futuredelivery.entity;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import com.nix.futuredelivery.entity.value.Location;
 
-import lombok.Data;
+import javax.persistence.*;
 
-@Data
-public class Store {
+@Entity
+public class Store extends AbstractStation {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private final Location location;
+    @Column(name = "store_manager")
     private final StoreManager storeManager;
-    private final String name;
+
+    public Store(Location location, String name, StoreManager storeManager) {
+        super(location, name);
+        this.storeManager = storeManager;
+    }
 }

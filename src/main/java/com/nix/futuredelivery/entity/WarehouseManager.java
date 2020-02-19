@@ -1,11 +1,18 @@
 package com.nix.futuredelivery.entity;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
-public class WarehouseManager {
+public class WarehouseManager extends SystemUser{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "warehouse_manager_id")
     private Long id;
+
+    @OneToOne(mappedBy = "warehouseManager")
+    private Warehouse warehouse;
+    public WarehouseManager(String firstName, String lastName, String login, String password) {
+        super(firstName, lastName, login, password);
+    }
+
+
 }
