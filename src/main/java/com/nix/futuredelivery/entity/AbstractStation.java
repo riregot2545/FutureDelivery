@@ -9,9 +9,7 @@ import javax.persistence.Id;
 
 @Data
 public abstract class AbstractStation {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+
 
     private final Location location;
     private final String name;

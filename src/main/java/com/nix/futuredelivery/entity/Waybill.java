@@ -4,9 +4,7 @@ import com.nix.futuredelivery.entity.value.CheckedOrderLine;
 import com.nix.futuredelivery.entity.value.OrderLine;
 import lombok.Data;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.List;
 import java.util.Set;
 
@@ -18,5 +16,8 @@ public class Waybill {
 
     private final Store store;
     private final List<CheckedOrderLine> orderLines;
+    @ManyToOne
+    @JoinColumn(name = "route_id", nullable = false)
+    private final Route route;
 
 }

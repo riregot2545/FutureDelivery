@@ -9,9 +9,7 @@ import javax.persistence.*;
 @Entity
 @Data
 public abstract class SystemUser {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+
     @Column
     private final String firstName;
     @Column

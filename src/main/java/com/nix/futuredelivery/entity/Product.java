@@ -5,6 +5,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Entity
@@ -12,6 +13,7 @@ import java.math.BigDecimal;
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "product_id")
     private Long id;
 
     @Column(name = "product_category")
@@ -20,4 +22,7 @@ public class Product {
     private final String name;
     @Column
     private final BigDecimal price;
+
+    @ManyToMany(mappedBy = "warehouseProductCatalog")
+    private final List<Warehouse> warehouses;
 }
