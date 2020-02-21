@@ -11,6 +11,6 @@ import javax.persistence.Id;
 public abstract class AbstractStation {
 
 
-    private final Location location;
+    private final Address address;
     private final String name;
 }

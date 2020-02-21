@@ -6,5 +6,5 @@ import java.util.List;
 
 @Data
 public class EmailDomainName {
-    private final List<String> labels;
+    private final List<String> domains;
 }

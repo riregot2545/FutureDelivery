@@ -1,15 +1,16 @@
 package com.nix.futuredelivery.entity;
 
-import com.nix.futuredelivery.entity.value.ProductCategory;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.List;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 @Entity
-@Table
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -17,12 +18,9 @@ public class Product {
     private Long id;
 
     @Column(name = "product_category")
-    private final ProductCategory productCategory;
+    private ProductCategory productCategory;
     @Column
-    private final String name;
+    private String name;
     @Column
-    private final BigDecimal price;
-
-    @ManyToMany(mappedBy = "warehouseProductCatalog")
-    private final List<Warehouse> warehouses;
+    private BigDecimal price;
 }
