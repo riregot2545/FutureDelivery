@@ -7,11 +7,10 @@ import lombok.Setter;
 
 public class CheckedOrderLine extends OrderLine {
     @Getter
-    @Setter
     private final boolean isDelivered;
 
-    public CheckedOrderLine(Product product, int quantity, boolean isDelivered) {
+    public CheckedOrderLine(Product product, int quantity) {
         super(product, quantity);
-        this.isDelivered = isDelivered;
+        this.isDelivered = false;
     }
 }

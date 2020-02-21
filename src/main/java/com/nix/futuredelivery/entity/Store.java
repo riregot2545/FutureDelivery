@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 public class Store extends AbstractStation{
     @Column(name = "store_manager")
     private final StoreManager storeManager;
+
     public Store(Location location, String name, StoreManager storeManager) {
         super(location, name);
         this.storeManager = storeManager;

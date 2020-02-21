@@ -5,6 +5,6 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class DomainName {
+public class EmailDomainName {
     private final List<String> labels;
 }

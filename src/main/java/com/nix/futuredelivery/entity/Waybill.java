@@ -16,5 +16,7 @@ public class Waybill {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    private final Store store;
     private final List<CheckedOrderLine> orderLines;
+
 }

@@ -5,6 +5,7 @@ import com.nix.futuredelivery.entity.value.OrderLine;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.util.List;
 import java.util.Set;
 
 public class Order {
@@ -12,5 +13,5 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private Set<OrderLine> orderLines;
+    private List<OrderLine> orderLines;
 }
