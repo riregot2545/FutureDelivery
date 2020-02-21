@@ -1,6 +1,7 @@
 package com.nix.futuredelivery.entity;
 
 
+import com.nix.futuredelivery.entity.value.Capacity;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -14,4 +15,7 @@ public class Car {
 
     @Column
     private final Driver driver;
+
+    @Column
+    private final Capacity capacity;
 }
