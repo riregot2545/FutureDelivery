@@ -17,8 +17,7 @@ public class Car {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column
-    private Driver driver;
+    private String model;
 
     @Embedded
     private Capacity capacity;

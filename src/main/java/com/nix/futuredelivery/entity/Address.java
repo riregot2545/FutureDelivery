@@ -1,24 +1,29 @@
 package com.nix.futuredelivery.entity;
 
 import com.nix.futuredelivery.entity.value.Location;
+import com.nix.futuredelivery.entity.value.LocationConverter;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private final String addressLine1;
-    private final String addressLine2;
-    private final String city;
-    private final String region;
-    private final String country;
-    private final String zipCode;
+    private String addressLine1;
+    private String addressLine2;
+    private String city;
+    private String region;
+    private String country;
+    private String zipCode;
 
-    private final Location pointLocation;
+    @Convert(converter = LocationConverter.class)
+    private Location pointLocation;
 }
