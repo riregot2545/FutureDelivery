@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 6660
 
 spring:
   jpa:
@@ -8,6 +8,6 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/future
     username: postgres
-    password: 12345
+    password: Admin123
     driverClassName: org.postgresql.Driver
 
