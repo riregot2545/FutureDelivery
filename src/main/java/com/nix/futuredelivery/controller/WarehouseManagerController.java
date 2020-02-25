@@ -5,6 +5,7 @@ import com.nix.futuredelivery.entity.WarehouseManager;
 import com.nix.futuredelivery.repository.projections.WarehouseProductLinesOnly;
 import com.nix.futuredelivery.service.WarehouseManagerService;
 import lombok.Data;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,12 +23,15 @@ public class WarehouseManagerController {
     public WarehouseProductLinesOnly getProductLine(WarehouseManager manager){
         return warehouseManagerService.getProductLines(manager);
     }
-    @PostMapping("/save_manager")
-    public void saveManager(@RequestBody String login){
-        Warehouse warehouse = new Warehouse();
-        WarehouseManager manager = new WarehouseManager(warehouse);
-        manager.setLogin(login);
-        warehouse.setWarehouseManager(manager);
-        warehouseManagerService.saveWarehouseManager(manager);
+
+    @PostMapping("/registration")
+    public void registr(@RequestBody WarehouseManager warehouseManager) {
+        warehouseManagerService.saveWarehouseManager(warehouseManager);
+    }
+
+    @GetMapping("/private")
+    public String getMessage(Authentication authentication) {
+        System.out.println(authentication.toString());
+        return "Hello from private API controller";
     }
 }

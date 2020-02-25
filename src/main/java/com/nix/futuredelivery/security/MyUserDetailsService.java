@@ -1,6 +1,7 @@
 package com.nix.futuredelivery.security;
 
 import com.nix.futuredelivery.entity.SystemUser;
+import com.nix.futuredelivery.entity.WarehouseManager;
 import com.nix.futuredelivery.repository.SystemUserRepository;
 import com.nix.futuredelivery.repository.WarehouseManagerRepository;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,22 +20,18 @@ import java.util.Set;
 
 @Service
 public class MyUserDetailsService implements UserDetailsService {
-    private SystemUserRepository systemUserRepository;
+    private WarehouseManagerRepository systemUserRepository;
 
-    public MyUserDetailsService(SystemUserRepository systemUserRepository) {
+    public MyUserDetailsService(WarehouseManagerRepository systemUserRepository) {
         this.systemUserRepository = systemUserRepository;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        SystemUser user = systemUserRepository.findByLogin(username);
-        User.UserBuilder builder = null;
-        if (user != null) {
-            builder = User.withUsername(username);
-            builder.password(new BCryptPasswordEncoder().encode(user.getPassword()));
-        } else {
+        WarehouseManager user = systemUserRepository.findByLogin(username);
+        if (user == null) {
             throw new UsernameNotFoundException("User not found.");
         }
-        return builder.build();
+        return new MyUserPrincipal(user);
     }
 }

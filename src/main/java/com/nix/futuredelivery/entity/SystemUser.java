@@ -24,6 +24,12 @@ public abstract class SystemUser {
     protected String login;
     protected String password;
 
-    @Convert(converter = EmailConverter.class)
-    protected EmailAddress email;
+
+    protected String email;
+
+    public SystemUser(Long id, String username, String password) {
+        this.id = id;
+        this.login = username;
+        this.password = password;
+    }
 }
