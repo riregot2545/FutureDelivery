@@ -1,9 +1,13 @@
 server:
-  port: 8080
+  port: 6660
 
 spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
   datasource:
-    password: Admin123
-    url: jdbc:postgresql://localhost:5432/test
+    url: jdbc:postgresql://localhost:5432/future
     username: postgres
+    password: Admin123
     driverClassName: org.postgresql.Driver
+

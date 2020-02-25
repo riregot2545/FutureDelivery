@@ -1,18 +1,16 @@
 package com.nix.futuredelivery.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
 public class WarehouseManager extends SystemUser{
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "warehouse_manager_id")
-    private Long id;
-
-    @OneToOne(mappedBy = "warehouseManager")
+    @OneToOne
     private Warehouse warehouse;
-    public WarehouseManager(String firstName, String lastName, String login, String password) {
-        super(firstName, lastName, login, password);
-    }
-
-
 }
