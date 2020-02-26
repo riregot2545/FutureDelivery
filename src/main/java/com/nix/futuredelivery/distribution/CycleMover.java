@@ -7,7 +7,7 @@ public class CycleMover {
     private DistributionPlan potentialPlan;
     private DistributionParticipants participants;
 
-    private final double nullPlaceholder = -1111.221122;
+
 
     public CycleMover(DistributionPlan potentialPlan, DistributionParticipants participants) {
         this.potentialPlan = potentialPlan;
@@ -23,14 +23,14 @@ public class CycleMover {
 
             firstWay = makeCycle(cell, usedPositions, true);
         }
-        cell.fullness = nullPlaceholder;
+        cell.fullness = DistributionCell.EMPTY_FULLNESS_PLACEHOLDER;
         usedPositions = new ArrayList<>();
         if (checkColumnOnFilling(cell.y) > 0) {
 
             secondWay = makeCycle(cell, usedPositions, false);
         } else
             System.out.println("GLOBAL ERROR: CAN'T BUILD CYCLE!");
-        cell.fullness = nullPlaceholder;
+        cell.fullness = DistributionCell.EMPTY_FULLNESS_PLACEHOLDER;
 
         if (firstWay == null && secondWay == null) {
             System.out.println("GLOBAL ERROR: CAN'T BUILD CYCLE!");
@@ -44,7 +44,7 @@ public class CycleMover {
                 if (firstWay != null || secondWay != null)
                     break;
                 else
-                    emptyCell.fullness = nullPlaceholder;
+                    emptyCell.fullness = DistributionCell.EMPTY_FULLNESS_PLACEHOLDER;
                 usedPositions.clear();
             }
         }
@@ -65,7 +65,7 @@ public class CycleMover {
             } else {
                 firstWay.get(i).fullness -= minCostValue;
                 if (firstWay.get(i).fullness == 0)
-                    firstWay.get(i).fullness = nullPlaceholder;
+                    firstWay.get(i).fullness = DistributionCell.EMPTY_FULLNESS_PLACEHOLDER;
             }
 
 
@@ -83,15 +83,16 @@ public class CycleMover {
             return used;
         if (isRow) {
             for (int i = 0; i < participants.consumersCount(); i++) {
-                if (potentialPlan.plan[position.x][i].fullness != nullPlaceholder && potentialPlan.plan[position.x][i] != position) {
-                    if (used.size() > 3 && used.get(0) == potentialPlan.plan[position.x][i]) {
-                        used.add(potentialPlan.plan[position.x][i]);
+                if (potentialPlan.getCell(position.x,i).fullness != DistributionCell.EMPTY_FULLNESS_PLACEHOLDER
+                        && potentialPlan.getCell(position.x,i) != position) {
+                    if (used.size() > 3 && used.get(0) == potentialPlan.getCell(position.x,i)) {
+                        used.add(potentialPlan.getCell(position.x,i));
                         return used;
                     } else {
-                        if (!used.subList(1, used.size()).contains(potentialPlan.plan[position.x][i]) && checkColumnOnFilling(i) > 0) {
+                        if (!used.subList(1, used.size()).contains(potentialPlan.getCell(position.x,i)) && checkColumnOnFilling(i) > 0) {
 
                             List<DistributionCell> newArray = new ArrayList<>(used);
-                            List<DistributionCell> recursiveRes = makeCycle(potentialPlan.plan[position.x][i], newArray, false);
+                            List<DistributionCell> recursiveRes = makeCycle(potentialPlan.getCell(position.x,i), newArray, false);
                             if (recursiveRes != null) {
                                 return recursiveRes;
                             }
@@ -102,15 +103,16 @@ public class CycleMover {
             }
         } else {
             for (int i = 0; i < participants.suppliersCount(); i++) {
-                if (potentialPlan.plan[i][position.y].fullness != nullPlaceholder && potentialPlan.plan[i][position.y] != position) {
-                    if (used.size() > 3 && potentialPlan.plan[i][position.y] == used.get(0)) {
-                        used.add(potentialPlan.plan[i][position.y]);
+                if (potentialPlan.getCell(i,position.y).fullness != DistributionCell.EMPTY_FULLNESS_PLACEHOLDER
+                        && potentialPlan.getCell(i,position.y) != position) {
+                    if (used.size() > 3 && potentialPlan.getCell(i,position.y) == used.get(0)) {
+                        used.add(potentialPlan.getCell(i,position.y));
                         return used;
                     } else {
-                        if (!used.subList(1, used.size()).contains(potentialPlan.plan[i][position.y]) && checkRowOnFilling(i) > 0) {
+                        if (!used.subList(1, used.size()).contains(potentialPlan.getCell(i,position.y)) && checkRowOnFilling(i) > 0) {
 
                             List<DistributionCell> newArray = new ArrayList<>(used);
-                            List<DistributionCell> recursiveRes = makeCycle(potentialPlan.plan[i][position.y], newArray, true);
+                            List<DistributionCell> recursiveRes = makeCycle(potentialPlan.getCell(i,position.y), newArray, true);
                             if (recursiveRes != null) {
                                 return recursiveRes;
                             }
@@ -124,8 +126,8 @@ public class CycleMover {
 
     private int checkRowOnFilling(int row) {
         int count = 0;
-        for (int i = 0; i < potentialPlan.plan[0].length; i++) {
-            if (potentialPlan.plan[row][i].fullness != nullPlaceholder) {
+        for (int i = 0; i < potentialPlan.width; i++) {
+            if (potentialPlan.getCell(row,i).fullness != DistributionCell.EMPTY_FULLNESS_PLACEHOLDER ) {
                 count++;
             }
         }
@@ -134,8 +136,8 @@ public class CycleMover {
 
     private int checkColumnOnFilling(int column) {
         int count = 0;
-        for (int i = 0; i < potentialPlan.plan.length; i++) {
-            if (potentialPlan.plan[i][column].fullness != nullPlaceholder)
+        for (int i = 0; i < potentialPlan.height; i++) {
+            if (potentialPlan.getCell(i,column).fullness != DistributionCell.EMPTY_FULLNESS_PLACEHOLDER )
                 count++;
         }
         return count;
@@ -145,8 +147,8 @@ public class CycleMover {
         List<DistributionCell> resultList = new ArrayList<>();
         for (int i = 0; i < participants.suppliersCount(); i++) {
             for (int j = 0; j < participants.consumersCount(); j++) {
-                if(potentialPlan.plan[i][j]!=minForbiddenCell && potentialPlan.plan[i][j].fullness==nullPlaceholder)
-                    resultList.add(potentialPlan.plan[i][j]);
+                if(potentialPlan.getCell(i,j)!=minForbiddenCell && potentialPlan.getCell(i,j).fullness==DistributionCell.EMPTY_FULLNESS_PLACEHOLDER )
+                    resultList.add(potentialPlan.getCell(i,j));
             }
         }
         return resultList;

@@ -1,9 +1,9 @@
 package com.nix.futuredelivery.distribution;
 
 public class Consumer {
-    public double demand;
+    public int demand;
 
-    public Consumer(double demand) {
+    public Consumer(int demand) {
         this.demand = demand;
     }
 }

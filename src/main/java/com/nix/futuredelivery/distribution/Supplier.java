@@ -1,9 +1,9 @@
 package com.nix.futuredelivery.distribution;
 
 public class Supplier {
-    public Supplier(double supply) {
+    public Supplier(int supply) {
         this.supply = supply;
     }
 
-    public double supply;
+    public int supply;
 }

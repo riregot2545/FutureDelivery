@@ -1,6 +1,5 @@
 package com.nix.futuredelivery.distribution;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,16 +37,27 @@ public class MinElementPlanSolver {
             cells.remove(cell);
         }
 
-        return new DistributionPlan(costMatrix);
+        fillEmptyFullnessByPlaceholder();
+
+        return new DistributionPlan(costMatrix,participants);
     }
 
     private DistributionCell findLowCostCell(List<DistributionCell> list) {
         DistributionCell minCell = list.get(0);
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).cost < minCell.cost) {
-                minCell = list.get(i);
+        for (DistributionCell distributionCell : list) {
+            if (distributionCell.cost < minCell.cost) {
+                minCell = distributionCell;
             }
         }
         return minCell;
+    }
+
+    private void fillEmptyFullnessByPlaceholder(){
+        for (int i = 0; i < costMatrix.length; i++) {
+            for (int j = 0; j < costMatrix[0].length; j++) {
+                if(costMatrix[i][j].fullness==0)
+                    costMatrix[i][j].fullness = DistributionCell.EMPTY_FULLNESS_PLACEHOLDER;
+            }
+        }
     }
 }
