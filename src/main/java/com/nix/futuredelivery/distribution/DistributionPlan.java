@@ -4,7 +4,7 @@ public class DistributionPlan {
     public int height;
     public int width;
 
-    private DistributionCell[][] plan;
+    public DistributionCell[][] plan;
 
     public DistributionPlan(DistributionCell[][] plan) {
         this.plan = plan;
