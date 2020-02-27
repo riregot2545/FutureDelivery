@@ -16,14 +16,13 @@ import javax.persistence.*;
 public abstract class SystemUser {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    protected Long id;
 
-    private String firstName;
-    private String lastName;
+    protected String firstName;
+    protected String lastName;
 
-    private String login;
-    private String password;
+    protected String login;
+    protected String password;
 
-    @Convert(converter = EmailConverter.class)
-    private EmailAddress email;
+    protected String email;
 }

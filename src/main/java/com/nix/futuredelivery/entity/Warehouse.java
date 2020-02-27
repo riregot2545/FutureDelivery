@@ -25,3 +25,4 @@ public class Warehouse extends AbstractStation{
             cascade = CascadeType.ALL)
     private List<WarehouseProductLine> productLines;
 }
+
