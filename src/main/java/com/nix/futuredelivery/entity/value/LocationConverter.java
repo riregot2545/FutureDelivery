@@ -21,9 +21,12 @@ public class LocationConverter implements AttributeConverter<Location, String> {
 
     @Override
     public Location convertToEntityAttribute(String s) {
+        if (s == null) {
+            return new Location(0D,0D);
+        }
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            return objectMapper.readValue(s,Location.class);
+            return objectMapper.readValue(s, Location.class);
         } catch (JsonProcessingException e) {
             log.error(e.getMessage());
         }
