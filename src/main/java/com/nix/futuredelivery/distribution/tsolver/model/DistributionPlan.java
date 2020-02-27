@@ -1,8 +1,4 @@
-package com.nix.futuredelivery.distribution;
-
-import lombok.Data;
-
-import java.util.Arrays;
+package com.nix.futuredelivery.distribution.tsolver.model;
 
 public class DistributionPlan {
     public int height;
@@ -25,12 +21,12 @@ public class DistributionPlan {
     }
 
     public DistributionPlan(double[][] costArray, DistributionParticipants participants) {
-        DistributionCell[][] cells = Arrays.stream(costArray)
-                .map(i -> Arrays.stream(i)
-                        .mapToObj(DistributionCell::new)
-                        .toArray(DistributionCell[]::new))
-                .toArray(DistributionCell[][]::new);
-        this.plan = cells;
+        this.plan = new DistributionCell[participants.suppliersCount()][participants.consumersCount()];
+        for (int i = 0; i < participants.suppliersCount(); i++) {
+            for (int j = 0; j <participants.consumersCount(); j++) {
+                plan[i][j] = new DistributionCell(new MatrixPosition(i,j),costArray[i][j]);
+            }
+        }
         this.height = participants.suppliersCount();
         this.width = participants.consumersCount();
     }
@@ -45,7 +41,7 @@ public class DistributionPlan {
         double costSum = 0;
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                costSum+= getCell(i,j).getCost();
+                costSum+= getCell(i,j).getCellCost();
             }
         }
         return costSum;
@@ -54,8 +50,8 @@ public class DistributionPlan {
     public void clearEmptyFullness(){
         for (int i = 0; i < plan.length; i++) {
             for (int j = 0; j < plan[0].length; j++) {
-                if(plan[i][j].fullness == DistributionCell.EMPTY_FULLNESS_PLACEHOLDER)
-                    plan[i][j].fullness = 0;
+                if(plan[i][j].getFullness() == DistributionCell.EMPTY_FULLNESS_PLACEHOLDER)
+                    plan[i][j].setFullness(0);
             }
         }
     }
@@ -67,7 +63,8 @@ public class DistributionPlan {
         DistributionPlan plan = new DistributionPlan(costArray,participants);
         for (int i = 0; i < fullnessArray.length; i++) {
             for (int j = 0; j < fullnessArray[0].length; j++) {
-                plan.getCell(i,j).fullness = fullnessArray[i][j];
+                DistributionCell cell = plan.getCell(i, j);
+                cell.setFullness(fullnessArray[i][j]);
             }
         }
         return plan;

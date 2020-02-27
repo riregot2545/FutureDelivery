@@ -1,5 +1,12 @@
-package com.nix.futuredelivery.distribution;
+package com.nix.futuredelivery.distribution.tsolver;
 
+import com.nix.futuredelivery.distribution.tsolver.model.DistributionCell;
+import com.nix.futuredelivery.distribution.tsolver.model.DistributionParticipants;
+import com.nix.futuredelivery.distribution.tsolver.model.DistributionPlan;
+import com.nix.futuredelivery.distribution.tsolver.model.PotentialArray;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class PotentialPlanSolver {
     private DistributionPlan distributionPlan;
     private DistributionParticipants participants;
@@ -22,21 +29,22 @@ public class PotentialPlanSolver {
         DistributionCell maxPotentialCell = findMaxPotentialSum();
         do {
 
-            System.out.println("Max potential before cycle:" + maxPotentialCell.potentialSum +
-                    " on " + maxPotentialCell.x + "/" + maxPotentialCell.y);
+            log.info("Max potential before cycle:" + maxPotentialCell.getPotentialSum() +
+                    " on [" + maxPotentialCell.getX()+ "," + maxPotentialCell.getY()+"]");
 
 
             cycleMover.cycle(maxPotentialCell);
 
             makePotentials();
             maxPotentialCell = findMaxPotentialSum();
-            System.out.println("Max potential after cycle:" + maxPotentialCell.potentialSum +
-                    " on " + maxPotentialCell.x + "/" + maxPotentialCell.y);
+
+            log.info("Max potential before cycle:" + maxPotentialCell.getPotentialSum() +
+                    " on [" + maxPotentialCell.getX()+ "," + maxPotentialCell.getY()+"]");
 
             uArray.clear();
             vArray.clear();
         }
-        while (maxPotentialCell.potentialSum > 0);
+        while (maxPotentialCell.getPotentialSum() > 0);
 
         return distributionPlan;
     }
@@ -48,18 +56,18 @@ public class PotentialPlanSolver {
         while (uArray.findIndexOfNull() > -1 || vArray.findIndexOfNull() > -1) {
             for (int i = 0; i < participants.suppliersCount(); i++) {
                 for (int j = 0; j < participants.consumersCount(); j++) {
-                    if (distributionPlan.getCell(i,j).fullness != -1) {
+                    if (!distributionPlan.getCell(i,j).isFullnessEmpty()) {
                         if (!uArray.isNull(j) && vArray.isNull(i)) {
-                            vArray.set(i, distributionPlan.getCell(i,j).cost - uArray.get(j));
+                            vArray.set(i, distributionPlan.getCell(i,j).getTariffCost() - uArray.get(j));
                         } else if (uArray.isNull(j) && !vArray.isNull(i)) {
-                            uArray.set(j, distributionPlan.getCell(i,j).cost - vArray.get(i));
+                            uArray.set(j, distributionPlan.getCell(i,j).getTariffCost() - vArray.get(i));
                         }
                     }
                 }
             }
             iterations++;
             if (iterations > 20_000) {
-                System.out.println("GLOBAL WARNING ITERATIONS > 20 000, resolve potentials conflict...");
+                log.warn("ITERATIONS > 20 000, resolve potentials conflict...");
                 int uElementNullIndex = uArray.findIndexOfNull();
                 int vElementNullIndex = vArray.findIndexOfNull();
                 if (uElementNullIndex > -1) {
@@ -78,10 +86,11 @@ public class PotentialPlanSolver {
         DistributionCell maxCell = null;
         for (int i = 0; i < participants.suppliersCount(); i++) {
             for (int j = 0; j < participants.consumersCount(); j++) {
-                if (distributionPlan.getCell(i,j).fullness == DistributionCell.EMPTY_FULLNESS_PLACEHOLDER) {
-                    distributionPlan.getCell(i,j).potentialSum = uArray.get(j) + vArray.get(i) - distributionPlan.getCell(i,j).cost;
-                    if (distributionPlan.getCell(i,j).potentialSum > maxElementSum) {
-                        maxElementSum = distributionPlan.getCell(i,j).potentialSum;
+                if (distributionPlan.getCell(i,j).isFullnessEmpty()) {
+                    distributionPlan.getCell(i,j).setPotentialSum(
+                            uArray.get(j) + vArray.get(i) - distributionPlan.getCell(i,j).getTariffCost());
+                    if (distributionPlan.getCell(i,j).getPotentialSum() > maxElementSum) {
+                        maxElementSum = distributionPlan.getCell(i,j).getPotentialSum();
                         maxCell = distributionPlan.getCell(i,j);
                     }
                 }

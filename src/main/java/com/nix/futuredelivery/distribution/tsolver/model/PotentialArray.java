@@ -1,4 +1,4 @@
-package com.nix.futuredelivery.distribution;
+package com.nix.futuredelivery.distribution.tsolver.model;
 
 import java.util.Arrays;
 

@@ -1,5 +1,6 @@
 package com.nix.futuredelivery.distribution;
 
+import com.nix.futuredelivery.distribution.tsolver.model.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -12,8 +13,8 @@ class ProductDistributorTest {
     private void showPlan(DistributionPlan plan) {
         for (int i = 0; i < plan.height; i++) {
             for (int j = 0; j < plan.width; j++) {
-                if (plan.getCell(i, j).fullness != DistributionCell.EMPTY_FULLNESS_PLACEHOLDER)
-                    System.out.print(plan.getCell(i, j).fullness + "\t\t\t");
+                if (!plan.getCell(i, j).isFullnessEmpty())
+                    System.out.print(plan.getCell(i, j).getFullness() + "\t\t\t");
                 else
                     System.out.print("0\t\t\t");
             }
@@ -22,14 +23,13 @@ class ProductDistributorTest {
     }
 
     @Test
-    public void test1() {
-        DistributionParticipants participants = new DistributionParticipants();
-        participants.consumers = Arrays.stream(new int[]{105, 60, 165, 90})
-                .mapToObj(Consumer::new).toArray(Consumer[]::new);
-
-        participants.suppliers = Arrays.stream(new int[]{90, 60, 120, 150})
-                .mapToObj(Supplier::new).toArray(Supplier[]::new);
-
+    public void testMedium4x4() {
+        DistributionParticipants participants = new DistributionParticipants(
+                Arrays.stream(new int[]{105, 60, 165, 90})
+                        .mapToObj(Consumer::new).toArray(Consumer[]::new),
+                Arrays.stream(new int[]{90, 60, 120, 150})
+                        .mapToObj(Supplier::new).toArray(Supplier[]::new)
+        );
         double[][] costMatrix = new double[][]{
                 {6, 12, 3, 9},
                 {15, 18, 15, 12},
@@ -60,15 +60,14 @@ class ProductDistributorTest {
 
 
     @Test
-    public void test2(){
-        DistributionParticipants participants = new DistributionParticipants();
-        participants.consumers = Arrays.stream(new int[]{40,30,35,15})
-                .mapToObj(Consumer::new).toArray(Consumer[]::new);
-
-        participants.suppliers = Arrays.stream(new int[]{50,20,30,20})
-                .mapToObj(Supplier::new).toArray(Supplier[]::new);
-
-        double[][] costMatrix = new double[][]{
+    public void testSimple4x4(){
+        DistributionParticipants participants = new DistributionParticipants(
+                Arrays.stream(new int[]{40,30,35,15})
+                        .mapToObj(Consumer::new).toArray(Consumer[]::new),
+                Arrays.stream(new int[]{50,20,30,20})
+                        .mapToObj(Supplier::new).toArray(Supplier[]::new)
+        );
+       double[][] costMatrix = new double[][]{
                 {1,3,3,4},
                 {5,2,7,5},
                 {6,4,8,2},
@@ -107,15 +106,14 @@ class ProductDistributorTest {
 
 
     @Test
-    public void test3(){
-        DistributionParticipants participants = new DistributionParticipants();
-        participants.consumers = Arrays.stream(new int[]{15, 15, 40, 30})
-                .mapToObj(Consumer::new).toArray(Consumer[]::new);
-
-        participants.suppliers = Arrays.stream(new int[]{30, 50, 20})
-                .mapToObj(Supplier::new).toArray(Supplier[]::new);
-
-        double[][] costMatrix = new double[][]{
+    public void testSimple4x3(){
+        DistributionParticipants participants = new DistributionParticipants(
+                Arrays.stream(new int[]{15, 15, 40, 30})
+                        .mapToObj(Consumer::new).toArray(Consumer[]::new),
+                Arrays.stream(new int[]{30, 50, 20})
+                        .mapToObj(Supplier::new).toArray(Supplier[]::new)
+        );
+       double[][] costMatrix = new double[][]{
                 {1, 8, 2, 3D},
                 {4, 7, 5, 1D},
                 {6, 3, 4, 4D}
@@ -148,15 +146,14 @@ class ProductDistributorTest {
     }
 
     @Test
-    public void test4(){
-        DistributionParticipants participants = new DistributionParticipants();
-        participants.consumers = Arrays.stream(new int[]{10,8,12,14,16})
-                .mapToObj(Consumer::new).toArray(Consumer[]::new);
-
-        participants.suppliers = Arrays.stream(new int[]{12,17,18,13})
-                .mapToObj(Supplier::new).toArray(Supplier[]::new);
-
-        double[][] costMatrix = new double[][]{
+    public void testBrokenCycle(){
+        DistributionParticipants participants = new DistributionParticipants(
+                Arrays.stream(new int[]{10,8,12,14,16})
+                        .mapToObj(Consumer::new).toArray(Consumer[]::new),
+                Arrays.stream(new int[]{12,17,18,13})
+                        .mapToObj(Supplier::new).toArray(Supplier[]::new)
+        );
+       double[][] costMatrix = new double[][]{
                 {6,11,20,17,8},
                 {1,25,3,18,17},
                 {9,29,16,30,31},
@@ -184,15 +181,14 @@ class ProductDistributorTest {
     }
 
     @Test
-    public void test5(){
-        DistributionParticipants participants = new DistributionParticipants();
-        participants.consumers = Arrays.stream(new int[]{30, 10, 20, 40})
-                .mapToObj(Consumer::new).toArray(Consumer[]::new);
-
-        participants.suppliers = Arrays.stream(new int[]{35, 50, 15})
-                .mapToObj(Supplier::new).toArray(Supplier[]::new);
-
-        double[][] costMatrix = new double[][]{
+    public void testMedium4x3(){
+        DistributionParticipants participants = new DistributionParticipants(
+                Arrays.stream(new int[]{30, 10, 20, 40})
+                        .mapToObj(Consumer::new).toArray(Consumer[]::new),
+                Arrays.stream(new int[]{35, 50, 15})
+                        .mapToObj(Supplier::new).toArray(Supplier[]::new)
+        );
+       double[][] costMatrix = new double[][]{
                 {1, 3, 2, 4},
                 {2, 1, 4, 3},
                 {3, 5, 6, 1}
@@ -218,16 +214,15 @@ class ProductDistributorTest {
     }
 
     @Test
-    public void test6(){
-        DistributionParticipants participants = new DistributionParticipants();
-        participants.consumers = Arrays.stream(
-                new int[]{1000,1000,1000,1050,1070,1130,1110,1170,1120,1050,1150,1150})
-                .mapToObj(Consumer::new).toArray(Consumer[]::new);
-
-        participants.suppliers = Arrays.stream(
-                new int[]{1400,1500,1100,1000,1000,1000,1000,1000,1000,1000,1000,1000})
-                .mapToObj(Supplier::new).toArray(Supplier[]::new);
-
+    public void testHard12x12(){
+        DistributionParticipants participants = new DistributionParticipants(
+                Arrays.stream(
+                        new int[]{1000,1000,1000,1050,1070,1130,1110,1170,1120,1050,1150,1150})
+                        .mapToObj(Consumer::new).toArray(Consumer[]::new),
+                Arrays.stream(
+                        new int[]{1400,1500,1100,1000,1000,1000,1000,1000,1000,1000,1000,1000})
+                        .mapToObj(Supplier::new).toArray(Supplier[]::new)
+        );
         double[][] costMatrix = new double[][]{
                 {0,5,6,2,7,8,5,2,2,1,8,6},
                 {5,0,5,3,2,2,2,4,2,7,8,5},
@@ -276,7 +271,7 @@ class ProductDistributorTest {
             return false;
         for (int i = 0; i < p1.height; i++) {
             for (int j = 0; j < p1.width; j++) {
-                if(p1.getCell(i,j).fullness != p2.getCell(i,j).fullness)
+                if(p1.getCell(i,j).getFullness() != p2.getCell(i,j).getFullness())
                     return false;
             }
         }

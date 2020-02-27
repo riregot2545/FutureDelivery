@@ -1,10 +1,15 @@
 package com.nix.futuredelivery.distribution;
 
-import java.util.Arrays;
+import com.nix.futuredelivery.distribution.tsolver.MinElementPlanSolver;
+import com.nix.futuredelivery.distribution.tsolver.PotentialPlanSolver;
+import com.nix.futuredelivery.distribution.tsolver.model.DistributionCell;
+import com.nix.futuredelivery.distribution.tsolver.model.DistributionParticipants;
+import com.nix.futuredelivery.distribution.tsolver.model.DistributionPlan;
+import com.nix.futuredelivery.distribution.tsolver.model.MatrixPosition;
 
 public class ProductDistributor {
-    DistributionCell[][] distributionCells;
-    DistributionParticipants distributionParticipants;
+    private final DistributionCell[][] distributionCells;
+    private final DistributionParticipants distributionParticipants;
 
 
     public DistributionPlan distribute() {
@@ -22,18 +27,12 @@ public class ProductDistributor {
     }
 
     public ProductDistributor(double[][] costArray, DistributionParticipants distributionParticipants) {
-        this.distributionCells = Arrays.stream(costArray)
-                .map(i -> Arrays.stream(i)
-                        .mapToObj(DistributionCell::new)
-                        .toArray(DistributionCell[]::new))
-                .toArray(DistributionCell[][]::new);
+        this.distributionCells = new DistributionCell[distributionParticipants.suppliersCount()][distributionParticipants.consumersCount()];
         for (int i = 0; i < distributionParticipants.suppliersCount(); i++) {
             for (int j = 0; j < distributionParticipants.consumersCount(); j++) {
-                distributionCells[i][j].x = i;
-                distributionCells[i][j].y = j;
+                distributionCells[i][j] = new DistributionCell(new MatrixPosition(i,j),costArray[i][j]);
             }
         }
-
         this.distributionParticipants = distributionParticipants;
     }
 
