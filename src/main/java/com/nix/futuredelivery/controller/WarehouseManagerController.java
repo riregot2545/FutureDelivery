@@ -2,6 +2,7 @@ package com.nix.futuredelivery.controller;
 
 import com.nix.futuredelivery.entity.Warehouse;
 import com.nix.futuredelivery.entity.WarehouseManager;
+import com.nix.futuredelivery.entity.value.WarehouseProductLine;
 import com.nix.futuredelivery.repository.projections.WarehouseProductLinesOnly;
 import com.nix.futuredelivery.service.WarehouseManagerService;
 import lombok.Data;
@@ -10,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @Data
 @RestController
@@ -34,6 +36,11 @@ public class WarehouseManagerController {
     @PostMapping("registrate_warehouse")
     public void registrateWarehouse(@RequestBody Warehouse warehouse){
         warehouseManagerService.saveWarehouse(warehouse);
+    }
+
+    @PostMapping("/add_product_line")
+    public void addProductLine(@RequestBody List<WarehouseProductLine> productLines, Authentication authentication){
+        warehouseManagerService.saveProductLines(productLines, authentication.getName());
     }
 
     @PreAuthorize("hasAuthority('WAREHOUSE_MANAGER')")
