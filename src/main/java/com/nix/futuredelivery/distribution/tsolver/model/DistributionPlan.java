@@ -1,8 +1,12 @@
 package com.nix.futuredelivery.distribution.tsolver.model;
 
+import lombok.Getter;
+
 public class DistributionPlan {
-    public int height;
-    public int width;
+    @Getter
+    private int height;
+    @Getter
+    private int width;
 
     private DistributionCell[][] plan;
 
@@ -48,10 +52,10 @@ public class DistributionPlan {
     }
 
     public void clearEmptyFullness(){
-        for (int i = 0; i < plan.length; i++) {
+        for (DistributionCell[] distributionCells : plan) {
             for (int j = 0; j < plan[0].length; j++) {
-                if(plan[i][j].getFullness() == DistributionCell.EMPTY_FULLNESS_PLACEHOLDER)
-                    plan[i][j].setFullness(0);
+                if (distributionCells[j].getFullness() == DistributionCell.EMPTY_FULLNESS_PLACEHOLDER)
+                    distributionCells[j].setFullness(0);
             }
         }
     }

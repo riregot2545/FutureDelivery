@@ -48,9 +48,7 @@ public class CycleMover {
         else if(firstWay.isPresent() && secondWay.isPresent() && firstWay.get().size() > secondWay.get().size())
             firstWay = secondWay;
 
-        firstWay.ifPresent(way-> {
-            moveProductsUsingCycle(way, cell);
-        });
+        firstWay.ifPresent(way-> moveProductsUsingCycle(way, cell));
 
         return potentialPlan;
     }
@@ -64,7 +62,7 @@ public class CycleMover {
             return Optional.of(used);
         if (isRow) {
             for (int i = 0; i < participants.consumersCount(); i++) {
-                if (!potentialPlan.getCell(position.getX(), i).isFullnessEmpty()
+                if (!potentialPlan.getCell(position.getX(), i).isFullnessNull()
                         && potentialPlan.getCell(position.getX(), i) != position) {
                     if (used.size() > 3 && used.get(0) == potentialPlan.getCell(position.getX(), i)) {
                         used.add(potentialPlan.getCell(position.getX(), i));
@@ -86,7 +84,7 @@ public class CycleMover {
             }
         } else {
             for (int i = 0; i < participants.suppliersCount(); i++) {
-                if (!potentialPlan.getCell(i, position.getY()).isFullnessEmpty()
+                if (!potentialPlan.getCell(i, position.getY()).isFullnessNull()
                         && potentialPlan.getCell(i, position.getY()) != position) {
                     if (used.size() > 3 && potentialPlan.getCell(i, position.getY()) == used.get(0)) {
                         used.add(potentialPlan.getCell(i, position.getY()));
@@ -154,8 +152,8 @@ public class CycleMover {
 
     private int checkRowOnFilling(int row) {
         int count = 0;
-        for (int i = 0; i < potentialPlan.width; i++) {
-            if (!potentialPlan.getCell(row, i).isFullnessEmpty()) {
+        for (int i = 0; i < potentialPlan.getWidth(); i++) {
+            if (!potentialPlan.getCell(row, i).isFullnessNull()) {
                 count++;
             }
         }
@@ -164,8 +162,8 @@ public class CycleMover {
 
     private int checkColumnOnFilling(int column) {
         int count = 0;
-        for (int i = 0; i < potentialPlan.height; i++) {
-            if (!potentialPlan.getCell(i, column).isFullnessEmpty())
+        for (int i = 0; i < potentialPlan.getHeight(); i++) {
+            if (!potentialPlan.getCell(i, column).isFullnessNull())
                 count++;
         }
         return count;
@@ -175,7 +173,7 @@ public class CycleMover {
         List<DistributionCell> resultList = new ArrayList<>();
         for (int i = 0; i < participants.suppliersCount(); i++) {
             for (int j = 0; j < participants.consumersCount(); j++) {
-                if (potentialPlan.getCell(i, j) != minForbiddenCell && potentialPlan.getCell(i, j).isFullnessEmpty())
+                if (potentialPlan.getCell(i, j) != minForbiddenCell && potentialPlan.getCell(i, j).isFullnessNull())
                     resultList.add(potentialPlan.getCell(i, j));
             }
         }

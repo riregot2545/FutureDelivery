@@ -26,8 +26,12 @@ public class DistributionCell {
         return fullness == EMPTY_FULLNESS_PLACEHOLDER ? 0 : tariffCost * fullness;
     }
 
-    public boolean isFullnessEmpty(){
+    public boolean isFullnessNull(){
         return fullness == EMPTY_FULLNESS_PLACEHOLDER;
+    }
+
+    public boolean isFullnessEmpty(){
+        return fullness == 0;
     }
     public void setFullnessEmpty(){
         fullness = EMPTY_FULLNESS_PLACEHOLDER;
