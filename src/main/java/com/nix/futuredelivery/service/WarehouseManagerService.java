@@ -1,6 +1,7 @@
 package com.nix.futuredelivery.service;
 
 import com.nix.futuredelivery.entity.Product;
+import com.nix.futuredelivery.entity.Warehouse;
 import com.nix.futuredelivery.entity.WarehouseManager;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
 import com.nix.futuredelivery.repository.ProductRepository;
@@ -25,6 +26,12 @@ public class WarehouseManagerService {
         return warehouseRepository.findProductLinesByWarehouseManager(manager);
     }
     public void saveWarehouseManager(WarehouseManager manager){
+        String password = manager.getPassword();
+        manager.setPassword("{noop}"+password);
         warehouseManagerRepository.save(manager);
+    }
+
+    public void saveWarehouse(Warehouse warehouse){
+        warehouseRepository.save(warehouse);
     }
 }

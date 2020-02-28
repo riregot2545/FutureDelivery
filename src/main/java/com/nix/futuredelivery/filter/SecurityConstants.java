@@ -1,7 +1,7 @@
 package com.nix.futuredelivery.filter;
 
 public final class SecurityConstants {
-    public static final String AUTH_LOGIN_URL = "/api/authenticate";
+    public static final String AUTH_LOGIN_URL = "/authorize";
 
     // Signing key for HS512 algorithm
     // You can use the page http://www.allkeysgenerator.com/ to generate all kinds of keys

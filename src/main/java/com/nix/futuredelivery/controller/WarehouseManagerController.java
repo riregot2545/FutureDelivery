@@ -5,6 +5,7 @@ import com.nix.futuredelivery.entity.WarehouseManager;
 import com.nix.futuredelivery.repository.projections.WarehouseProductLinesOnly;
 import com.nix.futuredelivery.service.WarehouseManagerService;
 import lombok.Data;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,19 +20,29 @@ public class WarehouseManagerController {
     public WarehouseManagerController(WarehouseManagerService warehouseManagerService) {
         this.warehouseManagerService = warehouseManagerService;
     }
+
     @GetMapping("/get_product_line")
-    public WarehouseProductLinesOnly getProductLine(WarehouseManager manager){
+    public WarehouseProductLinesOnly getProductLine(WarehouseManager manager) {
         return warehouseManagerService.getProductLines(manager);
     }
 
     @PostMapping("/registration")
-    public void registr(@RequestBody WarehouseManager warehouseManager) {
+    public void registrateWarehouseManager(@RequestBody WarehouseManager warehouseManager) {
         warehouseManagerService.saveWarehouseManager(warehouseManager);
     }
 
+    @PostMapping("registrate_warehouse")
+    public void registrateWarehouse(@RequestBody Warehouse warehouse){
+        warehouseManagerService.saveWarehouse(warehouse);
+    }
+
+    @PreAuthorize("hasAuthority('WAREHOUSE_MANAGER')")
     @GetMapping("/private")
     public String getMessage(Authentication authentication) {
-        System.out.println(authentication.toString());
-        return "Hello from private API controller";
+        if (authentication.getAuthorities().contains("WAREHOUSE_MANAGER")) {
+            System.out.println(authentication.toString());
+            return "Hello from private API controller";
+        }
+        else return "can;t";
     }
 }
