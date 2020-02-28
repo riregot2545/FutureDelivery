@@ -24,6 +24,5 @@ public abstract class SystemUser {
     protected String login;
     protected String password;
 
-    @Convert(converter = EmailConverter.class)
-    protected EmailAddress email;
+    protected String email;
 }

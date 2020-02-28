@@ -14,7 +14,7 @@ import javax.persistence.MapsId;
 @NoArgsConstructor
 @AllArgsConstructor
 @MappedSuperclass
-public class AbstractProductLine {
+public abstract class AbstractProductLine {
     @EmbeddedId
     private ProductLineId id;
 
