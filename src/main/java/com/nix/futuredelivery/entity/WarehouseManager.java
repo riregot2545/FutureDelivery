@@ -13,4 +13,9 @@ import javax.persistence.*;
 public class WarehouseManager extends SystemUser{
     @OneToOne
     private Warehouse warehouse;
+
+    public WarehouseManager(Long id, String firstName, String lastName, String login, String password, String email, Warehouse warehouse) {
+        super(id, firstName, lastName, login, password, email);
+        this.warehouse = warehouse;
+    }
 }

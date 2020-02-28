@@ -5,21 +5,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.EmbeddedId;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.MapsId;
+import javax.persistence.*;
+import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @MappedSuperclass
-public abstract class AbstractProductLine {
-    @EmbeddedId
-    private ProductLineId id;
-
+public abstract class AbstractProductLine implements Serializable {
     @ManyToOne
-    @MapsId("productId")
+    @Id
     private Product product;
 
     private int quantity;
