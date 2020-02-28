@@ -18,7 +18,7 @@ public class Waybill {
     private Long id;
 
     @ManyToOne
-    private Store store;
+    private StoreOrder storeOrder;
 
     @OneToMany(
             mappedBy = "waybill",

@@ -5,9 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
+import javax.persistence.*;
 import java.io.Serializable;
 
 
@@ -15,8 +13,9 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@IdClass(WarehouseProductLineId.class)
 public class WarehouseProductLine extends AbstractProductLine implements Serializable {
     @ManyToOne
-    @MapsId("documentId")
+    @Id
     private Warehouse warehouse;
 }

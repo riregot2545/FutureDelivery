@@ -17,4 +17,8 @@ public class Driver extends SystemUser{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    public Driver(Long id, String firstName, String lastName, String login, String password, String email) {
+        super(id, firstName, lastName, login, password, email);
+    }
 }
