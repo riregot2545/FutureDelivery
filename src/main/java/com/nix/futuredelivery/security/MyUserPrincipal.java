@@ -22,6 +22,8 @@ public class MyUserPrincipal implements UserDetails {
         return systemUser.getAuthorities();
     }
 
+    public Long getId(){return systemUser.getId();}
+
     @Override
     public String getPassword() {
         return systemUser.getPassword();

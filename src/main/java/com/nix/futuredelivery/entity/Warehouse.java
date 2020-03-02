@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 public class Warehouse extends AbstractStation{
-    @OneToOne(mappedBy = "warehouse")
+    @OneToOne(mappedBy = "warehouse", fetch = FetchType.LAZY)
     private WarehouseManager warehouseManager;
 
     @OneToMany(

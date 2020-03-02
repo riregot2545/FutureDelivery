@@ -18,8 +18,8 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 public class WarehouseManager extends SystemUser{
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "warehouse_id", referencedColumnName = "id")
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "warehouse_id")
     private Warehouse warehouse;
 
     @Override

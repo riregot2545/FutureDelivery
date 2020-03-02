@@ -24,19 +24,24 @@ public class WarehouseManagerService {
         this.productRepository = productRepository;
         this.warehouseRepository = warehouseRepository;
     }
+    @Transactional
     public WarehouseProductLinesOnly getProductLines(WarehouseManager manager){
         return warehouseRepository.findProductLinesByWarehouseManager(manager);
     }
+    @Transactional
     public void saveWarehouseManager(WarehouseManager manager){
         String password = manager.getPassword();
         manager.setPassword("{noop}"+password);
         warehouseManagerRepository.save(manager);
     }
-
     @Transactional
-    public void saveProductLines(List<WarehouseProductLine> lines, String username){
-        Optional<WarehouseManager> manager = Optional.ofNullable(warehouseManagerRepository.findByLogin(username));
-        manager.ifPresent(man->warehouseRepository.findByWarehouseManager(man).setProductLines(lines));
+    public WarehouseManager getManagerById(Long id){
+        return warehouseManagerRepository.findById(id).orElseThrow(()->new IllegalStateException("no"));
+    }
+    @Transactional
+    public void saveProductLines(List<WarehouseProductLine> lines, Long id){
+        Warehouse warehouse = warehouseRepository.findByWarehouseManager(warehouseManagerRepository.findById(id).orElseThrow(()->new IllegalStateException("no"))).orElseThrow(()->new IllegalStateException("no"));;
+        warehouse.getProductLines().addAll(lines);
     }
 
     public void saveWarehouse(Warehouse warehouse){
