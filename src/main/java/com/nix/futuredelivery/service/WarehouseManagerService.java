@@ -7,12 +7,11 @@ import com.nix.futuredelivery.entity.value.WarehouseProductLine;
 import com.nix.futuredelivery.repository.ProductRepository;
 import com.nix.futuredelivery.repository.WarehouseManagerRepository;
 import com.nix.futuredelivery.repository.WarehouseRepository;
-import com.nix.futuredelivery.repository.projections.WarehouseProductLinesOnly;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class WarehouseManagerService {
@@ -25,8 +24,10 @@ public class WarehouseManagerService {
         this.warehouseRepository = warehouseRepository;
     }
     @Transactional
-    public WarehouseProductLinesOnly getProductLines(WarehouseManager manager){
-        return warehouseRepository.findProductLinesByWarehouseManager(manager);
+    public List<WarehouseProductLine> getProductLines(Long id){
+        WarehouseManager manager = warehouseManagerRepository.findById(id).orElseThrow(()->new IllegalStateException("no"));;
+        Warehouse warehouse = manager.getWarehouse();
+        return warehouse.getProductLines();
     }
     @Transactional
     public void saveWarehouseManager(WarehouseManager manager){
@@ -40,12 +41,19 @@ public class WarehouseManagerService {
     }
 
     @Transactional
-    public void saveProductLines(List<WarehouseProductLine> lines, Long id){
+    public void saveProductLines(List<Product> lines, Long id){
         WarehouseManager manager = warehouseManagerRepository.findById(id).orElseThrow(()->new IllegalArgumentException("no"));
 
         Warehouse warehouse = manager.getWarehouse();
-        //Warehouse warehouse = warehouseRepository.findByWarehouseManager(manager).orElseThrow(()->new IllegalArgumentException("no"));;
-        warehouse.getProductLines().addAll(lines);
+        List<WarehouseProductLine> productLines = new ArrayList<>();
+
+        for(int i = 0; productLines.size()!= lines.size(); i++){
+            Product p = productRepository.findById(lines.get(i).getId()).orElseThrow(()->new IllegalArgumentException("no"));
+            WarehouseProductLine productLine = new WarehouseProductLine(warehouse);
+            productLine.setProduct(p);
+            productLines.add(productLine);
+        }
+        warehouse.getProductLines().addAll(productLines);
     }
 
     public void saveWarehouse(Warehouse warehouse){

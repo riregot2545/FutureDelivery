@@ -1,5 +1,6 @@
 package com.nix.futuredelivery.controller;
 
+import com.nix.futuredelivery.entity.Product;
 import com.nix.futuredelivery.entity.SystemUser;
 import com.nix.futuredelivery.entity.Warehouse;
 import com.nix.futuredelivery.entity.WarehouseManager;
@@ -18,7 +19,7 @@ import java.util.List;
 
 @Data
 @RestController
-@PreAuthorize("hasAuthority('WAREHOUSE_MANAGER')")
+//@PreAuthorize("hasAuthority('WAREHOUSE_MANAGER')")
 @RequestMapping("/warehouse_manager")
 public class WarehouseManagerController {
     private WarehouseManagerService warehouseManagerService;
@@ -28,8 +29,9 @@ public class WarehouseManagerController {
     }
 
     @GetMapping("/get_product_line")
-    public WarehouseProductLinesOnly getProductLine(WarehouseManager manager) {
-        return warehouseManagerService.getProductLines(manager);
+    public List<WarehouseProductLine> getProductLine(Authentication authentication) {
+        SystemUser user = (SystemUser) authentication.getPrincipal();
+        return warehouseManagerService.getProductLines(user.getId());
     }
 
     @PostMapping("/registration")
@@ -43,10 +45,8 @@ public class WarehouseManagerController {
     }
 
     @PostMapping("/add_product_lines")
-    public void addProductLine(@RequestBody List<WarehouseProductLine> productLines, Authentication authentication){
-
+    public void addProductLine(@RequestBody List<Product> productLines, Authentication authentication){
         SystemUser user = (SystemUser) authentication.getPrincipal();
-        WarehouseManager manager = warehouseManagerService.getManagerById(user.getId());
         warehouseManagerService.saveProductLines(productLines, user.getId());
     }
 

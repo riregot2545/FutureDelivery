@@ -1,5 +1,6 @@
 package com.nix.futuredelivery.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,8 +24,8 @@ public class Warehouse extends AbstractStation{
     @OneToMany(
             mappedBy = "warehouse",
             cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<WarehouseProductLine> productLines = new ArrayList<>();
-    private List<WarehouseProductLine> productLines;
 
     public Warehouse(Long id, Address address, String name, WarehouseManager warehouseManager) {
         super(id, address, name);
