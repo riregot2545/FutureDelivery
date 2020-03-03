@@ -18,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 public class WarehouseManager extends SystemUser{
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "warehouse_id")
     private Warehouse warehouse;
 

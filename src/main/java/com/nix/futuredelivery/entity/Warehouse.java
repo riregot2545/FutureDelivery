@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -16,12 +17,12 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 public class Warehouse extends AbstractStation{
-    @OneToOne(mappedBy = "warehouse", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "warehouse", cascade = CascadeType.ALL)
     private WarehouseManager warehouseManager;
 
     @OneToMany(
             mappedBy = "warehouse",
             cascade = CascadeType.ALL)
-    private List<WarehouseProductLine> productLines;
+    private List<WarehouseProductLine> productLines = new ArrayList<>();
 }
 

@@ -5,10 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.EmbeddedId;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.MapsId;
+import javax.persistence.*;
 
 @Data
 @NoArgsConstructor
@@ -18,7 +15,7 @@ public abstract class AbstractProductLine {
     @EmbeddedId
     private ProductLineId id;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @MapsId("productId")
     private Product product;
 

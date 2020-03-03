@@ -18,7 +18,7 @@ import java.util.Optional;
 public class WarehouseManagerService {
     private WarehouseManagerRepository warehouseManagerRepository;
     private ProductRepository productRepository;
-    private WarehouseRepository warehouseRepository;
+    private WarehouseRepository  warehouseRepository;
     public WarehouseManagerService(WarehouseManagerRepository warehouseManagerRepository, ProductRepository productRepository, WarehouseRepository warehouseRepository){
         this.warehouseManagerRepository = warehouseManagerRepository;
         this.productRepository = productRepository;
@@ -38,9 +38,13 @@ public class WarehouseManagerService {
     public WarehouseManager getManagerById(Long id){
         return warehouseManagerRepository.findById(id).orElseThrow(()->new IllegalStateException("no"));
     }
+
     @Transactional
     public void saveProductLines(List<WarehouseProductLine> lines, Long id){
-        Warehouse warehouse = warehouseRepository.findByWarehouseManager(warehouseManagerRepository.findById(id).orElseThrow(()->new IllegalStateException("no"))).orElseThrow(()->new IllegalStateException("no"));;
+        WarehouseManager manager = warehouseManagerRepository.findById(id).orElseThrow(()->new IllegalArgumentException("no"));
+
+        Warehouse warehouse = manager.getWarehouse();
+        //Warehouse warehouse = warehouseRepository.findByWarehouseManager(manager).orElseThrow(()->new IllegalArgumentException("no"));;
         warehouse.getProductLines().addAll(lines);
     }
 
