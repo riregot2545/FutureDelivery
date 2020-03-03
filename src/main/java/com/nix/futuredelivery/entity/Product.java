@@ -26,4 +26,5 @@ public class Product {
 
     @Embedded
     private Volume volume;
+
 }

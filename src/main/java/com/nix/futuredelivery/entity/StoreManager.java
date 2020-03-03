@@ -14,4 +14,9 @@ import javax.persistence.*;
 public class StoreManager extends SystemUser{
     @OneToOne
     private Store store;
+
+    public StoreManager(Long id, String firstName, String lastName, String login, String password, String email, Store store) {
+        super(id, firstName, lastName, login, password, email);
+        this.store = store;
+    }
 }

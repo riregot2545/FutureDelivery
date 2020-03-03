@@ -27,4 +27,14 @@ public class StoreOrder {
             cascade = CascadeType.ALL
     )
     private List<OrderProductLine> productLines;
+
+    private boolean isClosed;
+    private boolean isDistributed;
+
+    public StoreOrder(Store store, boolean isClosed, boolean isDistributed) {
+        this.store = store;
+        this.isClosed = isClosed;
+        this.isDistributed = isDistributed;
+        this.creationDate = LocalDateTime.now();
+    }
 }
