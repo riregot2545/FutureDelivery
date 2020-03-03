@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface DistanceRepository extends JpaRepository<Distance,Long> {
-    Optional<Distance> findOneByAddressFrom(Address addressFrom);
+    Optional<Distance> findOneByAddressFromAndAddressTo(Address addressFrom,Address addressTo);
 }

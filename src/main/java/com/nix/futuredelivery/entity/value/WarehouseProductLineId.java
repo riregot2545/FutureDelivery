@@ -5,14 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Embeddable
-public class ProductLineId implements Serializable {
-    private Long documentId;
-    private Long productId;
+public class WarehouseProductLineId implements Serializable {
+    private Long warehouse;
+    private Long product;
 }

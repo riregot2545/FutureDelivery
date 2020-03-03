@@ -24,5 +24,11 @@ public class Warehouse extends AbstractStation{
             mappedBy = "warehouse",
             cascade = CascadeType.ALL)
     private List<WarehouseProductLine> productLines = new ArrayList<>();
+    private List<WarehouseProductLine> productLines;
+
+    public Warehouse(Long id, Address address, String name, WarehouseManager warehouseManager) {
+        super(id, address, name);
+        this.warehouseManager = warehouseManager;
+    }
 }
 

@@ -10,8 +10,7 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Embeddable
 public class DistanceId implements Serializable {
-    private Long fromId;
-    private Long toId;
+    private Long addressFrom;
+    private Long addressTo;
 }

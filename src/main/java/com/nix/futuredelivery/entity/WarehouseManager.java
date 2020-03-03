@@ -22,6 +22,11 @@ public class WarehouseManager extends SystemUser{
     @JoinColumn(name = "warehouse_id")
     private Warehouse warehouse;
 
+    public WarehouseManager(Long id, String firstName, String lastName, String login, String password, String email, Warehouse warehouse) {
+        super(id, firstName, lastName, login, password, email);
+        this.warehouse = warehouse;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities(){
         List<GrantedAuthority> authorities

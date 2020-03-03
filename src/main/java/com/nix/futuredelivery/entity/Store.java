@@ -12,6 +12,6 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 public class Store extends AbstractStation {
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private StoreManager storeManager;
 }

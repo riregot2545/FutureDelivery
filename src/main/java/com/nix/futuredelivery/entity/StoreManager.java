@@ -20,6 +20,11 @@ public class StoreManager extends SystemUser{
     @OneToOne
     private Store store;
 
+    public StoreManager(Long id, String firstName, String lastName, String login, String password, String email, Store store) {
+        super(id, firstName, lastName, login, password, email);
+        this.store = store;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities(){
         List<GrantedAuthority> authorities
