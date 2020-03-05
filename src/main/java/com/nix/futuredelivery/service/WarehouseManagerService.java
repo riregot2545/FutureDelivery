@@ -16,47 +16,53 @@ import java.util.List;
 @Service
 public class WarehouseManagerService {
     private WarehouseManagerRepository warehouseManagerRepository;
-    private ProductRepository productRepository;
-    private WarehouseRepository  warehouseRepository;
-    public WarehouseManagerService(WarehouseManagerRepository warehouseManagerRepository, ProductRepository productRepository, WarehouseRepository warehouseRepository){
+
+    private WarehouseRepository warehouseRepository;
+    private ProductService productService;
+
+    public WarehouseManagerService(WarehouseManagerRepository warehouseManagerRepository, WarehouseRepository warehouseRepository, ProductService productService) {
         this.warehouseManagerRepository = warehouseManagerRepository;
-        this.productRepository = productRepository;
         this.warehouseRepository = warehouseRepository;
+        this.productService = productService;
     }
+
     @Transactional
-    public List<WarehouseProductLine> getProductLines(Long id){
-        WarehouseManager manager = warehouseManagerRepository.findById(id).orElseThrow(()->new IllegalStateException("no"));;
+    public List<WarehouseProductLine> getProductLines(Long id) {
+        WarehouseManager manager = warehouseManagerRepository.findById(id).orElseThrow(() -> new IllegalStateException("no"));
         Warehouse warehouse = manager.getWarehouse();
         return warehouse.getProductLines();
     }
+
     @Transactional
-    public void saveWarehouseManager(WarehouseManager manager){
+    public void saveWarehouseManager(WarehouseManager manager) {
         String password = manager.getPassword();
-        manager.setPassword("{noop}"+password);
+        manager.setPassword("{noop}" + password);
         warehouseManagerRepository.save(manager);
     }
+
     @Transactional
-    public WarehouseManager getManagerById(Long id){
-        return warehouseManagerRepository.findById(id).orElseThrow(()->new IllegalStateException("no"));
+    public boolean hasWarehouse(Long id) {
+        WarehouseManager manager = warehouseManagerRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Manager with id " + id + " does not exist"));
+        return manager.getWarehouse() != null;
     }
 
-    @Transactional
-    public void saveProductLines(List<Product> lines, Long id){
-        WarehouseManager manager = warehouseManagerRepository.findById(id).orElseThrow(()->new IllegalArgumentException("no"));
 
+    @Transactional
+    public void saveProductLines(List<Product> lines, Long id) {
+        WarehouseManager manager = warehouseManagerRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Manager with id " + id + " does not exist"));
         Warehouse warehouse = manager.getWarehouse();
-        List<WarehouseProductLine> productLines = new ArrayList<>();
-
-        for(int i = 0; productLines.size()!= lines.size(); i++){
-            Product p = productRepository.findById(lines.get(i).getId()).orElseThrow(()->new IllegalArgumentException("no"));
-            WarehouseProductLine productLine = new WarehouseProductLine(warehouse);
-            productLine.setProduct(p);
-            productLines.add(productLine);
-        }
-        warehouse.getProductLines().addAll(productLines);
+        productService.addProductsToWarehouse(lines, warehouse);
     }
 
-    public void saveWarehouse(Warehouse warehouse){
+    @Transactional
+    public void editProductLines(List<WarehouseProductLine> lines, Long id) {
+        WarehouseManager manager = warehouseManagerRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Manager with id " + id + " does not exist"));
+        Warehouse warehouse = manager.getWarehouse();
+        productService.editProductsOfWarehouse(lines, warehouse);
+    }
+
+    @Transactional
+    public void saveWarehouse(Warehouse warehouse) {
         warehouseRepository.save(warehouse);
     }
 }

@@ -3,18 +3,12 @@ package com.nix.futuredelivery.controller;
 import com.nix.futuredelivery.entity.Product;
 import com.nix.futuredelivery.entity.SystemUser;
 import com.nix.futuredelivery.entity.Warehouse;
-import com.nix.futuredelivery.entity.WarehouseManager;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
-import com.nix.futuredelivery.repository.projections.WarehouseProductLinesOnly;
-import com.nix.futuredelivery.security.MyUserPrincipal;
 import com.nix.futuredelivery.service.WarehouseManagerService;
 import lombok.Data;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Data
@@ -28,7 +22,7 @@ public class WarehouseManagerController {
         this.warehouseManagerService = warehouseManagerService;
     }
 
-    @GetMapping("/get_product_line")
+    @GetMapping("/get_product_lines")
     public List<WarehouseProductLine> getProductLine(Authentication authentication) {
         SystemUser user = (SystemUser) authentication.getPrincipal();
         return warehouseManagerService.getProductLines(user.getId());
@@ -42,11 +36,15 @@ public class WarehouseManagerController {
     @PostMapping("/add_product_lines")
     public void addProductLine(@RequestBody List<Product> productLines, Authentication authentication){
         SystemUser user = (SystemUser) authentication.getPrincipal();
+        if(!warehouseManagerService.hasWarehouse(user.getId())) throw new IllegalArgumentException("Managet with id "+user.getId()+" has no registered warehouse");
         warehouseManagerService.saveProductLines(productLines, user.getId());
     }
 
-    @GetMapping("/private")
-    public String getMessage(Authentication authentication) {
-        return "yyyes";
+    @PostMapping("/edit_product_lines")
+    public void editProductLine(@RequestBody List<WarehouseProductLine> productLines, Authentication authentication){
+        SystemUser user = (SystemUser) authentication.getPrincipal();
+        if(!warehouseManagerService.hasWarehouse(user.getId())) throw new IllegalArgumentException("Managet with id "+user.getId()+" has no registered warehouse");
+        warehouseManagerService.editProductLines(productLines, user.getId());
     }
+
 }
