@@ -19,7 +19,7 @@ import java.util.List;
 
 @Data
 @RestController
-//@PreAuthorize("hasAuthority('WAREHOUSE_MANAGER')")
+@PreAuthorize("hasAuthority('WAREHOUSE_MANAGER')")
 @RequestMapping("/warehouse_manager")
 public class WarehouseManagerController {
     private WarehouseManagerService warehouseManagerService;
@@ -34,11 +34,6 @@ public class WarehouseManagerController {
         return warehouseManagerService.getProductLines(user.getId());
     }
 
-    @PostMapping("/registration")
-    public void registrateWarehouseManager(@RequestBody WarehouseManager warehouseManager) {
-        warehouseManagerService.saveWarehouseManager(warehouseManager);
-    }
-
     @PostMapping("registrate_warehouse")
     public void registrateWarehouse(@RequestBody Warehouse warehouse){
         warehouseManagerService.saveWarehouse(warehouse);
@@ -49,7 +44,6 @@ public class WarehouseManagerController {
         SystemUser user = (SystemUser) authentication.getPrincipal();
         warehouseManagerService.saveProductLines(productLines, user.getId());
     }
-
 
     @GetMapping("/private")
     public String getMessage(Authentication authentication) {
