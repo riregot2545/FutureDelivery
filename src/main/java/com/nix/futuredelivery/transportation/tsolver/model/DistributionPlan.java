@@ -1,4 +1,4 @@
-package com.nix.futuredelivery.distribution.tsolver.model;
+package com.nix.futuredelivery.transportation.tsolver.model;
 
 import lombok.Getter;
 

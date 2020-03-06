@@ -1,11 +1,16 @@
 package com.nix.futuredelivery.distribution;
 
-import com.nix.futuredelivery.distribution.tsolver.model.*;
+import com.nix.futuredelivery.transportation.ProductDistributor;
+import com.nix.futuredelivery.transportation.tsolver.model.Consumer;
+import com.nix.futuredelivery.transportation.tsolver.model.DistributionParticipants;
+import com.nix.futuredelivery.transportation.tsolver.model.DistributionPlan;
+import com.nix.futuredelivery.transportation.tsolver.model.Supplier;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ProductDistributorTest {
 

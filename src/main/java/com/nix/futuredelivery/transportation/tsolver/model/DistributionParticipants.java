@@ -1,15 +1,13 @@
-package com.nix.futuredelivery.distribution.tsolver.model;
+package com.nix.futuredelivery.transportation.tsolver.model;
 
 import com.nix.futuredelivery.entity.Address;
 import com.nix.futuredelivery.entity.Store;
 import com.nix.futuredelivery.entity.Warehouse;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 public class DistributionParticipants {

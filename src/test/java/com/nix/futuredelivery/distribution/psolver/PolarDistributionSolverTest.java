@@ -1,11 +1,12 @@
 package com.nix.futuredelivery.distribution.psolver;
 
-import com.nix.futuredelivery.distribution.DistributionEntry;
 import com.nix.futuredelivery.entity.*;
 import com.nix.futuredelivery.entity.value.Capacity;
 import com.nix.futuredelivery.entity.value.Location;
 import com.nix.futuredelivery.entity.value.OrderProductLine;
 import com.nix.futuredelivery.entity.value.Volume;
+import com.nix.futuredelivery.transportation.model.DistributionEntry;
+import com.nix.futuredelivery.transportation.psolver.PolarDistributionSolver;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -73,9 +74,7 @@ class PolarDistributionSolverTest {
 
 
             fakeEntries.add(new DistributionEntry(
-                    store,
-                    warehouse,
-                    product,
+                    new DistributionEntry.DistributionKey(store, product, warehouse),
                     orderProductLines
             ));
 
@@ -152,12 +151,9 @@ class PolarDistributionSolverTest {
 
 
             fakeEntries.add(new DistributionEntry(
-                    store,
-                    warehouse,
-                    product,
+                    new DistributionEntry.DistributionKey(store, product, warehouse),
                     orderProductLines
             ));
-
         }
 
 
@@ -228,11 +224,8 @@ class PolarDistributionSolverTest {
                 ));
             }
 
-
             fakeEntries.add(new DistributionEntry(
-                    store,
-                    warehouse,
-                    product,
+                    new DistributionEntry.DistributionKey(store, product, warehouse),
                     orderProductLines
             ));
 

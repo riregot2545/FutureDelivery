@@ -1,4 +1,4 @@
-package com.nix.futuredelivery.distribution.psolver.model;
+package com.nix.futuredelivery.transportation.psolver.model;
 
 import com.nix.futuredelivery.entity.Car;
 import com.nix.futuredelivery.entity.value.Capacity;

@@ -1,9 +1,9 @@
-package com.nix.futuredelivery.distribution.tsolver;
+package com.nix.futuredelivery.transportation.tsolver;
 
-import com.nix.futuredelivery.distribution.tsolver.model.DistributionCell;
-import com.nix.futuredelivery.distribution.tsolver.model.DistributionParticipants;
-import com.nix.futuredelivery.distribution.tsolver.model.DistributionPlan;
-import com.nix.futuredelivery.distribution.tsolver.model.PotentialArray;
+import com.nix.futuredelivery.transportation.tsolver.model.DistributionCell;
+import com.nix.futuredelivery.transportation.tsolver.model.DistributionParticipants;
+import com.nix.futuredelivery.transportation.tsolver.model.DistributionPlan;
+import com.nix.futuredelivery.transportation.tsolver.model.PotentialArray;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

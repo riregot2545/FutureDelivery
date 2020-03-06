@@ -1,8 +1,9 @@
-package com.nix.futuredelivery.distribution.psolver.model;
+package com.nix.futuredelivery.transportation.psolver.model;
 
 import com.nix.futuredelivery.entity.Store;
 import com.nix.futuredelivery.entity.Warehouse;
 import com.nix.futuredelivery.entity.value.Volume;
+import com.nix.futuredelivery.transportation.model.AssignOrderLine;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

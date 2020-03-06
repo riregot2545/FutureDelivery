@@ -1,25 +1,15 @@
-package com.nix.futuredelivery.distribution;
+package com.nix.futuredelivery.transportation;
 
-import com.nix.futuredelivery.distribution.tsolver.MinElementPlanSolver;
-import com.nix.futuredelivery.distribution.tsolver.PotentialPlanSolver;
-import com.nix.futuredelivery.distribution.tsolver.model.DistributionCell;
-import com.nix.futuredelivery.distribution.tsolver.model.DistributionParticipants;
-import com.nix.futuredelivery.distribution.tsolver.model.DistributionPlan;
-import com.nix.futuredelivery.distribution.tsolver.model.MatrixPosition;
+import com.nix.futuredelivery.transportation.tsolver.MinElementPlanSolver;
+import com.nix.futuredelivery.transportation.tsolver.PotentialPlanSolver;
+import com.nix.futuredelivery.transportation.tsolver.model.DistributionCell;
+import com.nix.futuredelivery.transportation.tsolver.model.DistributionParticipants;
+import com.nix.futuredelivery.transportation.tsolver.model.DistributionPlan;
+import com.nix.futuredelivery.transportation.tsolver.model.MatrixPosition;
 
 public class ProductDistributor {
     private final DistributionCell[][] distributionCells;
     private final DistributionParticipants distributionParticipants;
-
-
-    public DistributionPlan distribute() {
-        MinElementPlanSolver minElementPlanSolver = new MinElementPlanSolver(distributionCells, distributionParticipants);
-        DistributionPlan firstDistributionPlan = minElementPlanSolver.findPlan();
-        PotentialPlanSolver potentialPlanSolver = new PotentialPlanSolver(firstDistributionPlan);
-        DistributionPlan optimalPlan = potentialPlanSolver.findOptimalPlan();
-        optimalPlan.clearEmptyFullness();
-        return optimalPlan;
-    }
 
     public ProductDistributor(DistributionCell[][] distributionCells, DistributionParticipants distributionParticipants) {
         this.distributionCells = distributionCells;
@@ -36,5 +26,12 @@ public class ProductDistributor {
         this.distributionParticipants = distributionParticipants;
     }
 
-
+    public DistributionPlan distribute() {
+        MinElementPlanSolver minElementPlanSolver = new MinElementPlanSolver(distributionCells, distributionParticipants);
+        DistributionPlan firstDistributionPlan = minElementPlanSolver.findPlan();
+        PotentialPlanSolver potentialPlanSolver = new PotentialPlanSolver(firstDistributionPlan);
+        DistributionPlan optimalPlan = potentialPlanSolver.findOptimalPlan();
+        optimalPlan.clearEmptyFullness();
+        return optimalPlan;
+    }
 }

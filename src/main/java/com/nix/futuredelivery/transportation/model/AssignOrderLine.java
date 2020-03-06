@@ -1,4 +1,4 @@
-package com.nix.futuredelivery.distribution.psolver.model;
+package com.nix.futuredelivery.transportation.model;
 
 import com.nix.futuredelivery.entity.Product;
 import com.nix.futuredelivery.entity.StoreOrder;

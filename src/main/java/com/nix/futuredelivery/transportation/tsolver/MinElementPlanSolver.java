@@ -1,9 +1,9 @@
-package com.nix.futuredelivery.distribution.tsolver;
+package com.nix.futuredelivery.transportation.tsolver;
 
 
-import com.nix.futuredelivery.distribution.tsolver.model.DistributionCell;
-import com.nix.futuredelivery.distribution.tsolver.model.DistributionParticipants;
-import com.nix.futuredelivery.distribution.tsolver.model.DistributionPlan;
+import com.nix.futuredelivery.transportation.tsolver.model.DistributionCell;
+import com.nix.futuredelivery.transportation.tsolver.model.DistributionParticipants;
+import com.nix.futuredelivery.transportation.tsolver.model.DistributionPlan;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,10 +1,10 @@
-package com.nix.futuredelivery.distribution.psolver;
+package com.nix.futuredelivery.transportation.psolver;
 
-import com.nix.futuredelivery.distribution.DistributionEntry;
-import com.nix.futuredelivery.distribution.psolver.model.AssignOrderLine;
-import com.nix.futuredelivery.distribution.psolver.model.StationPoint;
 import com.nix.futuredelivery.entity.*;
 import com.nix.futuredelivery.entity.value.*;
+import com.nix.futuredelivery.transportation.model.AssignOrderLine;
+import com.nix.futuredelivery.transportation.model.DistributionEntry;
+import com.nix.futuredelivery.transportation.psolver.model.StationPoint;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -167,7 +167,7 @@ public class PolarDistributionSolver {
     }
 
     private Map<Store, List<DistributionEntry>> groupEntriesByStore(List<DistributionEntry> entries) {
-        return entries.stream().collect(Collectors.groupingBy(DistributionEntry::getStore));
+        return entries.stream().collect(Collectors.groupingBy(e -> e.getDistributionKey().getStore()));
     }
 
     private double getAngleBetweenLocations(Location center, Location point) {

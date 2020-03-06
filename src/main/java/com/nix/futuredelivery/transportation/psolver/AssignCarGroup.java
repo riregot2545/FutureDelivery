@@ -1,8 +1,8 @@
-package com.nix.futuredelivery.distribution.psolver;
+package com.nix.futuredelivery.transportation.psolver;
 
-import com.nix.futuredelivery.distribution.psolver.model.AssignCar;
 import com.nix.futuredelivery.entity.Car;
 import com.nix.futuredelivery.entity.value.Capacity;
+import com.nix.futuredelivery.transportation.psolver.model.AssignCar;
 import lombok.Getter;
 
 import java.util.Comparator;
