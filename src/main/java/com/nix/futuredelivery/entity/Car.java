@@ -2,7 +2,7 @@ package com.nix.futuredelivery.entity;
 
 
 import com.nix.futuredelivery.entity.value.Capacity;
-import lombok.AllArgsConstructor;
+import com.nix.futuredelivery.entity.value.Volume;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +10,6 @@ import javax.persistence.*;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 public class Car {
     @Id
@@ -21,4 +20,28 @@ public class Car {
 
     @Embedded
     private Capacity capacity;
+
+    @Transient
+    private Volume fullness;
+
+    public Car(Long id, String model, Capacity capacity) {
+        this.id = id;
+        this.model = model;
+        this.capacity = capacity;
+        this.fullness = new Volume(0D);
+    }
+
+    public double getFreeVolume() {
+        return capacity.getMaxVolume().getVolume() - fullness.getVolume();
+    }
+
+    public void resetFullness() {
+        fullness.setVolume(0D);
+    }
+
+    public void fillVolume(Volume volume) {
+        if (getFreeVolume() < volume.getVolume())
+            throw new IllegalArgumentException("Filling volume is much than free volume");
+        fullness.setVolume(fullness.getVolume() + volume.getVolume());
+    }
 }

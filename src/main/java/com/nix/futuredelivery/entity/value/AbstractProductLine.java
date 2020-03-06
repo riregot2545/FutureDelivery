@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
 import java.io.Serializable;
 
 @Data
@@ -15,7 +17,7 @@ import java.io.Serializable;
 public abstract class AbstractProductLine implements Serializable {
     @ManyToOne
     @Id
-    private Product product;
+    protected Product product;
 
-    private int quantity;
+    protected int quantity;
 }

@@ -8,6 +8,7 @@ import com.nix.futuredelivery.entity.Product;
 import com.nix.futuredelivery.entity.Store;
 import com.nix.futuredelivery.entity.StoreOrder;
 import com.nix.futuredelivery.entity.Warehouse;
+import com.nix.futuredelivery.entity.value.AbstractProductLine;
 import com.nix.futuredelivery.entity.value.OrderProductLine;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
 import com.nix.futuredelivery.repository.DistanceRepository;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -48,9 +50,11 @@ public class ProductAggregator {
                     participantsBuilder.addSupplier(warehouseProductLine.getWarehouse(),warehouseProductLine.getQuantity());
                 }
 
-                Map<Store, OrderProductLine> storeProductLinesMap = groupOrderLinesByStore(list);
+                Map<Store, List<OrderProductLine>> storeProductLinesMap = groupOrderLinesByStore(list);
 
-                storeProductLinesMap.forEach((store, orderLine)-> participantsBuilder.addConsumer(store,orderLine.getQuantity()));
+                storeProductLinesMap.forEach((store, orderLine) ->
+                        participantsBuilder.addConsumer(store, orderLine.stream().mapToInt(AbstractProductLine::getQuantity).sum())
+                );
 
                 DistributionParticipants participants = participantsBuilder.build();
 
@@ -68,7 +72,7 @@ public class ProductAggregator {
                                    participants.getConsumerStore(j),
                                    participants.getSupplierWarehouse(i),
                                    product,
-                                   distributionPlan.getCell(i,j).getFullness()
+                                   storeProductLinesMap.get(participants.getConsumerStore(j))
                            ));
                         }
                     }
@@ -113,17 +117,13 @@ public class ProductAggregator {
         return productWarehouseMap;
     }
 
-    private Map<Store, OrderProductLine> groupOrderLinesByStore(List<OrderProductLine> lines){
-        Map<Store, OrderProductLine> storeProductLinesMap = new HashMap<>();
+    private Map<Store, List<OrderProductLine>> groupOrderLinesByStore(List<OrderProductLine> lines) {
+        return lines.stream().collect(Collectors.groupingBy(e -> e.getStoreOrder().getStore()));
+    }
 
-        for (OrderProductLine orderProductLine : lines) {
-            if(!storeProductLinesMap.containsKey(orderProductLine.getStoreOrder().getStore()))
-                storeProductLinesMap.put(orderProductLine.getStoreOrder().getStore(),orderProductLine);
-            else {
-                OrderProductLine orderProductLine1 = storeProductLinesMap.get(orderProductLine.getStoreOrder().getStore());
-                orderProductLine1.setQuantity(orderProductLine1.getQuantity() + orderProductLine.getQuantity());
-            }
-        }
-        return storeProductLinesMap;
+    private List<StoreOrder> getOrdersByStore(List<OrderProductLine> list, Store store) {
+        return list.stream()
+                .filter(line -> line.getStoreOrder().getStore().equals(store))
+                .map(OrderProductLine::getStoreOrder).collect(Collectors.toList());
     }
 }
