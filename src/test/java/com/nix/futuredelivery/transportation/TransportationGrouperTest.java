@@ -1,6 +1,5 @@
-package com.nix.futuredelivery.distribution;
+package com.nix.futuredelivery.transportation;
 
-import com.nix.futuredelivery.transportation.TransportationGrouper;
 import com.nix.futuredelivery.transportation.model.DistributionEntry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -18,6 +17,6 @@ class TransportationGrouperTest {
 
     @Test
     void distributeAllOrders() {
-        List<DistributionEntry> distributionEntries = transportationGrouper.distributeAllOrders();
+        List<DistributionEntry> distributionEntries = transportationGrouper.distributeAllFreeOrders();
     }
 }

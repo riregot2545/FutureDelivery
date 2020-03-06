@@ -5,5 +5,5 @@ import com.nix.futuredelivery.entity.Route;
 import java.util.List;
 
 public interface VehicleRoutingSolver {
-    List<Route> setOrderToWaybills(List<Route> routeList);
+    List<Route> setOrderInWaybills(List<Route> routeList);
 }

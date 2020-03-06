@@ -1,4 +1,4 @@
-package com.nix.futuredelivery.distribution.psolver;
+package com.nix.futuredelivery.transportation.psolver;
 
 import com.nix.futuredelivery.entity.*;
 import com.nix.futuredelivery.entity.value.Capacity;
@@ -82,7 +82,7 @@ class TransportationAssignerTest {
 
 
         //seed = 2 all products volume=370
-        assigner = new TransportationAssigner(carList, fakeEntries, driverList);
+        assigner = new TransportationAssigner(carList, driverList, fakeEntries);
         assigner.assign();
     }
 
@@ -156,7 +156,7 @@ class TransportationAssignerTest {
 
 
         //seed = 2 all products volume = 2868.0
-        assigner = new TransportationAssigner(carList, fakeEntries, driverList);
+        assigner = new TransportationAssigner(carList, driverList, fakeEntries);
         assigner.assign();
     }
 
@@ -229,7 +229,7 @@ class TransportationAssignerTest {
 
 
         //seed = 2 all products volume = 728
-        assigner = new TransportationAssigner(carList, fakeEntries, driverList);
+        assigner = new TransportationAssigner(carList, driverList, fakeEntries);
         assigner.assign();
     }
 }

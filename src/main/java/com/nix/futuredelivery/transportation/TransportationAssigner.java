@@ -25,7 +25,7 @@ public class TransportationAssigner {
 
     private StationPoint currentPoint;
 
-    public TransportationAssigner(List<Car> cars, List<DistributionEntry> distributionEntries, List<Driver> drivers) {
+    public TransportationAssigner(List<Car> cars, List<Driver> drivers, List<DistributionEntry> distributionEntries) {
         this.carAssigner = new CarAssigner(cars);
         this.mappedWarehouses = groupEntriesByWarehouse(distributionEntries);
         this.drivers = new LinkedList<>(drivers);

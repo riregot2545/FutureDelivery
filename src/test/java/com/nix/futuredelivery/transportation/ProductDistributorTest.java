@@ -1,4 +1,4 @@
-package com.nix.futuredelivery.distribution;
+package com.nix.futuredelivery.transportation;
 
 import com.nix.futuredelivery.transportation.tsolver.ProductDistributor;
 import com.nix.futuredelivery.transportation.tsolver.model.Consumer;

@@ -36,7 +36,7 @@ public class TransportationGrouper {
     private final Map<DistributionKey, DistributionEntry> productDistributionEntries;
 
     @Transactional
-    public List<DistributionEntry> distributeAllOrders() {
+    public List<DistributionEntry> distributeAllFreeOrders() {
         List<ProductKeyListGroup<OrderProductLine>> orderGroupCatalog = groupOrderLinesByProduct();
         List<ProductKeyListGroup<WarehouseProductLine>> warehouseGroupCatalog = groupWarehouseLinesByProduct();
 

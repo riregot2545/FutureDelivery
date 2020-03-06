@@ -31,7 +31,9 @@ public class CarAssigner {
 
         for (int i = 0; i < sortedKeys.size(); i++) {
             CarAssignGroup carAssignGroup = new CarAssignGroup(mappedGroups.get(sortedKeys.get(i)));
-            if (i < (sortedKeys.size() - 1)) {
+            if (sortedKeys.size() == 1) {
+                carAssignGroup.setNextGroupCapacity(sortedKeys.get(0));
+            } else if (i < (sortedKeys.size() - 1)) {
                 carAssignGroup.setNextGroupCapacity(mappedGroups.get(sortedKeys.get(i + 1)).get(0).getCapacity());
             } else {
                 double previousCapacity = mappedGroups.get(sortedKeys.get(i - 1)).get(0).getCapacity().getMaxVolume().getVolume();
