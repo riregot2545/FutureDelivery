@@ -1,6 +1,6 @@
 package com.nix.futuredelivery.distribution;
 
-import com.nix.futuredelivery.transportation.DistributionGrouper;
+import com.nix.futuredelivery.transportation.TransportationGrouper;
 import com.nix.futuredelivery.transportation.model.DistributionEntry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -11,13 +11,13 @@ import java.util.List;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class DistributionGrouperTest {
+class TransportationGrouperTest {
     @Autowired
-    private DistributionGrouper distributionGrouper;
+    private TransportationGrouper transportationGrouper;
 
 
     @Test
     void distributeAllOrders() {
-        List<DistributionEntry> distributionEntries = distributionGrouper.distributeAllOrders();
+        List<DistributionEntry> distributionEntries = transportationGrouper.distributeAllOrders();
     }
 }

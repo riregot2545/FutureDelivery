@@ -14,6 +14,7 @@ import com.nix.futuredelivery.transportation.model.AssignOrderLine;
 import com.nix.futuredelivery.transportation.model.DistributionEntry;
 import com.nix.futuredelivery.transportation.model.DistributionEntry.DistributionKey;
 import com.nix.futuredelivery.transportation.model.ProductKeyListGroup;
+import com.nix.futuredelivery.transportation.tsolver.ProductDistributor;
 import com.nix.futuredelivery.transportation.tsolver.model.DistributionCell;
 import com.nix.futuredelivery.transportation.tsolver.model.DistributionCostMatrixBuilder;
 import com.nix.futuredelivery.transportation.tsolver.model.DistributionParticipants;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class DistributionGrouper {
+public class TransportationGrouper {
     private final StoreOrderRepository orderRepository;
     private final WarehouseRepository warehouseRepository;
     private final DistanceRepository distanceRepository;

@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 
-public class AssignCarGroup {
+public class CarAssignGroup {
     private final List<AssignCar> assignList;
 
     @Getter
@@ -26,7 +26,7 @@ public class AssignCarGroup {
         this.groupPriority = nextGroupCapacity.getMaxVolume().getVolume() / capacity.getMaxVolume().getVolume();
     }
 
-    public AssignCarGroup(List<Car> carList) {
+    public CarAssignGroup(List<Car> carList) {
         this.assignList = carList.stream().map(AssignCar::new).collect(Collectors.toList());
         this.capacity = assignList.get(0).getCar().getCapacity();
     }

@@ -1,6 +1,6 @@
 package com.nix.futuredelivery.distribution;
 
-import com.nix.futuredelivery.transportation.ProductDistributor;
+import com.nix.futuredelivery.transportation.tsolver.ProductDistributor;
 import com.nix.futuredelivery.transportation.tsolver.model.Consumer;
 import com.nix.futuredelivery.transportation.tsolver.model.DistributionParticipants;
 import com.nix.futuredelivery.transportation.tsolver.model.DistributionPlan;

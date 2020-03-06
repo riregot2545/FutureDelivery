@@ -30,12 +30,4 @@ public class ProductKeyListGroup<T extends AbstractProductLine> implements KeyLi
     public List<T> getList() {
         return lines;
     }
-
-    public void add(T item) {
-        lines.add(item);
-    }
-
-    public void remove(T item) {
-        lines.remove(item);
-    }
 }

@@ -5,15 +5,17 @@ import com.nix.futuredelivery.entity.value.Capacity;
 import com.nix.futuredelivery.entity.value.Location;
 import com.nix.futuredelivery.entity.value.OrderProductLine;
 import com.nix.futuredelivery.entity.value.Volume;
+import com.nix.futuredelivery.transportation.TransportationAssigner;
 import com.nix.futuredelivery.transportation.model.DistributionEntry;
-import com.nix.futuredelivery.transportation.psolver.PolarDistributionSolver;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
-class PolarDistributionSolverTest {
-    private PolarDistributionSolver polarSolver;
+class TransportationAssignerTest {
+    private TransportationAssigner assigner;
     private Random random = new Random(2);
 
     @Test
@@ -34,9 +36,7 @@ class PolarDistributionSolverTest {
                 "warehouse",
                 null
         );
-        Map<Warehouse, List<DistributionEntry>> fakeWarehouseMapping = new HashMap<>();
         List<DistributionEntry> fakeEntries = new ArrayList<>();
-        fakeWarehouseMapping.put(warehouse, fakeEntries);
 
         List<Location> storeLocations = new ArrayList<>();
         storeLocations.add(new Location(50.010869, 36.234536));
@@ -82,8 +82,8 @@ class PolarDistributionSolverTest {
 
 
         //seed = 2 all products volume=370
-        polarSolver = new PolarDistributionSolver(carList, fakeWarehouseMapping, driverList);
-        polarSolver.assign();
+        assigner = new TransportationAssigner(carList, fakeEntries, driverList);
+        assigner.assign();
     }
 
 
@@ -108,9 +108,7 @@ class PolarDistributionSolverTest {
                 "warehouse",
                 null
         );
-        Map<Warehouse, List<DistributionEntry>> fakeWarehouseMapping = new HashMap<>();
         List<DistributionEntry> fakeEntries = new ArrayList<>();
-        fakeWarehouseMapping.put(warehouse, fakeEntries);
 
         List<Location> storeLocations = new ArrayList<>();
         storeLocations.add(new Location(50.010869, 36.234536));
@@ -158,8 +156,8 @@ class PolarDistributionSolverTest {
 
 
         //seed = 2 all products volume = 2868.0
-        polarSolver = new PolarDistributionSolver(carList, fakeWarehouseMapping, driverList);
-        polarSolver.assign();
+        assigner = new TransportationAssigner(carList, fakeEntries, driverList);
+        assigner.assign();
     }
 
     @Test
@@ -183,9 +181,7 @@ class PolarDistributionSolverTest {
                 "warehouse",
                 null
         );
-        Map<Warehouse, List<DistributionEntry>> fakeWarehouseMapping = new HashMap<>();
         List<DistributionEntry> fakeEntries = new ArrayList<>();
-        fakeWarehouseMapping.put(warehouse, fakeEntries);
 
         List<Location> storeLocations = new ArrayList<>();
         storeLocations.add(new Location(50.010869, 36.234536));
@@ -233,7 +229,7 @@ class PolarDistributionSolverTest {
 
 
         //seed = 2 all products volume = 728
-        polarSolver = new PolarDistributionSolver(carList, fakeWarehouseMapping, driverList);
-        polarSolver.assign();
+        assigner = new TransportationAssigner(carList, fakeEntries, driverList);
+        assigner.assign();
     }
 }

@@ -1,7 +1,5 @@
-package com.nix.futuredelivery.transportation;
+package com.nix.futuredelivery.transportation.tsolver;
 
-import com.nix.futuredelivery.transportation.tsolver.MinElementPlanSolver;
-import com.nix.futuredelivery.transportation.tsolver.PotentialPlanSolver;
 import com.nix.futuredelivery.transportation.tsolver.model.DistributionCell;
 import com.nix.futuredelivery.transportation.tsolver.model.DistributionParticipants;
 import com.nix.futuredelivery.transportation.tsolver.model.DistributionPlan;
