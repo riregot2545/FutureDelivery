@@ -2,6 +2,7 @@ package com.nix.futuredelivery.entity;
 
 
 import com.nix.futuredelivery.entity.value.Capacity;
+import com.nix.futuredelivery.entity.value.Consumption;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,4 +22,7 @@ public class Car {
 
     @Embedded
     private Capacity capacity;
+
+    @Embedded
+    private Consumption consumption;
 }
