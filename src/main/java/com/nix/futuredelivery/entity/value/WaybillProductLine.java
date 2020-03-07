@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
@@ -17,7 +18,7 @@ import javax.persistence.ManyToOne;
 @Entity
 @IdClass(WaybillProductLineId.class)
 public class WaybillProductLine extends AbstractProductLine {
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @Id
     private Waybill waybill;
 

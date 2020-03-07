@@ -3,6 +3,8 @@ package com.nix.futuredelivery.entity;
 
 import com.nix.futuredelivery.entity.value.Capacity;
 import com.nix.futuredelivery.entity.value.Volume;
+import com.nix.futuredelivery.entity.value.Consumption;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -20,6 +22,9 @@ public class Car {
 
     @Embedded
     private Capacity capacity;
+
+    @Embedded
+    private Consumption consumption;
 
     @Transient
     private Volume fullness;
@@ -44,4 +49,5 @@ public class Car {
             throw new IllegalArgumentException("Filling volume is much than free volume");
         fullness.setVolume(fullness.getVolume() + volume.getVolume());
     }
+
 }

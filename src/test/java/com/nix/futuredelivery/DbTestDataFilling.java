@@ -4,7 +4,6 @@ import com.nix.futuredelivery.entity.*;
 import com.nix.futuredelivery.entity.value.*;
 import com.nix.futuredelivery.repository.*;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -221,19 +220,19 @@ public class DbTestDataFilling {
     }
 
     void carAndDriverFilling(){
-        Car car1 = new Car(null,"Car 1",new Capacity(new Volume(1000)));
+        Car car1 = new Car(null, "Car 1", new Capacity(new Volume(1000)), new Consumption(15, 0.25));
         Driver driver1 = new Driver(null,"Driver 1","",
                 "driver1","password","driver1@mail.ua");
         carRepository.save(car1);
         driverRepository.save(driver1);
 
-        Car car2 = new Car(null,"Car 2",new Capacity(new Volume(1000)));
+        Car car2 = new Car(null, "Car 2", new Capacity(new Volume(1000)), new Consumption(15, 0.25));
         Driver driver2 = new Driver(null,"Driver 2","",
                 "driver2","password","driver2@mail.ua");
         carRepository.save(car2);
         driverRepository.save(driver2);
 
-        Car car3 = new Car(null,"Car 3",new Capacity(new Volume(1000)));
+        Car car3 = new Car(null, "Car 3", new Capacity(new Volume(1000)), new Consumption(15, 0.25));
         Driver driver3 = new Driver(null,"Driver 3","",
                 "driver3","password","driver3@mail.ua");
         carRepository.save(car3);

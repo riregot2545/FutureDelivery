@@ -13,6 +13,7 @@ import javax.persistence.IdClass;
 import javax.persistence.ManyToOne;
 import java.io.Serializable;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
