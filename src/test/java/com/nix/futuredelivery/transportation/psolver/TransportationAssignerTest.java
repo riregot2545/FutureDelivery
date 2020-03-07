@@ -7,12 +7,11 @@ import com.nix.futuredelivery.entity.value.OrderProductLine;
 import com.nix.futuredelivery.entity.value.Volume;
 import com.nix.futuredelivery.transportation.TransportationAssigner;
 import com.nix.futuredelivery.transportation.model.DistributionEntry;
+import com.nix.futuredelivery.transportation.model.DriverLoad;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 class TransportationAssignerTest {
     private TransportationAssigner assigner;
@@ -25,9 +24,11 @@ class TransportationAssignerTest {
             carList.add(new Car((long) i, "model" + i, new Capacity(new Volume(100 + i * 100))));
         }
 
-        List<Driver> driverList = new ArrayList<>();
+        Queue<DriverLoad> driverList = new PriorityQueue<>();
         for (int i = 0; i < 3; i++) {
-            driverList.add(new Driver((long) i, "Driver " + i, "", "driver" + i, "password", "driver" + i + "@email.ua"));
+            Driver driver = new Driver((long) i, "Driver " + i, "", "driver" + i,
+                    "password", "driver" + i + "@email.ua");
+            driverList.add(new DriverLoad(driver, 0L));
         }
         Warehouse warehouse = new Warehouse(
                 null,
@@ -97,9 +98,11 @@ class TransportationAssignerTest {
             }
         }
 
-        List<Driver> driverList = new ArrayList<>();
+        Queue<DriverLoad> driverList = new PriorityQueue<>();
         for (int i = 0; i < 3; i++) {
-            driverList.add(new Driver((long) i, "Driver " + i, "", "driver" + i, "password", "driver" + i + "@email.ua"));
+            Driver driver = new Driver((long) i, "Driver " + i, "", "driver" + i,
+                    "password", "driver" + i + "@email.ua");
+            driverList.add(new DriverLoad(driver, 0L));
         }
         Warehouse warehouse = new Warehouse(
                 null,
@@ -170,9 +173,11 @@ class TransportationAssignerTest {
             }
         }
 
-        List<Driver> driverList = new ArrayList<>();
+        Queue<DriverLoad> driverList = new PriorityQueue<>();
         for (int i = 0; i < 3; i++) {
-            driverList.add(new Driver((long) i, "Driver " + i, "", "driver" + i, "password", "driver" + i + "@email.ua"));
+            Driver driver = new Driver((long) i, "Driver " + i, "", "driver" + i,
+                    "password", "driver" + i + "@email.ua");
+            driverList.add(new DriverLoad(driver, 0L));
         }
         Warehouse warehouse = new Warehouse(
                 null,

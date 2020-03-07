@@ -6,6 +6,7 @@ import com.nix.futuredelivery.entity.value.Volume;
 import com.nix.futuredelivery.entity.value.WaybillProductLine;
 import com.nix.futuredelivery.transportation.model.AssignOrderLine;
 import com.nix.futuredelivery.transportation.model.DistributionEntry;
+import com.nix.futuredelivery.transportation.model.DriverLoad;
 import com.nix.futuredelivery.transportation.model.WarehouseKeyListGroup;
 import com.nix.futuredelivery.transportation.psolver.CarAssigner;
 import com.nix.futuredelivery.transportation.psolver.PolarDistributionSolver;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 
 public class TransportationAssigner {
     private final CarAssigner carAssigner;
-    private final Queue<Driver> drivers;
+    private final Queue<DriverLoad> drivers;
     private final List<WarehouseKeyListGroup> mappedWarehouses;
     private final List<Route> routes;
     private Car currentCar;
@@ -25,10 +26,10 @@ public class TransportationAssigner {
 
     private StationPoint currentPoint;
 
-    public TransportationAssigner(List<Car> cars, List<Driver> drivers, List<DistributionEntry> distributionEntries) {
+    public TransportationAssigner(List<Car> cars, Queue<DriverLoad> drivers, List<DistributionEntry> distributionEntries) {
         this.carAssigner = new CarAssigner(cars);
         this.mappedWarehouses = groupEntriesByWarehouse(distributionEntries);
-        this.drivers = new LinkedList<>(drivers);
+        this.drivers = drivers;
         this.routes = new ArrayList<>();
         this.tackedStationPoints = new ArrayList<>();
         this.waybillsByOrderMap = new HashMap<>();
@@ -171,7 +172,10 @@ public class TransportationAssigner {
     }
 
     private Driver getNextDriver() {
-        return drivers.poll();
+        DriverLoad driverLoad = drivers.poll();
+        driverLoad.incrementLoad();
+        drivers.add(driverLoad);
+        return driverLoad.getDriver();
     }
 
     private Map<Store, List<DistributionEntry>> groupEntriesByStore(List<DistributionEntry> entries) {

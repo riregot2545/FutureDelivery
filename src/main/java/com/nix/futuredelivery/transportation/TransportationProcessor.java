@@ -1,7 +1,6 @@
 package com.nix.futuredelivery.transportation;
 
 import com.nix.futuredelivery.entity.Car;
-import com.nix.futuredelivery.entity.Driver;
 import com.nix.futuredelivery.entity.Route;
 import com.nix.futuredelivery.entity.StoreOrder;
 import com.nix.futuredelivery.entity.value.OrderProductLine;
@@ -10,12 +9,16 @@ import com.nix.futuredelivery.repository.DriverRepository;
 import com.nix.futuredelivery.repository.RouteRepository;
 import com.nix.futuredelivery.repository.StoreOrderRepository;
 import com.nix.futuredelivery.transportation.model.DistributionEntry;
+import com.nix.futuredelivery.transportation.model.DriverLoad;
 import com.nix.futuredelivery.transportation.vrpsolver.TestVehicleRouter;
 import com.nix.futuredelivery.transportation.vrpsolver.VehicleRoutingSolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,10 +34,10 @@ public class TransportationProcessor {
     private final StoreOrderRepository orderRepository;
 
     public void proceedOrders() {
-        List<DistributionEntry> distributionEntries = transportationGrouper.distributeAllFreeOrders();
-        List<Driver> drivers = driverRepository.findAll();
+        Queue<DriverLoad> drivers = getDriversQueue();
         List<Car> cars = carRepository.findAll();
 
+        List<DistributionEntry> distributionEntries = transportationGrouper.distributeAllFreeOrders();
         transportationAssigner = new TransportationAssigner(cars, drivers, distributionEntries);
         List<Route> assignedRoutes = transportationAssigner.assign();
 
@@ -50,5 +53,12 @@ public class TransportationProcessor {
         storeOrders.forEach(ord -> ord.setDistributed(true));
 
         orderRepository.saveAll(storeOrders);
+    }
+
+    public Queue<DriverLoad> getDriversQueue() {
+        List<DriverLoad> driverLoads = driverRepository.aggregateDriverByLoad();
+        PriorityQueue<DriverLoad> driverQueue = new PriorityQueue<>(Comparator.comparingLong(DriverLoad::getLoad));
+        driverQueue.addAll(driverLoads);
+        return driverQueue;
     }
 }

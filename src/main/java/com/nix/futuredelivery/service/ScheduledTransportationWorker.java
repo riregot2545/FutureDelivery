@@ -20,5 +20,6 @@ public class ScheduledTransportationWorker {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.YYYY HH:mm:ss");
         log.info("Time is now {}, starting order distribution...", dateFormat.format(new Date()));
         transportationProcessor.proceedOrders();
+        log.info("Time is now {}, order distribution ended.", dateFormat.format(new Date()));
     }
 }
