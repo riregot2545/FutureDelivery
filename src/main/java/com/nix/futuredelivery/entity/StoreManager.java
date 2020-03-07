@@ -17,7 +17,8 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 public class StoreManager extends SystemUser{
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "store_id")
     private Store store;
 
     public StoreManager(Long id, String firstName, String lastName, String login, String password, String email, Store store) {
