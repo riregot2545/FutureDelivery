@@ -1,5 +1,6 @@
 package com.nix.futuredelivery.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.nix.futuredelivery.entity.value.Volume;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,6 +18,7 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @JsonManagedReference
     @ManyToOne
     private ProductCategory productCategory;
     @Column

@@ -1,5 +1,6 @@
 package com.nix.futuredelivery.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,7 @@ public class ProductCategory {
 
     private String name;
 
+    @JsonBackReference
     @OneToMany(mappedBy = "productCategory")
     private List<Product> products;
 }
