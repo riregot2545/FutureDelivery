@@ -30,6 +30,8 @@ public class Waybill {
     @ManyToOne
     private Route route;
 
+    private int deliveryQueuePlace;
+
     private BigDecimal productCost;
     private BigDecimal deliveryCost;
 

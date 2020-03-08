@@ -1,6 +1,9 @@
 package com.nix.futuredelivery.service;
 
 import com.nix.futuredelivery.transportation.TransportationProcessor;
+import com.nix.futuredelivery.transportation.model.exceptions.NoneCarsExistsException;
+import com.nix.futuredelivery.transportation.model.exceptions.NoneDriversExistsException;
+import com.nix.futuredelivery.transportation.model.exceptions.ProductsIsOverselledException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,7 +19,7 @@ public class ScheduledTransportationWorker {
     private final TransportationProcessor transportationProcessor;
 
     @Scheduled(cron = "0 0 0 * * *")
-    public void distributeStoreOrders() {
+    public void distributeStoreOrders() throws NoneCarsExistsException, NoneDriversExistsException, ProductsIsOverselledException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.YYYY HH:mm:ss");
         log.info("Time is now {}, starting order distribution...", dateFormat.format(new Date()));
         transportationProcessor.proceedOrders();

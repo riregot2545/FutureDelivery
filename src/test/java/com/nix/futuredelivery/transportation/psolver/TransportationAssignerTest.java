@@ -1,10 +1,7 @@
 package com.nix.futuredelivery.transportation.psolver;
 
 import com.nix.futuredelivery.entity.*;
-import com.nix.futuredelivery.entity.value.Capacity;
-import com.nix.futuredelivery.entity.value.Location;
-import com.nix.futuredelivery.entity.value.OrderProductLine;
-import com.nix.futuredelivery.entity.value.Volume;
+import com.nix.futuredelivery.entity.value.*;
 import com.nix.futuredelivery.transportation.TransportationAssigner;
 import com.nix.futuredelivery.transportation.model.DistributionEntry;
 import com.nix.futuredelivery.transportation.model.DriverLoad;
@@ -21,7 +18,7 @@ class TransportationAssignerTest {
     public void polarTestFakeData1() {
         List<Car> carList = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
-            carList.add(new Car((long) i, "model" + i, new Capacity(new Volume(100 + i * 100))));
+            carList.add(new Car((long) i, "model" + i, new Capacity(new Volume(100 + i * 100)), new Consumption(15, 0.00025)));
         }
 
         Queue<DriverLoad> driverList = new PriorityQueue<>();
@@ -94,7 +91,7 @@ class TransportationAssignerTest {
         for (int i = 0; i < 3; i++) {
             int randomCarsInGroup = random.nextInt(4) + 1;
             for (int j = 0; j < randomCarsInGroup; j++) {
-                carList.add(new Car((long) i, "model" + i, new Capacity(new Volume(100 + i * 100))));
+                carList.add(new Car((long) i, "model" + i, new Capacity(new Volume(100 + i * 100)), new Consumption(15, 0.00025)));
             }
         }
 
@@ -169,7 +166,7 @@ class TransportationAssignerTest {
         for (int i = 0; i < 3; i++) {
             int randomCarsInGroup = random.nextInt(4) + 1;
             for (int j = 0; j < randomCarsInGroup; j++) {
-                carList.add(new Car((long) i, "model" + i, new Capacity(new Volume(100 + i * 100))));
+                carList.add(new Car((long) i, "model" + i, new Capacity(new Volume(100 + i * 100)), new Consumption(15, 0.00025)));
             }
         }
 

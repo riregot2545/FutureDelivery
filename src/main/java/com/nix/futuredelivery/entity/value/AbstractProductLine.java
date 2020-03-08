@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
@@ -15,7 +16,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @MappedSuperclass
 public abstract class AbstractProductLine implements Serializable {
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     @Id
     protected Product product;
 

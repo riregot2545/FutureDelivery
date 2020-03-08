@@ -104,11 +104,13 @@ public class TransportationAssigner {
 
 
         if (waybillsByOrderMap.get(order) == null)
-            waybillsByOrderMap.put(order, new Waybill(null, order, new ArrayList<>(), null));
+            waybillsByOrderMap.put(order, new Waybill(null, order, new ArrayList<>(), null, 0, null, null));
 
         WaybillProductLine waybillLine =
-                new WaybillProductLine(productLine.getProduct(), acceptedQuantity,
-                        waybillsByOrderMap.get(order), false);
+                new WaybillProductLine();
+        waybillLine.setWaybill(waybillsByOrderMap.get(order));
+        waybillLine.setProduct(productLine.getProduct());
+        waybillLine.setQuantity(acceptedQuantity);
         waybillsByOrderMap.get(order).getProductLines().add(waybillLine);
 
         productLine.addAssignQuantity(acceptedQuantity);
@@ -121,10 +123,15 @@ public class TransportationAssigner {
     }
 
     private void addNewRoute(Warehouse warehouse) {
-        routes.add(new Route(null,
+        Route route = new Route(null,
                 getNextDriver(),
                 currentCar, new ArrayList<>(waybillsByOrderMap.values()),
-                warehouse));
+                warehouse);
+        route.getWaybillList().forEach(w -> {
+            w.setRoute(route);
+            w.updateProductCost();
+        });
+        routes.add(route);
         currentCar.resetFullness();
         currentCar = carAssigner.getNextMostFreeCar();
         resetCache();

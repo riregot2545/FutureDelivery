@@ -14,20 +14,22 @@ import com.nix.futuredelivery.transportation.model.AssignOrderLine;
 import com.nix.futuredelivery.transportation.model.DistributionEntry;
 import com.nix.futuredelivery.transportation.model.DistributionEntry.DistributionKey;
 import com.nix.futuredelivery.transportation.model.ProductKeyListGroup;
+import com.nix.futuredelivery.transportation.model.exceptions.ProductsIsOverselledException;
 import com.nix.futuredelivery.transportation.tsolver.ProductDistributor;
 import com.nix.futuredelivery.transportation.tsolver.model.DistributionCell;
 import com.nix.futuredelivery.transportation.tsolver.model.DistributionCostMatrixBuilder;
 import com.nix.futuredelivery.transportation.tsolver.model.DistributionParticipants;
 import com.nix.futuredelivery.transportation.tsolver.model.DistributionPlan;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class TransportationGrouper {
     private final StoreOrderRepository orderRepository;
     private final WarehouseRepository warehouseRepository;
@@ -35,10 +37,17 @@ public class TransportationGrouper {
 
     private final Map<DistributionKey, DistributionEntry> productDistributionEntries;
 
-    @Transactional
-    public List<DistributionEntry> distributeAllFreeOrders() {
+    public List<DistributionEntry> distributeAllFreeOrders() throws ProductsIsOverselledException {
         List<ProductKeyListGroup<OrderProductLine>> orderGroupCatalog = groupOrderLinesByProduct();
         List<ProductKeyListGroup<WarehouseProductLine>> warehouseGroupCatalog = groupWarehouseLinesByProduct();
+
+        if (orderGroupCatalog.isEmpty()) {
+            log.info("There is not any undistributed orders in database");
+            return new ArrayList<>();
+        }
+        Optional<ProductsIsOverselledException> isEnough = isProductQuantityEnough(orderGroupCatalog, warehouseGroupCatalog);
+        if (isEnough.isPresent())
+            throw isEnough.get();
 
         if (isProductPositionsEquals(orderGroupCatalog, warehouseGroupCatalog)) {
             for (ProductKeyListGroup<OrderProductLine> orderProductGroup : orderGroupCatalog) {
@@ -123,7 +132,25 @@ public class TransportationGrouper {
         Set<Product> set1 = orderGroupList.stream().map(ProductKeyListGroup::getKey).collect(Collectors.toSet());
         Set<Product> set2 = warehouseGroupList.stream().map(ProductKeyListGroup::getKey).collect(Collectors.toSet());
 
-        return set1.equals(set2);
+        for (Product product : set1) {
+            if (!set2.contains(product))
+                return false;
+        }
+
+        return true;
+    }
+
+    private Optional<ProductsIsOverselledException> isProductQuantityEnough(List<ProductKeyListGroup<OrderProductLine>> orderGroupList,
+                                                                            List<ProductKeyListGroup<WarehouseProductLine>> warehouseGroupList) {
+        for (ProductKeyListGroup<OrderProductLine> productGroup : orderGroupList) {
+            Product key = productGroup.getKey();
+            ProductKeyListGroup<WarehouseProductLine> warehouseGroup = warehouseGroupList.stream().filter(g -> g.getKey().equals(key)).findFirst().get();
+            int productSum = productGroup.getList().stream().mapToInt(AbstractProductLine::getQuantity).sum();
+            int warehouseStock = warehouseGroup.getList().stream().mapToInt(AbstractProductLine::getQuantity).sum();
+            if (productSum > warehouseStock)
+                return Optional.of(new ProductsIsOverselledException(productSum, warehouseStock));
+        }
+        return Optional.empty();
     }
 
     private <T extends AbstractProductLine> Optional<ProductKeyListGroup<T>> getProductGroupByKey(List<ProductKeyListGroup<T>> groupList,
