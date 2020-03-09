@@ -22,7 +22,6 @@ import java.util.List;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
         property  = "id",
         scope     = Long.class)
-@EqualsAndHashCode(callSuper = true)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
@@ -33,10 +32,7 @@ public class Warehouse extends AbstractStation{
     @OneToOne(mappedBy = "warehouse", cascade = CascadeType.ALL)
     private WarehouseManager warehouseManager;
 
-    @OneToMany(
-            mappedBy = "warehouse",
-            cascade = CascadeType.ALL)
-
+    @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL)
     private List<WarehouseProductLine> productLines = new ArrayList<>();
 
     public Warehouse(Long id, Address address, String name, WarehouseManager warehouseManager) {

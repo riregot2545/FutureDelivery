@@ -1,15 +1,16 @@
 package com.nix.futuredelivery.controller;
 
+import com.nix.futuredelivery.entity.Product;
+import com.nix.futuredelivery.entity.StoreOrder;
 import com.nix.futuredelivery.entity.SystemUser;
 import com.nix.futuredelivery.entity.value.OrderProductLine;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
+import com.nix.futuredelivery.repository.StoreOrderRepository;
 import com.nix.futuredelivery.service.StoreManagerService;
 import lombok.Data;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,9 +25,28 @@ public class StoreManagerController {
         this.storeManagerService = storeManagerService;
     }
 
-    @GetMapping("/get_product_lines")
-    public List<OrderProductLine> getProductLine(Authentication authentication) {
+    @GetMapping("/{orderId}/get_product_lines")
+    public List<OrderProductLine> getProductLine(Authentication authentication, @PathVariable Long orderId) {
         SystemUser user = (SystemUser) authentication.getPrincipal();
-        return storeManagerService.getProductLines(user.getId());
+        return storeManagerService.getProductLines(user.getId(), orderId);
     }
+
+    @GetMapping("/get_orders")
+    public List<StoreOrder> getOrders(Authentication authentication){
+        SystemUser user = (SystemUser) authentication.getPrincipal();
+        return storeManagerService.getOrders(user.getId());
+    }
+
+    @PostMapping("/make_new_order")
+    public void setOrder(Authentication authentication, @RequestBody  List<OrderProductLine> productLines){
+        SystemUser user = (SystemUser) authentication.getPrincipal();
+        storeManagerService.makeNewOrder(user.getId(), productLines);
+    }
+
+    @PostMapping("/delete_order/{orderId}")
+    public void deleteOrder(Authentication authentication, @PathVariable Long orderId){
+        SystemUser user = (SystemUser) authentication.getPrincipal();
+        storeManagerService.deleteOrder(user.getId(), orderId);
+    }
+
 }

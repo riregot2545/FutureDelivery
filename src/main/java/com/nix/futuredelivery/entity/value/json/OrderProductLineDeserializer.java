@@ -5,17 +5,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.nix.futuredelivery.entity.Product;
-import com.nix.futuredelivery.entity.Warehouse;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
 import com.nix.futuredelivery.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 
-public class WarehouseProductLineDeserializer extends JsonDeserializer {
+public class OrderProductLineDeserializer extends JsonDeserializer {
     private ProductRepository productRepository;
-    public WarehouseProductLineDeserializer(ProductRepository productRepository) {
+    public OrderProductLineDeserializer(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
     @Override
@@ -24,6 +21,6 @@ public class WarehouseProductLineDeserializer extends JsonDeserializer {
         int quantity = node.get("quantity").asInt();
         Long productId = node.get("product").get("id").asLong();
         return new WarehouseProductLine(productRepository.findById(productId)
-                .orElseThrow(()->new IllegalArgumentException("np product")), quantity);
+                .orElseThrow(()->new IllegalArgumentException("no product")), quantity);
     }
 }

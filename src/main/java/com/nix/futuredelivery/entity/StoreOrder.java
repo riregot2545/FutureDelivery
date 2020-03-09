@@ -1,13 +1,19 @@
 package com.nix.futuredelivery.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.nix.futuredelivery.entity.value.OrderProductLine;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
+        property  = "id",
+        scope     = Long.class)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,6 +23,7 @@ public class StoreOrder {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne
     private Store store;
 
@@ -26,7 +33,7 @@ public class StoreOrder {
             mappedBy = "storeOrder",
             cascade = CascadeType.ALL
     )
-    private List<OrderProductLine> productLines;
+    private List<OrderProductLine> productLines = new ArrayList<>();
 
     private boolean isClosed;
     private boolean isDistributed;
@@ -37,4 +44,5 @@ public class StoreOrder {
         this.isDistributed = isDistributed;
         this.creationDate = LocalDateTime.now();
     }
+
 }
