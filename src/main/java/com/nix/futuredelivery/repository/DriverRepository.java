@@ -15,4 +15,6 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
             "GROUP BY d.id"
     )
     List<DriverLoad> aggregateDriverByLoad();
+
+    Driver findByLogin(String login);
 }
