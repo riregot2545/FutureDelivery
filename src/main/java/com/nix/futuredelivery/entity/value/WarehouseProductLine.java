@@ -1,5 +1,6 @@
 package com.nix.futuredelivery.entity.value;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.nix.futuredelivery.entity.Product;
@@ -10,7 +11,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.ManyToOne;
 import java.io.Serializable;
 
 @JsonDeserialize(using = WarehouseProductLineDeserializer.class)

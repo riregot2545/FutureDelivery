@@ -15,6 +15,10 @@ public class StoreManagerService {
 
     private StoreManagerRepository storeManagerRepository;
 
+    public StoreManagerService(StoreManagerRepository storeManagerRepository) {
+        this.storeManagerRepository = storeManagerRepository;
+    }
+
     @Transactional
     public void saveStoreManager(StoreManager manager){
         String password = manager.getPassword();

@@ -4,7 +4,6 @@ import com.nix.futuredelivery.entity.*;
 import com.nix.futuredelivery.entity.value.*;
 import com.nix.futuredelivery.repository.*;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -39,6 +39,8 @@ public class DbTestDataFilling {
     private CarRepository carRepository;
     @Autowired
     private DriverRepository driverRepository;
+    @Autowired
+    private WaybillRepository waybillRepository;
 
     private Random random = new Random();
 
@@ -173,30 +175,26 @@ public class DbTestDataFilling {
         List<Warehouse> warehouses = warehouseRepository.findAll();
         List<Store> stores = storeRepository.findAll();
 
-        warehouses.forEach(w -> {
-            stores.forEach(s -> {
-                double valueDistance = random.nextInt(200) * Math.PI;
-                Distance distance = new Distance();
-                distance.setAddressFrom(w.getAddress());
-                distance.setAddressTo(s.getAddress());
-                distance.setDistance(valueDistance);
-                distanceRepository.save(
-                        distance
-                );
-            });
-        });
+        warehouses.forEach(w -> stores.forEach(s -> {
+            double valueDistance = random.nextInt(200) * Math.PI;
+            Distance distance = new Distance();
+            distance.setAddressFrom(w.getAddress());
+            distance.setAddressTo(s.getAddress());
+            distance.setDistance(valueDistance);
+            distanceRepository.save(
+                    distance
+            );
+        }));
 
-        stores.forEach(s1 -> {
-            stores.forEach(s2 -> {
-                double valueDistance = random.nextInt(200) * Math.PI;
-                distanceRepository.save(
-                        new Distance(s1.getAddress(), s2.getAddress(), valueDistance)
-                );
-                distanceRepository.save(
-                        new Distance(s2.getAddress(), s1.getAddress(), valueDistance)
-                );
-            });
-        });
+        stores.forEach(s1 -> stores.forEach(s2 -> {
+            double valueDistance = random.nextInt(200) * Math.PI;
+            distanceRepository.save(
+                    new Distance(s1.getAddress(), s2.getAddress(), valueDistance)
+            );
+            distanceRepository.save(
+                    new Distance(s2.getAddress(), s1.getAddress(), valueDistance)
+            );
+        }));
     }
 
     void productCategoryFilling() {
@@ -206,49 +204,37 @@ public class DbTestDataFilling {
 
     void productFilling() {
         productCategoryRepository.findByName("testCategory").ifPresent(cat -> {
-            Product product1 = new Product(
-                    null, cat, "product 1", new BigDecimal(random.nextInt(200) * Math.PI),
-                    new Volume(random.nextInt(3) * Math.PI+1)
-            );
-            productRepository.save(product1);
-
-            Product product2 = new Product(
-                    null, cat, "product 2", new BigDecimal(random.nextInt(200) * Math.PI),
-                    new Volume(random.nextInt(3) * Math.PI+ 1)
-            );
-            productRepository.save(product2);
-
-            Product product3 = new Product(
-                    null, cat, "product 3", new BigDecimal(random.nextInt(200) * Math.PI),
-                    new Volume(random.nextInt(3) * Math.PI+1)
-            );
-            productRepository.save(product3);
+            for (int i = 0; i < 10; i++) {
+                Product product = new Product(
+                        null, cat, "product "+(i+1), new BigDecimal(random.nextInt(200) * Math.PI),
+                        new Volume(random.nextInt(3) * Math.PI+random.nextInt(3) * Math.PI+1)
+                );
+                productRepository.save(product);
+            }
         });
     }
 
     void createOrdersForStores() {
         List<Store> stores = storeRepository.findAll();
-        stores.forEach(s -> {
-            orderRepository.save(new StoreOrder(
-                    null, s, LocalDateTime.now(), null, false, false
-            ));
-        });
+        stores.forEach(s -> orderRepository.save(new StoreOrder(
+                null, s, LocalDateTime.now(), null, false, false
+        )));
     }
 
     void carAndDriverFilling(){
-        Car car1 = new Car(null,"Car 1",new Capacity(new Volume(1000)));
+        Car car1 = new Car(null, "Car 1", new Capacity(new Volume(1000)), new Consumption(15, 0.00025));
         Driver driver1 = new Driver(null,"Driver 1","",
                 "driver1","password","driver1@mail.ua");
         carRepository.save(car1);
         driverRepository.save(driver1);
 
-        Car car2 = new Car(null,"Car 2",new Capacity(new Volume(1000)));
+        Car car2 = new Car(null, "Car 2", new Capacity(new Volume(1000)), new Consumption(15, 0.00025));
         Driver driver2 = new Driver(null,"Driver 2","",
                 "driver2","password","driver2@mail.ua");
         carRepository.save(car2);
         driverRepository.save(driver2);
 
-        Car car3 = new Car(null,"Car 3",new Capacity(new Volume(1000)));
+        Car car3 = new Car(null, "Car 3", new Capacity(new Volume(1000)), new Consumption(15, 0.00025));
         Driver driver3 = new Driver(null,"Driver 3","",
                 "driver3","password","driver3@mail.ua");
         carRepository.save(car3);
@@ -263,13 +249,12 @@ public class DbTestDataFilling {
             List<Product> products = productRepository.findAll();
 
 
-            int randomProductInOrderCount = random.nextInt(products.size() - 1) + 1;
+            int randomProductInOrderCount = random.nextInt(products.size()) + 1;
             for (int i = 0; i < randomProductInOrderCount; i++) {
                 OrderProductLine productLine = new OrderProductLine(ord);
                 int randomProductIndex = random.nextInt(products.size());
                 productLine.setProduct(products.get(randomProductIndex));
                 productLine.setQuantity(random.nextInt(100)+20);
-                productLine.setStoreOrder(ord);
                 ord.getProductLines().add(productLine);
                 products.remove(randomProductIndex);
             }
@@ -282,20 +267,40 @@ public class DbTestDataFilling {
     @Transactional
     void randomFillWarehouseStock() {
         List<Warehouse> warehouses = warehouseRepository.findAll();
-        warehouses.forEach(war -> {
-            List<Product> products = productRepository.findAll();
+        List<Product> originalProducts = productRepository.findAll();
+        List<Product> requiredProducts = new ArrayList<>(originalProducts.subList(0,originalProducts.size()));
+        int productCount = requiredProducts.size();
+        int requiredCount = (int) Math.ceil((double) requiredProducts.size()/(double)warehouses.size());
 
-            int randomProductInOrderCount = random.nextInt(products.size() - 1) + 1;
-            for (int i = 0; i < randomProductInOrderCount; i++) {
+        warehouses.forEach(war -> {
+
+            int maxIndex = Math.min(requiredCount, requiredProducts.size());
+            List<Product> requiredToInsert = new ArrayList<>(requiredProducts.subList(0,maxIndex));
+            requiredProducts.removeAll(requiredToInsert);
+            for (Product product : requiredToInsert) {
                 WarehouseProductLine productLine = new WarehouseProductLine(war);
-                int randomProductIndex = random.nextInt(products.size());
-                productLine.setProduct(products.get(randomProductIndex));
+                productLine.setProduct(product);
+                productLine.setQuantity(random.nextInt(1000) + 200);
+                war.getProductLines().add(productLine);
+            }
+
+            int randomOtherProductsCount = random.nextInt(productCount-requiredCount);
+            List<Product> productsToRandomInsert = new ArrayList<>(originalProducts.subList(0,originalProducts.size()));
+            productsToRandomInsert.removeAll(requiredToInsert);
+            for (int i = 0; i < randomOtherProductsCount; i++) {
+                int randomIndex = random.nextInt(productsToRandomInsert.size());
+                WarehouseProductLine productLine = new WarehouseProductLine(war);
+                productLine.setProduct(productsToRandomInsert.get(randomIndex));
                 productLine.setQuantity(random.nextInt(1000)+200);
                 war.getProductLines().add(productLine);
-                products.remove(randomProductIndex);
+
+                productsToRandomInsert.remove(randomIndex);
             }
+
+
             warehouseRepository.save(war);
         });
         TestTransaction.flagForCommit();
     }
+
 }

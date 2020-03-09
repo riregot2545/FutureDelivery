@@ -12,4 +12,8 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class Volume {
     private double volume;
+
+    public static Volume empty() {
+        return new Volume(0D);
+    }
 }
