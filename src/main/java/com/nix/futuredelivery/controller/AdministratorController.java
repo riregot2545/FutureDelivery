@@ -1,6 +1,7 @@
 package com.nix.futuredelivery.controller;
 
 import com.nix.futuredelivery.entity.Route;
+import com.nix.futuredelivery.entity.Warehouse;
 import com.nix.futuredelivery.entity.Waybill;
 import com.nix.futuredelivery.repository.RouteRepository;
 import com.nix.futuredelivery.service.AdministratorService;
@@ -24,5 +25,10 @@ public class AdministratorController {
     @GetMapping("/getActiveRoutes")
     public List<Route> getActiveRoutes() {
         return administratorService.getActiveRoutes();
+    }
+    @GetMapping("/getWarehousesState")
+    public List<Warehouse> getWarehousesState()
+    {
+        return administratorService.getWarehousesState();
     }
 }
