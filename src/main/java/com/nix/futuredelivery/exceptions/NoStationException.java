@@ -2,14 +2,12 @@ package com.nix.futuredelivery.exceptions;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
-@EqualsAndHashCode(callSuper = true)
-@Data
-@NoArgsConstructor
-public class NoStationException extends IllegalArgumentException{
-    @Override
-    public String getMessage() {
-        return "Manager does not have store or warehouse";
+
+public class NoStationException extends ResponseStatusException {
+    public NoStationException(Long id){
+        super(HttpStatus.NOT_FOUND, "Manager " + id + " has no store or warehouse");
     }
 }

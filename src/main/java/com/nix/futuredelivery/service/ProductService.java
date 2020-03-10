@@ -29,10 +29,7 @@ public class ProductService {
         List<WarehouseProductLine> productLines = warehouse.getProductLines();
         return productLines.stream().map(AbstractProductLine::getProduct).anyMatch(warehouseProduct -> warehouseProduct.equals(product));
     }
-    private boolean orderContainsProduct(Product product, StoreOrder storeOrder) {
-        List<OrderProductLine> productLines = storeOrder.getProductLines();
-        return productLines.stream().map(AbstractProductLine::getProduct).anyMatch(orderProduct -> orderProduct.equals(product));
-    }
+
 
     private void setQuantity(List<OrderProductLine> withoutQuantity, List<OrderProductLine> withQuantity){
         IntStream.range(0, withoutQuantity.size()).forEach(i -> withoutQuantity.get(i).setQuantity(withQuantity.get(i).getQuantity()));
@@ -49,7 +46,12 @@ public class ProductService {
         WarehouseProductLine oldLine = getWarehouseProductLine(warehouse, line.getProduct()).orElseThrow(()->new IllegalArgumentException("Warehouse doesn't have product "+line.getProduct()));
         oldLine.setQuantity(line.getQuantity());
     }
-
+    OrderProductLine createLine(Product product, int quantity, StoreOrder storeOrder){
+        OrderProductLine orderProductLine = new OrderProductLine(storeOrder);
+        orderProductLine.setQuantity(quantity);
+        orderProductLine.setProduct(product);
+        return orderProductLine;
+    }
     void addProductsToWarehouse(List<Product> lines, Warehouse warehouse) {
         List<WarehouseProductLine> productLines = new ArrayList<>();
 
@@ -64,7 +66,8 @@ public class ProductService {
 
         warehouse.getProductLines().addAll(productLines);
     }
-    Long createOrder(List<OrderProductLine> lines, Store store){
+    //TODO: use createLine instead of setQuantity
+    void createOrder(List<OrderProductLine> lines, Store store){
         StoreOrder order = new StoreOrder(store, false, false);
         List<OrderProductLine> productLines = new ArrayList<>();
         List<Product> products = lines.stream().map(AbstractProductLine::getProduct).collect(Collectors.toList());
@@ -78,10 +81,16 @@ public class ProductService {
         setQuantity(productLines, lines);
         order.setProductLines(productLines);
         store.addOrder(order);
-        return order.getId();
     }
 
     void editProductsOfWarehouse(List<WarehouseProductLine> lines, Warehouse warehouse) {
         lines.stream().filter(line -> warehouseContainsProduct(line.getProduct(), warehouse)).forEach(line -> updateWarehouseLine(line, warehouse));
+    }
+
+    void editStoreOrder(StoreOrder storeOrder, List<OrderProductLine> productLines) {
+        productLines.forEach(productLine -> {
+            OrderProductLine oldLine = storeOrder.getLineByProduct(productLine.getProduct()).orElse(createLine(productLine.getProduct(), productLine.getQuantity(), productLine.getStoreOrder()));
+            oldLine.setQuantity(productLine.getQuantity());
+        });
     }
 }

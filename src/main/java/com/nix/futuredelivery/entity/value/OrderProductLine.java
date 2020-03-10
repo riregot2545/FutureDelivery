@@ -33,4 +33,8 @@ public class OrderProductLine extends AbstractProductLine implements Serializabl
         super(product, quantity);
         this.storeOrder = storeOrder;
     }
+
+    public OrderProductLine(Product product, int quantity) {
+        super(product, quantity);
+    }
 }

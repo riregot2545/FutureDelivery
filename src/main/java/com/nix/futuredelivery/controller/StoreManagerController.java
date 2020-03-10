@@ -3,6 +3,7 @@ package com.nix.futuredelivery.controller;
 import com.nix.futuredelivery.entity.Product;
 import com.nix.futuredelivery.entity.StoreOrder;
 import com.nix.futuredelivery.entity.SystemUser;
+import com.nix.futuredelivery.entity.value.AbstractProductLine;
 import com.nix.futuredelivery.entity.value.OrderProductLine;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
 import com.nix.futuredelivery.repository.StoreOrderRepository;
@@ -12,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -40,7 +42,21 @@ public class StoreManagerController {
     @PostMapping("/make_new_order")
     public void setOrder(Authentication authentication, @RequestBody  List<OrderProductLine> productLines){
         SystemUser user = (SystemUser) authentication.getPrincipal();
-        storeManagerService.makeNewOrder(user.getId(), productLines);
+        List<OrderProductLine> correct = new ArrayList<>();
+        for (OrderProductLine wrongLine:productLines) {
+            correct.add(new OrderProductLine(wrongLine.getProduct(), wrongLine.getQuantity()));
+        }
+        storeManagerService.makeNewOrder(user.getId(), correct);
+    }
+
+    @PostMapping("/{orderId}/edit")
+    public void editOrder(Authentication authentication, @PathVariable Long orderId, @RequestBody  List<OrderProductLine> productLines){
+        SystemUser user = (SystemUser) authentication.getPrincipal();
+        List<OrderProductLine> correct = new ArrayList<>();
+        for (AbstractProductLine wrongLine:productLines) {
+            correct.add(new OrderProductLine(wrongLine.getProduct(), wrongLine.getQuantity()));
+        }
+        storeManagerService.editOrder(user.getId(), orderId, correct);
     }
 
     @PostMapping("/delete_order/{orderId}")
