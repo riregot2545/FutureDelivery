@@ -5,22 +5,20 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.EmbeddedId;
+import javax.persistence.CascadeType;
+import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.MapsId;
+import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @MappedSuperclass
-public class AbstractProductLine {
-    @EmbeddedId
-    private ProductLineId id;
+public abstract class AbstractProductLine implements Serializable {
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @Id
+    protected Product product;
 
-    @ManyToOne
-    @MapsId("productId")
-    private Product product;
-
-    private int quantity;
+    protected int quantity;
 }

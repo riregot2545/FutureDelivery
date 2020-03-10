@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -18,7 +19,7 @@ public class Waybill {
     private Long id;
 
     @ManyToOne
-    private Store store;
+    private StoreOrder storeOrder;
 
     @OneToMany(
             mappedBy = "waybill",
@@ -28,4 +29,17 @@ public class Waybill {
 
     @ManyToOne
     private Route route;
+
+    private int deliveryQueuePlace;
+
+    private BigDecimal productCost;
+    private BigDecimal deliveryCost;
+
+    public void updateProductCost() {
+        BigDecimal cost = new BigDecimal(0);
+        cost = productLines.stream()
+                .map(line -> line.getProduct().getPrice().multiply(new BigDecimal(line.getQuantity())))
+                .reduce(cost, BigDecimal::add);
+        productCost = cost;
+    }
 }
