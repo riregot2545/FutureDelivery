@@ -4,9 +4,11 @@ import com.nix.futuredelivery.entity.Product;
 import com.nix.futuredelivery.entity.Warehouse;
 import com.nix.futuredelivery.entity.WarehouseManager;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
+import com.nix.futuredelivery.exceptions.NoPersonException;
 import com.nix.futuredelivery.repository.ProductRepository;
 import com.nix.futuredelivery.repository.WarehouseManagerRepository;
 import com.nix.futuredelivery.repository.WarehouseRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +18,6 @@ import java.util.List;
 @Service
 public class WarehouseManagerService {
     private WarehouseManagerRepository warehouseManagerRepository;
-
     private WarehouseRepository warehouseRepository;
     private ProductService productService;
 
@@ -28,17 +29,12 @@ public class WarehouseManagerService {
 
     @Transactional
     public List<WarehouseProductLine> getProductLines(Long id) {
-        WarehouseManager manager = warehouseManagerRepository.findById(id).orElseThrow(() -> new IllegalStateException("no"));
+        WarehouseManager manager = warehouseManagerRepository.findById(id).orElseThrow(() -> new NoPersonException("Warehouse manager", id));
         Warehouse warehouse = manager.getWarehouse();
         return warehouse.getProductLines();
     }
 
-    @Transactional
-    public void saveWarehouseManager(WarehouseManager manager) {
-        String password = manager.getPassword();
-        manager.setPassword("{noop}" + password);
-        warehouseManagerRepository.save(manager);
-    }
+
 
     @Transactional
     public boolean hasWarehouse(Long id) {

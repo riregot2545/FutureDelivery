@@ -3,13 +3,16 @@ package com.nix.futuredelivery.security;
 import com.nix.futuredelivery.entity.SystemUser;
 import com.nix.futuredelivery.entity.WarehouseManager;
 import com.nix.futuredelivery.repository.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class MyUserDetailsService implements UserDetailsService {
+
     private WarehouseManagerRepository warehouseManagerRepository;
     private AdminRepository adminRepository;
     private DriverRepository driverRepository;
@@ -42,4 +45,5 @@ public class MyUserDetailsService implements UserDetailsService {
         }
         return new MyUserPrincipal(user);
     }
+
 }

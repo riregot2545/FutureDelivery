@@ -7,12 +7,14 @@ import com.nix.futuredelivery.entity.Warehouse;
 import com.nix.futuredelivery.entity.value.AbstractProductLine;
 import com.nix.futuredelivery.entity.value.OrderProductLine;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
+import com.nix.futuredelivery.exceptions.NoProductException;
 import com.nix.futuredelivery.repository.ProductRepository;
-import org.springframework.core.annotation.Order;
+import com.nix.futuredelivery.repository.WarehouseRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -20,77 +22,79 @@ import java.util.stream.IntStream;
 @Service
 public class ProductService {
     private ProductRepository productRepository;
+    private WarehouseRepository warehouseRepository;
 
     public ProductService(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
 
-    private boolean warehouseContainsProduct(Product product, Warehouse warehouse) {
-        List<WarehouseProductLine> productLines = warehouse.getProductLines();
-        return productLines.stream().map(AbstractProductLine::getProduct).anyMatch(warehouseProduct -> warehouseProduct.equals(product));
+    private Product getProduct(Long productId) {
+        return productRepository.findById(productId).orElseThrow(() -> new NoProductException(productId));
     }
 
+    private Map<Product, Integer> countProductsInWarehouses() {
+        List<Warehouse> warehouses = warehouseRepository.findAll();
+        List<Product> products = productRepository.findAll();
+        for (Warehouse warehouse : warehouses) {
 
-    private void setQuantity(List<OrderProductLine> withoutQuantity, List<OrderProductLine> withQuantity){
-        IntStream.range(0, withoutQuantity.size()).forEach(i -> withoutQuantity.get(i).setQuantity(withQuantity.get(i).getQuantity()));
-    }
-
-    private Optional<WarehouseProductLine> getWarehouseProductLine(Warehouse warehouse, Product product) {
-        for (WarehouseProductLine line : warehouse.getProductLines()) {
-            if (line.getProduct().equals(product)) return Optional.of(line);
         }
-        return Optional.empty();
+        return null;
     }
 
-    private void updateWarehouseLine(WarehouseProductLine line, Warehouse warehouse){
-        WarehouseProductLine oldLine = getWarehouseProductLine(warehouse, line.getProduct()).orElseThrow(()->new IllegalArgumentException("Warehouse doesn't have product "+line.getProduct()));
-        oldLine.setQuantity(line.getQuantity());
+    private Map.Entry<Product, Integer> countProductInWarehouse(Product product, List<Warehouse> warehouses) {
+        int quantity = 0;
+        for (Warehouse warehouse : warehouses) {
+            if (warehouse.warehouseContainsProduct(product))
+                quantity += warehouse.getWarehouseProductLine(product).getQuantity();
+        }
+        return null;
     }
-    OrderProductLine createLine(Product product, int quantity, StoreOrder storeOrder){
-        OrderProductLine orderProductLine = new OrderProductLine(storeOrder);
-        orderProductLine.setQuantity(quantity);
-        orderProductLine.setProduct(product);
-        return orderProductLine;
+
+    private Map.Entry<Product, Integer> countProductIncludingOrders(Product product, List<StoreOrder> orders) {
+        return null;
     }
+
     void addProductsToWarehouse(List<Product> lines, Warehouse warehouse) {
-        List<WarehouseProductLine> productLines = new ArrayList<>();
-
-        lines.stream().map(Product::getId).
-                map(productId -> productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException("Product with id " + productId + " does not exist"))).
-                filter(product -> !warehouseContainsProduct(product, warehouse)).
-                forEach(product -> {
-                    WarehouseProductLine productLine = new WarehouseProductLine(warehouse);
-                    productLine.setProduct(product);
-                    productLines.add(productLine);
-                });
+        List<WarehouseProductLine> productLines = lines.stream()
+                .map(Product::getId)
+                .map(this::getProduct)
+                .filter(product -> !warehouse.warehouseContainsProduct(product))
+                .map(product -> new WarehouseProductLine(product, 0, warehouse))
+                .collect(Collectors.toList());
 
         warehouse.getProductLines().addAll(productLines);
     }
-    //TODO: use createLine instead of setQuantity
-    void createOrder(List<OrderProductLine> lines, Store store){
-        StoreOrder order = new StoreOrder(store, false, false);
+
+    void createOrder(List<OrderProductLine> lines, Store store) {
+        StoreOrder order = new StoreOrder(store, true, false);
         List<OrderProductLine> productLines = new ArrayList<>();
-        List<Product> products = lines.stream().map(AbstractProductLine::getProduct).collect(Collectors.toList());
-        products.stream().map(Product::getId).
-                map(productId -> productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException("Product with id " + productId + " does not exist"))).
-                forEach(product -> {
-                    OrderProductLine productLine = new OrderProductLine(order);
-                    productLine.setProduct(product);
-                    productLines.add(productLine);
-                });
-        setQuantity(productLines, lines);
+        for (OrderProductLine line : lines) {
+            Product product = getProduct(line.getProduct().getId());
+            productLines.add(new OrderProductLine(product, 0, order));
+        }
         order.setProductLines(productLines);
         store.addOrder(order);
     }
 
     void editProductsOfWarehouse(List<WarehouseProductLine> lines, Warehouse warehouse) {
-        lines.stream().filter(line -> warehouseContainsProduct(line.getProduct(), warehouse)).forEach(line -> updateWarehouseLine(line, warehouse));
+        lines.forEach(line -> {
+            if (warehouse.warehouseContainsProduct(line.getProduct())) {
+                warehouse.setWarehouseLineQuantity(line);
+            } else {
+                warehouse.getProductLines().add(new WarehouseProductLine(line.getProduct(), line.getQuantity(), warehouse));
+            }
+        });
     }
 
     void editStoreOrder(StoreOrder storeOrder, List<OrderProductLine> productLines) {
-        productLines.forEach(productLine -> {
-            OrderProductLine oldLine = storeOrder.getLineByProduct(productLine.getProduct()).orElse(createLine(productLine.getProduct(), productLine.getQuantity(), productLine.getStoreOrder()));
-            oldLine.setQuantity(productLine.getQuantity());
-        });
+        productLines.forEach(storeOrder::setOrderLineQuantity);
     }
+
+    public Map<Product, Integer> getProducts() {
+
+        List<Product> products = productRepository.findAll();
+
+        return null;
+    }
+
 }

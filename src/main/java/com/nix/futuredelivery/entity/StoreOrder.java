@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.nix.futuredelivery.entity.value.AbstractProductLine;
 import com.nix.futuredelivery.entity.value.OrderProductLine;
 import lombok.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -50,9 +51,19 @@ public class StoreOrder {
     private boolean containsProduct(Product product){
         return productLines.stream().map(AbstractProductLine::getProduct).anyMatch(orderProduct -> orderProduct.equals(product));
     }
-    public Optional<OrderProductLine> getLineByProduct(Product product){
+    private Optional<OrderProductLine> getLineByProduct(Product product){
         if(!containsProduct(product)) return Optional.empty();
         return productLines.stream().filter(line->line.getProduct().equals(product)).findAny();
     }
-
+    @Transactional
+    public void setOrderLineQuantity(OrderProductLine productLine) {
+        OrderProductLine oldLine;
+        if (getLineByProduct(productLine.getProduct()).isPresent()) {
+            oldLine = getLineByProduct(productLine.getProduct()).get();
+        } else {
+            oldLine = new OrderProductLine(productLine.getProduct(), productLine.getQuantity(), this);
+            getProductLines().add(oldLine);
+        }
+        oldLine.setQuantity(productLine.getQuantity());
+    }
 }

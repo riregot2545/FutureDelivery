@@ -123,7 +123,7 @@ public class TransportationAssigner {
     }
 
     private void addNewRoute(Warehouse warehouse) {
-        Route route = new Route(null,
+        Route route = new Route(null,false,
                 getNextDriver(),
                 currentCar, new ArrayList<>(waybillsByOrderMap.values()),
                 warehouse);

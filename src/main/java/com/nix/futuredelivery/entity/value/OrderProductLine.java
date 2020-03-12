@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.nix.futuredelivery.entity.Product;
 import com.nix.futuredelivery.entity.StoreOrder;
+import com.nix.futuredelivery.entity.value.json.OrderProductLineDeserializer;
 import com.nix.futuredelivery.entity.value.json.WarehouseProductLineDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,7 +17,7 @@ import javax.persistence.IdClass;
 import javax.persistence.ManyToOne;
 import java.io.Serializable;
 
-@JsonDeserialize(using = WarehouseProductLineDeserializer.class)
+@JsonDeserialize(using = OrderProductLineDeserializer.class)
 @EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor

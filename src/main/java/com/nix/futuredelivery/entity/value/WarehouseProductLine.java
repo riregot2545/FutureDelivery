@@ -30,7 +30,8 @@ public class WarehouseProductLine extends AbstractProductLine implements Seriali
     @Id
     private Warehouse warehouse;
 
-    public WarehouseProductLine(Product product, int quantity) {
+    public WarehouseProductLine(Product product, int quantity, Warehouse warehouse) {
         super(product, quantity);
+        this.warehouse = warehouse;
     }
 }

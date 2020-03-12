@@ -13,8 +13,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @RestController
@@ -27,29 +30,27 @@ public class StoreManagerController {
         this.storeManagerService = storeManagerService;
     }
 
-    @GetMapping("/{orderId}/get_product_lines")
+    @GetMapping("/{orderId}")
     public List<OrderProductLine> getProductLine(Authentication authentication, @PathVariable Long orderId) {
         SystemUser user = (SystemUser) authentication.getPrincipal();
         return storeManagerService.getProductLines(user.getId(), orderId);
     }
-
-    @GetMapping("/get_orders")
-    public List<StoreOrder> getOrders(Authentication authentication){
+    @GetMapping("/products")
+    public Map<Product, Integer> getAvaliableProducts(){
+        return storeManagerService.getProducts();
+    }
+    @GetMapping()
+    public List<StoreOrder> getOrders(Authentication authentication, LocalDate date){
         SystemUser user = (SystemUser) authentication.getPrincipal();
-        return storeManagerService.getOrders(user.getId());
+        return storeManagerService.getOrders(user.getId(), date);
     }
 
-    @PostMapping("/make_new_order")
+    @PostMapping()
     public void setOrder(Authentication authentication, @RequestBody  List<OrderProductLine> productLines){
         SystemUser user = (SystemUser) authentication.getPrincipal();
-        List<OrderProductLine> correct = new ArrayList<>();
-        for (OrderProductLine wrongLine:productLines) {
-            correct.add(new OrderProductLine(wrongLine.getProduct(), wrongLine.getQuantity()));
-        }
-        storeManagerService.makeNewOrder(user.getId(), correct);
+        storeManagerService.makeNewOrder(user.getId(), productLines);
     }
-
-    @PostMapping("/{orderId}/edit")
+    @PatchMapping("/{orderId}")
     public void editOrder(Authentication authentication, @PathVariable Long orderId, @RequestBody  List<OrderProductLine> productLines){
         SystemUser user = (SystemUser) authentication.getPrincipal();
         List<OrderProductLine> correct = new ArrayList<>();
@@ -59,7 +60,7 @@ public class StoreManagerController {
         storeManagerService.editOrder(user.getId(), orderId, correct);
     }
 
-    @PostMapping("/delete_order/{orderId}")
+    @DeleteMapping("/{orderId}")
     public void deleteOrder(Authentication authentication, @PathVariable Long orderId){
         SystemUser user = (SystemUser) authentication.getPrincipal();
         storeManagerService.deleteOrder(user.getId(), orderId);

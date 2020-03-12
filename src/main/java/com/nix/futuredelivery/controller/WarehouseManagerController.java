@@ -22,25 +22,25 @@ public class WarehouseManagerController {
         this.warehouseManagerService = warehouseManagerService;
     }
 
-    @GetMapping("/get_product_lines")
-    public List<WarehouseProductLine> getProductLine(Authentication authentication) {
+    @GetMapping("/product_lines")
+    public List<WarehouseProductLine> getProductLines(Authentication authentication) {
         SystemUser user = (SystemUser) authentication.getPrincipal();
         return warehouseManagerService.getProductLines(user.getId());
     }
 
-    @PostMapping("registrate_warehouse")
+    @PostMapping("/warehouse")
     public void registrateWarehouse(@RequestBody Warehouse warehouse){
         warehouseManagerService.saveWarehouse(warehouse);
     }
 
-    @PostMapping("/add_product_lines")
+    @PostMapping("/product_lines")
     public void addProductLine(@RequestBody List<Product> productLines, Authentication authentication){
         SystemUser user = (SystemUser) authentication.getPrincipal();
         if(!warehouseManagerService.hasWarehouse(user.getId())) throw new IllegalArgumentException("Managet with id "+user.getId()+" has no registered warehouse");
         warehouseManagerService.saveProductLines(productLines, user.getId());
     }
 
-    @PostMapping("/edit_product_lines")
+    @PatchMapping("/product_lines")
     public void editProductLine(@RequestBody List<WarehouseProductLine> productLines, Authentication authentication){
         SystemUser user = (SystemUser) authentication.getPrincipal();
         if(!warehouseManagerService.hasWarehouse(user.getId())) throw new IllegalArgumentException("Managet with id "+user.getId()+" has no registered warehouse");

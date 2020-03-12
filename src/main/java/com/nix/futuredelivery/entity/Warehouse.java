@@ -4,12 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.nix.futuredelivery.entity.value.AbstractProductLine;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
+import com.nix.futuredelivery.exceptions.NoProductInWarehouse;
 import lombok.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -18,6 +21,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
         property  = "id",
@@ -38,6 +42,22 @@ public class Warehouse extends AbstractStation{
     public Warehouse(Long id, Address address, String name, WarehouseManager warehouseManager) {
         super(id, address, name);
         this.warehouseManager = warehouseManager;
+    }
+
+    public boolean warehouseContainsProduct(Product product) {
+        return productLines.stream().map(AbstractProductLine::getProduct).anyMatch(warehouseProduct -> warehouseProduct.equals(product));
+    }
+    @Transactional
+    public WarehouseProductLine getWarehouseProductLine(Product product) {
+        for (WarehouseProductLine line : productLines) {
+            if (line.getProduct().equals(product)) return line;
+        }
+        throw new NoProductInWarehouse(product.getId(), getId());
+    }
+    @Transactional
+    public void setWarehouseLineQuantity(WarehouseProductLine line) {
+        WarehouseProductLine oldLine = getWarehouseProductLine(line.getProduct());
+        oldLine.setQuantity(line.getQuantity());
     }
 }
 
