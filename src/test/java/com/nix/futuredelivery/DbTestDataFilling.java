@@ -3,6 +3,7 @@ package com.nix.futuredelivery;
 import com.nix.futuredelivery.entity.*;
 import com.nix.futuredelivery.entity.value.*;
 import com.nix.futuredelivery.repository.*;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +59,7 @@ public class DbTestDataFilling {
         //car x3 +
     }
 
-    //@BeforeAll
+    @BeforeAll
     void fillBasesTables(){
         storeAndManagersFilling();
         warehouseAndManagersFilling();
