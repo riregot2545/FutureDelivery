@@ -33,4 +33,7 @@ public class Product {
     @Embedded
     private Volume volume;
 
+    public Product(String name) {
+        this.name = name;
+    }
 }

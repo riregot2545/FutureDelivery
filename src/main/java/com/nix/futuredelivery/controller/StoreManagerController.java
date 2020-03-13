@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class StoreManagerController {
         return storeManagerService.getProductLines(user.getId(), orderId);
     }
     @GetMapping("/products")
-    public Map<Product, Integer> getAvaliableProducts(){
+    public Map<String, List<BigDecimal>> getAvaliableProducts(){
         return storeManagerService.getProducts();
     }
     @GetMapping()

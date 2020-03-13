@@ -8,12 +8,14 @@ import com.nix.futuredelivery.entity.value.AbstractProductLine;
 import com.nix.futuredelivery.entity.value.OrderProductLine;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
 import com.nix.futuredelivery.exceptions.NoProductException;
+import com.nix.futuredelivery.exceptions.NoProductInList;
 import com.nix.futuredelivery.exceptions.WrongQuantityException;
 import com.nix.futuredelivery.repository.ProductRepository;
 import com.nix.futuredelivery.repository.StoreOrderRepository;
 import com.nix.futuredelivery.repository.WarehouseRepository;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -52,6 +54,9 @@ public class ProductService {
         }
         return quantity;
     }
+    private boolean isProductInMenu(Product product){
+        return getProducts().containsKey(product.getName());
+    }
 
     void addProductsToWarehouse(List<Product> lines, Warehouse warehouse) {
         List<WarehouseProductLine> productLines = lines.stream()
@@ -69,7 +74,8 @@ public class ProductService {
         List<OrderProductLine> productLines = new ArrayList<>();
         for (OrderProductLine line : lines) {
             Product product = getProduct(line.getProduct().getId());
-            if(line.getQuantity()>getProducts().get(product)) throw new WrongQuantityException(product.getId(), line.getQuantity());
+            if(!isProductInMenu(product)) throw new NoProductInList(product.getId(), (long) 0, "Menu");
+            if(line.getQuantity()>getProducts().get(product.getName()).get(0).intValue()) throw new WrongQuantityException(product.getId(), line.getQuantity());
             productLines.add(new OrderProductLine(product, line.getQuantity(), order));
         }
         order.setProductLines(productLines);
@@ -88,15 +94,19 @@ public class ProductService {
 
     void editStoreOrder(StoreOrder storeOrder, List<OrderProductLine> productLines) {
         for (OrderProductLine productLine : productLines) {
-            if(productLine.getQuantity()>getProducts().get(productLine.getProduct()))
+            if(!storeOrder.containsProduct(productLine.getProduct())) {
+                if (!isProductInMenu(productLine.getProduct()))
+                    throw new NoProductInList(productLine.getProduct().getId(), (long) 0, "Menu");
+            }
+            if(productLine.getQuantity()>getProducts().get(productLine.getProduct().getName()).get(0).intValue())
                 throw new WrongQuantityException(productLine.getProduct().getId(), productLine.getQuantity());
             storeOrder.setOrderLineQuantity(productLine);
         }
     }
+    //TODO: keep the 0 quantity products
+    Map<String, List<BigDecimal>> getProducts() {
 
-    Map<Product, List<Integer>> getProducts() {
-
-        Map<Product, Map<String, >> menu = new HashMap<>();
+        Map<String, List<BigDecimal>> menu = new HashMap<>();
         List<Warehouse> warehouses = warehouseRepository.findAll();
         List<StoreOrder> orders = storeOrderRepository.findByisDistributedFalse();
         List<Product> products = productRepository.findAll();
@@ -104,9 +114,9 @@ public class ProductService {
             int quantity = countProductInWarehouse(product, warehouses) - countProductInOrders(product, orders);
             if (quantity < 0) throw new WrongQuantityException(product.getId(), quantity);
             if (quantity == 0) continue;
-            List<Integer> quantityPrice = new ArrayList<>();
-            quantityPrice.add(quantity); quantityPrice.add(product.getPrice());
-            menu.put(product, quantityPrice);
+            List<BigDecimal> quantityPrice = new ArrayList<>();
+            quantityPrice.add(new BigDecimal(quantity)); quantityPrice.add(product.getPrice());
+            menu.put(product.getName(), quantityPrice);
         }
         return menu;
     }
