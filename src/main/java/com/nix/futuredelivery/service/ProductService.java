@@ -54,7 +54,8 @@ public class ProductService {
         }
         return quantity;
     }
-    private boolean isProductInMenu(Product product){
+
+    private boolean isProductInMenu(Product product) {
         return getProducts().containsKey(product.getName());
     }
 
@@ -74,8 +75,9 @@ public class ProductService {
         List<OrderProductLine> productLines = new ArrayList<>();
         for (OrderProductLine line : lines) {
             Product product = getProduct(line.getProduct().getId());
-            if(!isProductInMenu(product)) throw new NoProductInList(product.getId(), (long) 0, "Menu");
-            if(line.getQuantity()>getProducts().get(product.getName()).get(0).intValue()) throw new WrongQuantityException(product.getId(), line.getQuantity());
+            if (!isProductInMenu(product)) throw new NoProductInList(product.getId(), (long) 0, "Menu");
+            if (line.getQuantity() > getProducts().get(product.getName()).get(0).intValue())
+                throw new WrongQuantityException(product.getId(), line.getQuantity());
             productLines.add(new OrderProductLine(product, line.getQuantity(), order));
         }
         order.setProductLines(productLines);
@@ -94,15 +96,17 @@ public class ProductService {
 
     void editStoreOrder(StoreOrder storeOrder, List<OrderProductLine> productLines) {
         for (OrderProductLine productLine : productLines) {
-            if(!storeOrder.containsProduct(productLine.getProduct())) {
-                if (!isProductInMenu(productLine.getProduct()))
-                    throw new NoProductInList(productLine.getProduct().getId(), (long) 0, "Menu");
-            }
-            if(productLine.getQuantity()>getProducts().get(productLine.getProduct().getName()).get(0).intValue())
+
+            if (!isProductInMenu(productLine.getProduct()))
+                throw new NoProductInList(productLine.getProduct().getId(), (long) 0, "Menu");
+            int oldQuantity = 0;
+            if(storeOrder.containsProduct(productLine.getProduct())) oldQuantity = storeOrder.getLineByProduct(productLine.getProduct()).getQuantity();
+            if (productLine.getQuantity()-oldQuantity > getProducts().get(productLine.getProduct().getName()).get(0).intValue())
                 throw new WrongQuantityException(productLine.getProduct().getId(), productLine.getQuantity());
             storeOrder.setOrderLineQuantity(productLine);
         }
     }
+
     //TODO: keep the 0 quantity products
     Map<String, List<BigDecimal>> getProducts() {
 
@@ -113,9 +117,9 @@ public class ProductService {
         for (Product product : products) {
             int quantity = countProductInWarehouse(product, warehouses) - countProductInOrders(product, orders);
             if (quantity < 0) throw new WrongQuantityException(product.getId(), quantity);
-            if (quantity == 0) continue;
             List<BigDecimal> quantityPrice = new ArrayList<>();
-            quantityPrice.add(new BigDecimal(quantity)); quantityPrice.add(product.getPrice());
+            quantityPrice.add(new BigDecimal(quantity));
+            quantityPrice.add(product.getPrice());
             menu.put(product.getName(), quantityPrice);
         }
         return menu;

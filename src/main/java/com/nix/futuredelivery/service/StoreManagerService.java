@@ -5,9 +5,12 @@ import com.nix.futuredelivery.entity.value.OrderProductLine;
 import com.nix.futuredelivery.exceptions.*;
 import com.nix.futuredelivery.repository.StoreManagerRepository;
 import com.nix.futuredelivery.repository.StoreOrderRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PreRemove;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,7 +39,6 @@ public class StoreManagerService {
     private boolean storeHasOrder(StoreManager storeManager, StoreOrder storeOrder) {
         return storeManager.getStore().getOrders().contains(storeOrder);
     }
-
     private boolean managerHasStore(StoreManager manager) {
         return manager.getStore() != null;
     }
@@ -64,15 +66,14 @@ public class StoreManagerService {
         if (storeOrder.isDistributed()) throw new OrderStateException(storeOrder.getId());
         storeOrderRepository.deleteById(orderId);
     }
-
-    private StoreOrder getOrder(Long id, Long orderId) {
+    @Transactional
+    public StoreOrder getOrder(Long id, Long orderId) {
         StoreManager manager = storeManagerRepository.findById(id).orElseThrow(() -> new NoPersonException("Store manager", id));
         if (!managerHasStore(manager)) throw new NoStationException(manager.getId());
         StoreOrder storeOrder = storeOrderRepository.findById(orderId).orElseThrow(() -> new NoOrderException(orderId));
         if (!storeHasOrder(manager, storeOrder)) throw new NoOrderInStoreException(manager.getStore().getId(), orderId);
         return storeOrder;
     }
-
     @Transactional
     public List<StoreOrder> getOrders(Long managerId, LocalDate date) {
         StoreManager manager = storeManagerRepository.findById(managerId).orElseThrow(() -> new NoPersonException("Store manager", managerId));
