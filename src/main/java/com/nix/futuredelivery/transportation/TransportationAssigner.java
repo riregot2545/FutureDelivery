@@ -11,10 +11,12 @@ import com.nix.futuredelivery.transportation.model.WarehouseKeyListGroup;
 import com.nix.futuredelivery.transportation.psolver.CarAssigner;
 import com.nix.futuredelivery.transportation.psolver.PolarDistributionSolver;
 import com.nix.futuredelivery.transportation.psolver.model.StationPoint;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class TransportationAssigner {
     private final CarAssigner carAssigner;
     private final Queue<DriverLoad> drivers;
@@ -36,6 +38,7 @@ public class TransportationAssigner {
     }
 
     public List<Route> assign() {
+        log.info("Starting route creation and car assigning. Warehouse count {}.", mappedWarehouses.size());
         for (WarehouseKeyListGroup warehouseGroup : mappedWarehouses) {
             Warehouse warehouse = warehouseGroup.getKey();
             List<DistributionEntry> entries = warehouseGroup.getList();
@@ -58,12 +61,11 @@ public class TransportationAssigner {
             for (int i = 0; i < stationPoints.size(); i++) {
                 currentPoint = stationPoints.get(i);
                 for (AssignOrderLine productLine : currentPoint.getProductLines()) {
-                    if (productLine.getRemainQuantity() > 0) {
-                        StoreOrder order = productLine.getStoreOrder();
 
+                    if (productLine.getRemainQuantity() > 0) {
                         double oneProductVolume = productLine.getProduct().getVolume().getVolume();
                         if (currentCar.getFreeVolume() >= oneProductVolume) {
-                            appendLineToWaybill(order, productLine);
+                            appendLineToWaybill(productLine);
                         } else {
                             if (tackedStationPoints.size() < 2) {
                                 Optional<Capacity> groupIncrementResult = carAssigner.incrementGroupLevel();
@@ -93,11 +95,13 @@ public class TransportationAssigner {
             }
             addNewRoute(warehouse);
         }
+        log.info("Successfully ended route creation. Created {} routes.", routes.size());
         return routes;
     }
 
 
-    private void appendLineToWaybill(StoreOrder order, AssignOrderLine productLine) {
+    private void appendLineToWaybill(AssignOrderLine productLine) {
+        StoreOrder order = productLine.getStoreOrder();
         double oneProductVolume = productLine.getProduct().getVolume().getVolume();
         int possibleQuantity = (int) (currentCar.getFreeVolume() / oneProductVolume);
         int acceptedQuantity = Math.min(possibleQuantity, productLine.getRemainQuantity());
@@ -106,8 +110,7 @@ public class TransportationAssigner {
         if (waybillsByOrderMap.get(order) == null)
             waybillsByOrderMap.put(order, new Waybill(null, order, new ArrayList<>(), null, 0, null, null));
 
-        WaybillProductLine waybillLine =
-                new WaybillProductLine();
+        WaybillProductLine waybillLine = new WaybillProductLine();
         waybillLine.setWaybill(waybillsByOrderMap.get(order));
         waybillLine.setProduct(productLine.getProduct());
         waybillLine.setQuantity(acceptedQuantity);
@@ -144,19 +147,26 @@ public class TransportationAssigner {
 
     private void resetAssignFromTacked() {
         for (StationPoint tackedStationPoint : tackedStationPoints) {
-            for (AssignOrderLine line : tackedStationPoint.getProductLines()) {
-                StoreOrder storeOrder = line.getStoreOrder();
-                Waybill waybill = waybillsByOrderMap.get(storeOrder);
-                if (line.getAssignQuantity() != 0 && waybill != null) {
-                    List<WaybillProductLine> productLines =
-                            waybill.getProductLines();
-                    WaybillProductLine searchedLine = productLines.stream()
-                            .filter(waybillProductLine -> waybillProductLine.getProduct().equals(line.getProduct()))
-                            .findFirst().orElseThrow(() -> new IllegalArgumentException("Can't find product line"));
 
-                    line.resetAssign(searchedLine.getQuantity());
-                }
-            }
+            waybillsByOrderMap.forEach((order, waybill) -> {
+                List<AssignOrderLine> originalLinesByOrder = tackedStationPoint.getProductLines()
+                        .stream()
+                        .filter(line -> line.getStoreOrder().equals(order))
+                        .collect(Collectors.toList());
+                if (originalLinesByOrder.isEmpty())
+                    throw new IllegalStateException("Can't find waybill order " + order + " in original station orders");
+
+                waybill.getProductLines().forEach(waybillProductLine -> {
+                    Optional<AssignOrderLine> assignOrderLineOptional = originalLinesByOrder.stream()
+                            .filter(line -> line.getProduct().equals(waybillProductLine.getProduct()))
+                            .findFirst();
+
+                    if (!assignOrderLineOptional.isPresent())
+                        throw new IllegalStateException("Can't find waybill line product " + waybillProductLine.getProduct() + " in original product line");
+
+                    assignOrderLineOptional.get().resetAssign(waybillProductLine.getQuantity());
+                });
+            });
 
         }
     }
