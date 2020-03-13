@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.nix.futuredelivery.entity.value.AbstractProductLine;
 import com.nix.futuredelivery.entity.value.OrderProductLine;
+import com.nix.futuredelivery.exceptions.NoProductInList;
 import lombok.*;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,18 +49,18 @@ public class StoreOrder {
         this.creationDate = LocalDateTime.now();
     }
 
-    private boolean containsProduct(Product product){
+    public boolean containsProduct(Product product){
         return productLines.stream().map(AbstractProductLine::getProduct).anyMatch(orderProduct -> orderProduct.equals(product));
     }
-    private Optional<OrderProductLine> getLineByProduct(Product product){
-        if(!containsProduct(product)) return Optional.empty();
-        return productLines.stream().filter(line->line.getProduct().equals(product)).findAny();
+    public OrderProductLine getLineByProduct(Product product){
+        return productLines.stream().filter(line->line.getProduct().equals(product)).findAny()
+                .orElseThrow(()->new NoProductInList(product.getId(), id, "Order"));
     }
     @Transactional
     public void setOrderLineQuantity(OrderProductLine productLine) {
         OrderProductLine oldLine;
-        if (getLineByProduct(productLine.getProduct()).isPresent()) {
-            oldLine = getLineByProduct(productLine.getProduct()).get();
+        if (containsProduct(productLine.getProduct())) {
+            oldLine = getLineByProduct(productLine.getProduct());
         } else {
             oldLine = new OrderProductLine(productLine.getProduct(), productLine.getQuantity(), this);
             getProductLines().add(oldLine);

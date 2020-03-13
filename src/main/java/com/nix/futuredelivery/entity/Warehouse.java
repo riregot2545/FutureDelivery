@@ -2,11 +2,10 @@ package com.nix.futuredelivery.entity;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.nix.futuredelivery.entity.value.AbstractProductLine;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
-import com.nix.futuredelivery.exceptions.NoProductInWarehouse;
+import com.nix.futuredelivery.exceptions.NoProductInList;
 import lombok.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,10 +17,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
         property  = "id",
@@ -52,7 +49,7 @@ public class Warehouse extends AbstractStation{
         for (WarehouseProductLine line : productLines) {
             if (line.getProduct().equals(product)) return line;
         }
-        throw new NoProductInWarehouse(product.getId(), getId());
+        throw new NoProductInList(product.getId(), getId(), "Warehouse");
     }
     @Transactional
     public void setWarehouseLineQuantity(WarehouseProductLine line) {

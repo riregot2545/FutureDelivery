@@ -60,7 +60,6 @@ public class StoreManagerService {
     @Transactional
     public void deleteOrder(Long managerId, Long orderId) {
         StoreOrder storeOrder = getOrder(managerId, orderId);
-        ;
         if (storeOrder.isDistributed()) throw new OrderStateException(storeOrder.getId());
         storeOrderRepository.deleteById(orderId);
     }
@@ -87,7 +86,7 @@ public class StoreManagerService {
         productService.editStoreOrder(storeOrder, productLines);
     }
 
-    public Map<Product, Integer> getProducts() {
+    public Map<Product, List<Integer, Integer>> getProducts() {
         return productService.getProducts();
     }
 }

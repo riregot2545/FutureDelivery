@@ -24,7 +24,7 @@ public abstract class AbstractProductLine implements Serializable {
 
     public AbstractProductLine(Product product, int quantity) {
         this.product = product;
-        if(quantity<=0) throw new WrongQuantityException(product.getId(), quantity);
+        if(quantity<0) throw new WrongQuantityException(product.getId(), quantity);
         this.quantity = quantity;
     }
 

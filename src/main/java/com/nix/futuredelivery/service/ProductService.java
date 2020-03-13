@@ -8,14 +8,13 @@ import com.nix.futuredelivery.entity.value.AbstractProductLine;
 import com.nix.futuredelivery.entity.value.OrderProductLine;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
 import com.nix.futuredelivery.exceptions.NoProductException;
+import com.nix.futuredelivery.exceptions.WrongQuantityException;
 import com.nix.futuredelivery.repository.ProductRepository;
+import com.nix.futuredelivery.repository.StoreOrderRepository;
 import com.nix.futuredelivery.repository.WarehouseRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -23,35 +22,35 @@ import java.util.stream.IntStream;
 public class ProductService {
     private ProductRepository productRepository;
     private WarehouseRepository warehouseRepository;
+    private StoreOrderRepository storeOrderRepository;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, WarehouseRepository warehouseRepository, StoreOrderRepository storeOrderRepository) {
         this.productRepository = productRepository;
+        this.warehouseRepository = warehouseRepository;
+        this.storeOrderRepository = storeOrderRepository;
     }
 
     private Product getProduct(Long productId) {
         return productRepository.findById(productId).orElseThrow(() -> new NoProductException(productId));
     }
 
-    private Map<Product, Integer> countProductsInWarehouses() {
-        List<Warehouse> warehouses = warehouseRepository.findAll();
-        List<Product> products = productRepository.findAll();
-        for (Warehouse warehouse : warehouses) {
 
-        }
-        return null;
-    }
-
-    private Map.Entry<Product, Integer> countProductInWarehouse(Product product, List<Warehouse> warehouses) {
+    private int countProductInWarehouse(Product product, List<Warehouse> warehouses) {
         int quantity = 0;
         for (Warehouse warehouse : warehouses) {
             if (warehouse.warehouseContainsProduct(product))
                 quantity += warehouse.getWarehouseProductLine(product).getQuantity();
         }
-        return null;
+        return quantity;
     }
 
-    private Map.Entry<Product, Integer> countProductIncludingOrders(Product product, List<StoreOrder> orders) {
-        return null;
+    private int countProductInOrders(Product product, List<StoreOrder> orders) {
+        int quantity = 0;
+        for (StoreOrder order : orders) {
+            if (order.containsProduct(product))
+                quantity += order.getLineByProduct(product).getQuantity();
+        }
+        return quantity;
     }
 
     void addProductsToWarehouse(List<Product> lines, Warehouse warehouse) {
@@ -66,11 +65,12 @@ public class ProductService {
     }
 
     void createOrder(List<OrderProductLine> lines, Store store) {
-        StoreOrder order = new StoreOrder(store, true, false);
+        StoreOrder order = new StoreOrder(store, false, false);
         List<OrderProductLine> productLines = new ArrayList<>();
         for (OrderProductLine line : lines) {
             Product product = getProduct(line.getProduct().getId());
-            productLines.add(new OrderProductLine(product, 0, order));
+            if(line.getQuantity()>getProducts().get(product)) throw new WrongQuantityException(product.getId(), line.getQuantity());
+            productLines.add(new OrderProductLine(product, line.getQuantity(), order));
         }
         order.setProductLines(productLines);
         store.addOrder(order);
@@ -87,14 +87,28 @@ public class ProductService {
     }
 
     void editStoreOrder(StoreOrder storeOrder, List<OrderProductLine> productLines) {
-        productLines.forEach(storeOrder::setOrderLineQuantity);
+        for (OrderProductLine productLine : productLines) {
+            if(productLine.getQuantity()>getProducts().get(productLine.getProduct()))
+                throw new WrongQuantityException(productLine.getProduct().getId(), productLine.getQuantity());
+            storeOrder.setOrderLineQuantity(productLine);
+        }
     }
 
-    public Map<Product, Integer> getProducts() {
+    Map<Product, List<Integer>> getProducts() {
 
+        Map<Product, Map<String, >> menu = new HashMap<>();
+        List<Warehouse> warehouses = warehouseRepository.findAll();
+        List<StoreOrder> orders = storeOrderRepository.findByisDistributedFalse();
         List<Product> products = productRepository.findAll();
-
-        return null;
+        for (Product product : products) {
+            int quantity = countProductInWarehouse(product, warehouses) - countProductInOrders(product, orders);
+            if (quantity < 0) throw new WrongQuantityException(product.getId(), quantity);
+            if (quantity == 0) continue;
+            List<Integer> quantityPrice = new ArrayList<>();
+            quantityPrice.add(quantity); quantityPrice.add(product.getPrice());
+            menu.put(product, quantityPrice);
+        }
+        return menu;
     }
 
 }

@@ -34,4 +34,8 @@ public class WarehouseProductLine extends AbstractProductLine implements Seriali
         super(product, quantity);
         this.warehouse = warehouse;
     }
+
+    public WarehouseProductLine(Product product, int quantity) {
+        super(product, quantity);
+    }
 }
