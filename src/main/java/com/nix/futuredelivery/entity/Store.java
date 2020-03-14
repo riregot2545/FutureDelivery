@@ -15,6 +15,7 @@ public class Store extends AbstractStation {
     @OneToOne(cascade = CascadeType.ALL)
     @Getter
     @Setter
+    @EqualsAndHashCode.Exclude
     private StoreManager storeManager;
 
     public Store(Long id, Address address, String name, StoreManager storeManager) {

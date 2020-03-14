@@ -4,16 +4,11 @@ package com.nix.futuredelivery.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
 import lombok.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +20,7 @@ import java.util.List;
 @Entity
 public class Warehouse extends AbstractStation{
     @OneToOne(mappedBy = "warehouse", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
     private WarehouseManager warehouseManager;
 
     @OneToMany(

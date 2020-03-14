@@ -33,7 +33,7 @@ public class PotentialPlanSolver {
         DistributionCell maxPotentialCell = findMaxPotentialSum();
         while (maxPotentialCell.getPotentialSum() > 0) {
 
-            log.info("Max potential before cycle:" + maxPotentialCell.getPotentialSum() +
+            log.debug("Max potential before cycle:" + maxPotentialCell.getPotentialSum() +
                     " on [" + maxPotentialCell.getX()+ "," + maxPotentialCell.getY()+"]");
 
 
@@ -42,7 +42,7 @@ public class PotentialPlanSolver {
             makePotentials();
             maxPotentialCell = findMaxPotentialSum();
 
-            log.info("Max potential after cycle:" + maxPotentialCell.getPotentialSum() +
+            log.debug("Max potential after cycle:" + maxPotentialCell.getPotentialSum() +
                     " on [" + maxPotentialCell.getX()+ "," + maxPotentialCell.getY()+"]");
 
             uArray.clear();
@@ -83,6 +83,7 @@ public class PotentialPlanSolver {
                 } else if (vElementNullIndex > -1) {
                     vArray.set(vElementNullIndex, 0);
                 }
+                iterations = 0;
             }
         }
     }

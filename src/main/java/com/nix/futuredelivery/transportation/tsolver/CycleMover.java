@@ -6,6 +6,7 @@ import com.nix.futuredelivery.transportation.tsolver.model.DistributionPlan;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -110,6 +111,7 @@ public class CycleMover {
     private Optional<List<DistributionCell>> addBasisCellAndRebuildCycle(List<DistributionCell> usedPositions,
                                              DistributionCell cell) {
         List<DistributionCell> tryFillCellList = findEmptyCells(cell);
+        Collections.shuffle(tryFillCellList);
         for (DistributionCell emptyCell :
                 tryFillCellList) {
             emptyCell.setFullness(0);
