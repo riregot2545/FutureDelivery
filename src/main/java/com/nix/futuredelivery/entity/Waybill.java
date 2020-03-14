@@ -42,4 +42,5 @@ public class Waybill {
                 .reduce(cost, BigDecimal::add);
         productCost = cost;
     }
+
 }

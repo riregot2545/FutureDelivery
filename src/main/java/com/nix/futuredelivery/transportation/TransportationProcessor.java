@@ -51,6 +51,26 @@ public class TransportationProcessor {
         transportationAssigner = new TransportationAssigner(cars, drivers, distributionEntries);
         List<Route> assignedRoutes = transportationAssigner.assign();
 
+/*        List<Store> collect = assignedRoutes.get(0).getWaybillList().stream().map(w -> w.getStoreOrder().getStore()).distinct().collect(Collectors.toList());
+//
+            Lisct<Distace> distance list = new ...Ar
+           for(Store store : collect){
+            ///!!!! обновить проект, так как функции тут нет
+                  distanceList.add( distanceRep.findByAddreasFrom(store.getAddress)
+           }
+
+
+//        Optional<Distance> oneByAddressFromAndAddressTo = distanceRepository.findOneByAddressFromAndAddressTo(collect.get(0).getAddress(), collect.get(1).getAddress());
+//        oneByAddressFromAndAddressTo.get().getDistance();
+//
+//        Map<Store, List<Waybill>> collect1 = assignedRoutes.get(0).getWaybillList().stream().collect(Collectors.groupingBy(w -> w.getStoreOrder().getStore()));
+//
+//        for (Waybill waybill : assignedRoutes.get(0).getWaybillList()) {
+//            waybill.setDeliveryQueuePlace();
+//        }
+
+ */
+
         routingSolver = new TestVehicleRouter();
         List<Route> sortedRoutes = routingSolver.setOrderInWaybills(assignedRoutes);
         calculateRouteCosts(sortedRoutes);
