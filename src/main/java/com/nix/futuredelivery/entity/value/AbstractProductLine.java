@@ -1,7 +1,7 @@
 package com.nix.futuredelivery.entity.value;
 
 import com.nix.futuredelivery.entity.Product;
-import lombok.AllArgsConstructor;
+import com.nix.futuredelivery.exceptions.WrongQuantityException;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +13,6 @@ import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @MappedSuperclass
 public abstract class AbstractProductLine implements Serializable {
     @ManyToOne(cascade = CascadeType.MERGE)
@@ -21,4 +20,15 @@ public abstract class AbstractProductLine implements Serializable {
     protected Product product;
 
     protected int quantity;
+
+    public AbstractProductLine(Product product, int quantity) {
+        this.product = product;
+        if(quantity<0) throw new WrongQuantityException(product.getId(), quantity);
+        this.quantity = quantity;
+    }
+
+    public void setQuantity(int quantity){
+        if (quantity < 0) throw new WrongQuantityException(product.getId(), quantity);
+        this.quantity = quantity;
+    }
 }

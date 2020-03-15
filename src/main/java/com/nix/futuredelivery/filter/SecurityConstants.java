@@ -1,11 +1,20 @@
 package com.nix.futuredelivery.filter;
 
-public final class SecurityConstants {
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
+@RequiredArgsConstructor
+@Component
+public class SecurityConstants {
     public static final String AUTH_LOGIN_URL = "/authorize";
 
     // Signing key for HS512 algorithm
     // You can use the page http://www.allkeysgenerator.com/ to generate all kinds of keys
-    public static final String JWT_SECRET = "n2r5u8x/A%D*G-KaPdSgVkYp3s6v9y$B&E(H+MbQeThWmZq4t7w!z%C*F-J@NcRf";
+    @Value("${spring.security.jwt.token.JWT_SECRET}")
+    public String JWT_SECRET;
 
     // JWT token defaults
     public static final String TOKEN_HEADER = "Authorization";
@@ -14,7 +23,8 @@ public final class SecurityConstants {
     public static final String TOKEN_ISSUER = "secure-api";
     public static final String TOKEN_AUDIENCE = "secure-app";
 
-    private SecurityConstants() {
-        throw new IllegalStateException("Cannot create instance of static util class");
-    }
+    /*private SecurityConstants() {
+       // throw new IllegalStateException("Cannot create instance of static util class");
+    }*/
+
 }

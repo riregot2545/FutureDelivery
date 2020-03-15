@@ -10,8 +10,7 @@ import java.util.List;
 public interface DriverRepository extends JpaRepository<Driver, Long> {
     @Query("SELECT " +
             "    new com.nix.futuredelivery.transportation.model.DriverLoad(d, COUNT(d)) " +
-            "FROM Route r " +
-            "RIGHT JOIN r.driver d " +
+            "FROM Route r RIGHT JOIN r.driver d " +
             "GROUP BY d.id"
     )
     List<DriverLoad> aggregateDriverByLoad();

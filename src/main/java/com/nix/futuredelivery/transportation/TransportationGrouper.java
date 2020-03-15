@@ -154,7 +154,7 @@ public class TransportationGrouper {
     }
 
     private List<ProductKeyListGroup<OrderProductLine>> groupOrderLinesByProduct() {
-        List<StoreOrder> orders = orderRepository.findByIsDistributedFalse();
+        List<StoreOrder> orders = orderRepository.findByisDistributedFalse();
 
         return orders.stream()
                 .flatMap(ord -> ord.getProductLines().stream())

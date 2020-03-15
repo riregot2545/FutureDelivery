@@ -5,21 +5,16 @@ import com.nix.futuredelivery.entity.SystemUser;
 import com.nix.futuredelivery.entity.Warehouse;
 import com.nix.futuredelivery.entity.WarehouseManager;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
-import com.nix.futuredelivery.repository.projections.WarehouseProductLinesOnly;
-import com.nix.futuredelivery.security.MyUserPrincipal;
+import com.nix.futuredelivery.exceptions.NoStationException;
 import com.nix.futuredelivery.service.WarehouseManagerService;
-import lombok.Data;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-@Data
+
 @RestController
-@PreAuthorize("hasAuthority('WAREHOUSE_MANAGER')")
 @RequestMapping("/warehouse_manager")
 public class WarehouseManagerController {
     private WarehouseManagerService warehouseManagerService;
@@ -28,25 +23,38 @@ public class WarehouseManagerController {
         this.warehouseManagerService = warehouseManagerService;
     }
 
-    @GetMapping("/get_product_line")
-    public List<WarehouseProductLine> getProductLine(Authentication authentication) {
+    @PreAuthorize("hasAuthority('WAREHOUSE_MANAGER')")
+    @GetMapping("/product_lines")
+    public List<WarehouseProductLine> getProductLines(Authentication authentication) {
         SystemUser user = (SystemUser) authentication.getPrincipal();
         return warehouseManagerService.getProductLines(user.getId());
     }
 
-    @PostMapping("registrate_warehouse")
+    @PreAuthorize("hasAuthority('WAREHOUSE_MANAGER')")
+    @PostMapping("/warehouse")
     public void registrateWarehouse(@RequestBody Warehouse warehouse){
         warehouseManagerService.saveWarehouse(warehouse);
     }
 
-    @PostMapping("/add_product_lines")
+    @PostMapping()
+    public void registerWarehouseManager(@RequestBody WarehouseManager warehouseManager) {
+        warehouseManagerService.saveWarehouseManager(warehouseManager);
+    }
+
+    @PreAuthorize("hasAuthority('WAREHOUSE_MANAGER')")
+    @PostMapping("/product_lines")
     public void addProductLine(@RequestBody List<Product> productLines, Authentication authentication){
         SystemUser user = (SystemUser) authentication.getPrincipal();
+        if(!warehouseManagerService.hasWarehouse(user.getId())) throw new NoStationException(user.getId());
         warehouseManagerService.saveProductLines(productLines, user.getId());
     }
 
-    @GetMapping("/private")
-    public String getMessage(Authentication authentication) {
-        return "yyyes";
+    @PreAuthorize("hasAuthority('WAREHOUSE_MANAGER')")
+    @PatchMapping("/product_lines")
+    public void editProductLine(@RequestBody List<WarehouseProductLine> productLines, Authentication authentication){
+        SystemUser user = (SystemUser) authentication.getPrincipal();
+        if(!warehouseManagerService.hasWarehouse(user.getId())) throw new NoStationException(user.getId());
+        warehouseManagerService.editProductLines(productLines, user.getId());
     }
+
 }
