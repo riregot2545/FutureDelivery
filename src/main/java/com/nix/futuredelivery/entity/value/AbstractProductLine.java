@@ -2,7 +2,6 @@ package com.nix.futuredelivery.entity.value;
 
 import com.nix.futuredelivery.entity.Product;
 import com.nix.futuredelivery.exceptions.WrongQuantityException;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -29,7 +28,7 @@ public abstract class AbstractProductLine implements Serializable {
     }
 
     public void setQuantity(int quantity){
-        if(quantity<=0) throw new WrongQuantityException(product.getId(), quantity);
+        if (quantity < 0) throw new WrongQuantityException(product.getId(), quantity);
         this.quantity = quantity;
     }
 }

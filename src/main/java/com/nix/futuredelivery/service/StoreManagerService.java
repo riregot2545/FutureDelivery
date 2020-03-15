@@ -1,24 +1,18 @@
 package com.nix.futuredelivery.service;
 
-import com.nix.futuredelivery.entity.*;
+import com.nix.futuredelivery.entity.StoreManager;
+import com.nix.futuredelivery.entity.StoreOrder;
+import com.nix.futuredelivery.entity.value.AbstractProductLine;
 import com.nix.futuredelivery.entity.value.OrderProductLine;
 import com.nix.futuredelivery.exceptions.*;
 import com.nix.futuredelivery.repository.StoreManagerRepository;
 import com.nix.futuredelivery.repository.StoreOrderRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PreRemove;
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
-import java.time.chrono.ChronoLocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,14 +21,15 @@ public class StoreManagerService {
     private StoreManagerRepository storeManagerRepository;
     private ProductService productService;
     private StoreOrderRepository storeOrderRepository;
+    private PasswordEncoder passwordEncoder;
 
 
-    public StoreManagerService(StoreManagerRepository storeManagerRepository, ProductService productService, StoreOrderRepository storeOrderRepository) {
+    public StoreManagerService(StoreManagerRepository storeManagerRepository, ProductService productService, StoreOrderRepository storeOrderRepository, PasswordEncoder passwordEncoder) {
         this.storeManagerRepository = storeManagerRepository;
         this.productService = productService;
         this.storeOrderRepository = storeOrderRepository;
+        this.passwordEncoder = passwordEncoder;
     }
-
 
     private boolean storeHasOrder(StoreManager storeManager, StoreOrder storeOrder) {
         return storeManager.getStore().getOrders().contains(storeOrder);
@@ -43,6 +38,12 @@ public class StoreManagerService {
         return manager.getStore() != null;
     }
 
+    @Transactional
+    public void saveStoreManager(StoreManager manager) {
+        String password = manager.getPassword();
+        manager.setPassword(passwordEncoder.encode(password));
+        storeManagerRepository.save(manager);
+    }
     @Transactional
     public List<OrderProductLine> getProductLines(Long userId, Long orderId) {
         StoreManager manager = storeManagerRepository.findById(userId).orElseThrow(() -> new NoPersonException("Store manager", userId));
@@ -64,7 +65,8 @@ public class StoreManagerService {
     public void deleteOrder(Long managerId, Long orderId) {
         StoreOrder storeOrder = getOrder(managerId, orderId);
         if (storeOrder.isDistributed()) throw new OrderStateException(storeOrder.getId());
-        storeOrderRepository.deleteById(orderId);
+        StoreManager manager = storeManagerRepository.findById(managerId).orElseThrow(() -> new NoPersonException("Store manager", managerId));
+        manager.getStore().getOrders().remove(storeOrder);
     }
     @Transactional
     public StoreOrder getOrder(Long id, Long orderId) {
@@ -75,11 +77,11 @@ public class StoreManagerService {
         return storeOrder;
     }
     @Transactional
-    public List<StoreOrder> getOrders(Long managerId, LocalDate date) {
+    public List<StoreOrder> getOrders(Long managerId, LocalDateTime date) {
         StoreManager manager = storeManagerRepository.findById(managerId).orElseThrow(() -> new NoPersonException("Store manager", managerId));
         if (!managerHasStore(manager)) throw new NoStationException(manager.getId());
         List<StoreOrder> orders = manager.getStore().getOrders();
-        return orders.stream().filter(order -> order.getCreationDate().isAfter(ChronoLocalDateTime.from(date))).collect(Collectors.toList());
+        return orders.stream().filter(order -> order.getCreationDate().isAfter(date)).collect(Collectors.toList());
     }
 
     @Transactional
@@ -88,7 +90,7 @@ public class StoreManagerService {
         productService.editStoreOrder(storeOrder, productLines);
     }
 
-    public Map<String, List<BigDecimal>> getProducts() {
+    public List<AbstractProductLine> getProducts() {
         return productService.getProducts();
     }
 }
