@@ -1,12 +1,18 @@
 package com.nix.futuredelivery.service;
 
-import com.nix.futuredelivery.entity.*;
+import com.nix.futuredelivery.entity.Driver;
+import com.nix.futuredelivery.entity.Route;
+import com.nix.futuredelivery.entity.Warehouse;
+import com.nix.futuredelivery.entity.Waybill;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
 import com.nix.futuredelivery.entity.value.WaybillProductLine;
 import com.nix.futuredelivery.repository.DriverRepository;
 import com.nix.futuredelivery.repository.RouteRepository;
 import com.nix.futuredelivery.repository.WarehouseRepository;
 import com.nix.futuredelivery.repository.WaybillRepository;
+import com.nix.futuredelivery.service.exceptions.InvalidDeliveryOrderException;
+import com.nix.futuredelivery.service.exceptions.NoRouteFoundException;
+import com.nix.futuredelivery.service.exceptions.SomeWaybillsNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,22 +37,19 @@ public class DriverService {
 
     @Transactional
     public List<Route> getDriversRoutes(Long id) {
-        Driver driver = driverRepository.findById(id).orElseThrow(() -> new IllegalStateException("no"));
-        ;
-        return driver.getDriversRoutes;
+        Driver driver = driverRepository.findById(id).orElseThrow(() -> new IllegalStateException("Driver with id=" + id + " is not exist."));
+        return routeRepository.findByDriverAndIsClosedFalse(driver);
     }
 
     @Transactional
-    public void saveDriversRoute(Driver driver) {
-        String password = driver.getPassword();
-        driver.setPassword("{noop}" + password);
-        driverRepository.save(driver);
-    }
-
-    @Transactional
-    public void checkDriversRoute(List<WaybillProductLine> waybillProductLines) throws Exception {
-        List<Long> waybillKeys = waybillProductLines.stream().map(w -> w.getWaybill().getId()).distinct().collect(Collectors.toList());
+    public void checkCompletedDelivery(List<Waybill> completedWaybills) {
+        List<Long> waybillKeys = completedWaybills.stream().mapToLong(Waybill::getId).boxed().collect(Collectors.toList());
         List<Waybill> waybills = waybillRepository.findAllById(waybillKeys);
+        if (waybills.size() != completedWaybills.size()) {
+            List<Long> foundKeys = waybills.stream().mapToLong(Waybill::getId).boxed().collect(Collectors.toList());
+            List<Long> differ = waybillKeys.stream().filter(orig -> !foundKeys.contains(orig)).collect(Collectors.toList());
+            throw new SomeWaybillsNotFoundException(differ);
+        }
         Optional<Route> routeOptional = routeRepository.findById(waybills.get(0).getRoute().getId());
         if (routeOptional.isPresent()) {
             Route route = routeOptional.get();
@@ -56,29 +59,30 @@ public class DriverService {
             if (waybills.get(0).getDeliveryQueuePlace() != 0) {
                 List<Waybill> previousWaybillsToCheck = collectedWaybillsByQueuePlace.get(waybills.get(0).getDeliveryQueuePlace() - 1);
                 if (!previousWaybillsToCheck.get(0).getProductLines().get(0).isDelivered()) {
-                    // TODO: 14.03.2020 Make normal Server exception
-                    throw new Exception();
+                    throw new InvalidDeliveryOrderException(previousWaybillsToCheck.get(0).getDeliveryQueuePlace(),
+                            waybills.get(0).getDeliveryQueuePlace());
                 }
-
-                Warehouse warehouse = route.getWarehouse();
-                for (Waybill waybill : previousWaybillsToCheck) {
-                    for (WaybillProductLine productLine : waybill.getProductLines()) {
-                        productLine.setDelivered(true);
-
-                        Optional<WarehouseProductLine> warehouseProductLine = warehouse.getProductLines()
-                                .stream()
-                                .filter(w -> w.getProduct().equals(productLine.getProduct()))
-                                .findFirst();
-                        warehouseProductLine.get().setQuantity(warehouseProductLine.get().getQuantity() - productLine.getQuantity());
-                    }
-                }
-                warehouseRepository.save(warehouse);
-                waybillRepository.saveAll(waybills);
             }
 
+            Warehouse warehouse = route.getWarehouse();
+            for (Waybill waybill : waybills) {
+                for (WaybillProductLine productLine : waybill.getProductLines()) {
+                    productLine.setDelivered(true);
+
+                    Optional<WarehouseProductLine> warehouseProductLine = warehouse.getProductLines()
+                            .stream()
+                            .filter(w -> w.getProduct().equals(productLine.getProduct()))
+                            .findFirst();
+                    if (!warehouseProductLine.isPresent())
+
+
+                        warehouseProductLine.get().setQuantity(warehouseProductLine.get().getQuantity() - productLine.getQuantity());
+                }
+            }
+            warehouseRepository.save(warehouse);
+            waybillRepository.saveAll(waybills);
 
         }
-        // TODO: 14.03.2020 Make normal Server exception
-        throw new Exception();
+        throw new NoRouteFoundException(waybills.get(0).getRoute().getId());
     }
 }

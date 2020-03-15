@@ -26,6 +26,9 @@ public class Route {
     @ManyToOne
     private Warehouse warehouse;
 
+    @Transient
+    private List<Store> routePoints;
+
     private boolean isClosed;
 
     public Route(boolean isClosed, Driver driver, Car car){

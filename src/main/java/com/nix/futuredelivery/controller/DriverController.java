@@ -2,8 +2,8 @@ package com.nix.futuredelivery.controller;
 
 import com.nix.futuredelivery.entity.Route;
 import com.nix.futuredelivery.entity.SystemUser;
+import com.nix.futuredelivery.entity.Waybill;
 import com.nix.futuredelivery.service.DriverService;
-import com.sun.org.apache.xml.internal.security.keys.keyresolver.implementations.DEREncodedKeyValueResolver;
 import lombok.Data;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -26,9 +26,10 @@ public class DriverController {
         SystemUser user = (SystemUser) authentication.getPrincipal();
         return driverService.getDriversRoutes(user.getId());
     }
-    @PostMapping("/save_routes")
-    public List<Route> addDriversRoute(@RequestBody List<Route> routes, Authentication authentication){
+
+    @PostMapping("/set_waybills_delivered")
+    public void setWaybillsDelivered(@RequestBody List<Waybill> waybills, Authentication authentication) {
         SystemUser user = (SystemUser) authentication.getPrincipal();
-        return driverService.saveDriversRoute(routes, user.getId());
+        driverService.checkCompletedDelivery(waybills);
     }
 }
