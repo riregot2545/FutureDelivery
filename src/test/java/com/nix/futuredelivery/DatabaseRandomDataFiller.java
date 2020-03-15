@@ -80,7 +80,7 @@ public class DatabaseRandomDataFiller {
     @Transactional
     void randomMediumDataTest() {
         ProductCategory productCategory = new ProductCategory(null, "testCategory", null);
-        List<Car> cars = generator.cars(10, 10, 1000D, 1.1,
+        List<Car> cars = generator.cars(10, 10, 10000D, 1.1,
                 15, 0.001);
         List<Driver> drivers = generator.drivers(30);
         List<Store> stores = generator.storeAndManagers(40);

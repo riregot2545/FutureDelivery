@@ -10,7 +10,7 @@ public class SimulatedVehicleRouter implements VehicleRoutingSolver {
     public List<Route> setOrderInWaybills(List<Route> routeList, List<Distance> distances) {
         for (Route route : routeList) {
             SimulatedAnnealing simulatedAnnealing = new SimulatedAnnealing(route, distances);
-            double v = simulatedAnnealing.simulateAnnealing();
+            Route sortedRoute = simulatedAnnealing.simulateAnnealing();
         }
         return routeList;
     }

@@ -49,6 +49,7 @@ public class TransportationGrouper {
 
         if (isProductPositionsEquals(orderGroupCatalog, warehouseGroupCatalog)) {
             log.info("Starting product distribution...");
+            Collections.shuffle(orderGroupCatalog);
             for (int i = 0; i < orderGroupCatalog.size(); i++) {
                 log.info("Product distribution {}/{}", i, orderGroupCatalog.size());
                 ProductKeyListGroup<OrderProductLine> orderProductGroup = orderGroupCatalog.get(i);

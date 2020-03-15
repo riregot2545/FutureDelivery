@@ -1,9 +1,6 @@
 package com.nix.futuredelivery.service;
 
-import com.nix.futuredelivery.entity.Driver;
-import com.nix.futuredelivery.entity.Route;
-import com.nix.futuredelivery.entity.Warehouse;
-import com.nix.futuredelivery.entity.Waybill;
+import com.nix.futuredelivery.entity.*;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
 import com.nix.futuredelivery.entity.value.WaybillProductLine;
 import com.nix.futuredelivery.repository.DriverRepository;
@@ -16,6 +13,7 @@ import com.nix.futuredelivery.service.exceptions.SomeWaybillsNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,7 +36,17 @@ public class DriverService {
     @Transactional
     public List<Route> getDriversRoutes(Long id) {
         Driver driver = driverRepository.findById(id).orElseThrow(() -> new IllegalStateException("Driver with id=" + id + " is not exist."));
-        return routeRepository.findByDriverAndIsClosedFalse(driver);
+        List<Route> routes = routeRepository.findByDriverAndIsClosedFalse(driver);
+        for (Route route : routes) {
+            List<Store> stores = route.getWaybillList()
+                    .stream()
+                    .sorted(Comparator.comparingInt(Waybill::getDeliveryQueuePlace))
+                    .map(w -> w.getStoreOrder().getStore())
+                    .distinct()
+                    .collect(Collectors.toList());
+            route.setRoutePoints(stores);
+        }
+        return routes;
     }
 
     @Transactional

@@ -108,7 +108,7 @@ public class TransportationAssigner {
 
 
         if (waybillsByOrderMap.get(order) == null)
-            waybillsByOrderMap.put(order, new Waybill(null, order, new ArrayList<>(), null, 0, null, null));
+            waybillsByOrderMap.put(order, new Waybill(null, order, new ArrayList<>(), null, 0, null, null, false));
 
         WaybillProductLine waybillLine = new WaybillProductLine();
         waybillLine.setWaybill(waybillsByOrderMap.get(order));
@@ -126,10 +126,13 @@ public class TransportationAssigner {
     }
 
     private void addNewRoute(Warehouse warehouse) {
+        List<Store> allRoutePoints = waybillsByOrderMap.values().stream().map(w -> w.getStoreOrder().getStore()).distinct().collect(Collectors.toList());
         Route route = new Route(null,
                 getNextDriver(),
                 currentCar, new ArrayList<>(waybillsByOrderMap.values()),
-                warehouse);
+                warehouse,
+                allRoutePoints,
+                false);
         route.getWaybillList().forEach(w -> {
             w.setRoute(route);
             w.updateProductCost();

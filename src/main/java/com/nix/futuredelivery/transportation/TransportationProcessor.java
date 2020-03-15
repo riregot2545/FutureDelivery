@@ -9,7 +9,7 @@ import com.nix.futuredelivery.transportation.model.RoadDriving;
 import com.nix.futuredelivery.transportation.model.exceptions.NoneCarsExistsException;
 import com.nix.futuredelivery.transportation.model.exceptions.NoneDriversExistsException;
 import com.nix.futuredelivery.transportation.model.exceptions.ProductsIsOverselledException;
-import com.nix.futuredelivery.transportation.vrpsolver.TestVehicleRouter;
+import com.nix.futuredelivery.transportation.vrpsolver.SimulatedVehicleRouter;
 import com.nix.futuredelivery.transportation.vrpsolver.VehicleRoutingSolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +35,7 @@ public class TransportationProcessor {
     private final DistanceRepository distanceRepository;
     private final WaybillRepository waybillRepository;
 
+
     @Transactional
     public List<Route> proceedOrders() throws NoneCarsExistsException, NoneDriversExistsException, ProductsIsOverselledException {
         Queue<DriverLoad> drivers = getDriversQueue();
@@ -51,19 +52,9 @@ public class TransportationProcessor {
         transportationAssigner = new TransportationAssigner(cars, drivers, distributionEntries);
         List<Route> assignedRoutes = transportationAssigner.assign();
 
-/*        List<Store> collect = assignedRoutes.get(0).getWaybillList().stream().map(w -> w.getStoreOrder().getStore()).distinct().collect(Collectors.toList());
-//
-            Lisct<Distace> distance list = new ...Ar
-           for(Store store : collect){
-            ///!!!! обновить проект, так как функции тут нет
-                  distanceList.add( distanceRep.findByAddreasFrom(store.getAddress)
-           }
 
-
- */
-
-        routingSolver = new TestVehicleRouter();
-        List<Route> sortedRoutes = routingSolver.setOrderInWaybills(assignedRoutes, new ArrayList<>());
+        routingSolver = new SimulatedVehicleRouter();
+        List<Route> sortedRoutes = routingSolver.setOrderInWaybills(assignedRoutes, cacheDistances(assignedRoutes));
         List<Route> calculateRoutes = calculateRouteCosts(sortedRoutes);
         saveRoutes(calculateRoutes);
         cleanStoreOrders(distributionEntries);
@@ -77,6 +68,25 @@ public class TransportationProcessor {
         for (Route route : routeList) {
             waybillRepository.saveAll(route.getWaybillList());
         }
+    }
+
+    private List<Distance> cacheDistances(List<Route> routeList) {
+        List<Store> collect = routeList.stream()
+                .flatMap(r -> r.getWaybillList().stream())
+                .map(w -> w.getStoreOrder().getStore())
+                .distinct()
+                .collect(Collectors.toList());
+
+        ArrayList<Distance> cachedDistances = new ArrayList<>();
+        for (Store store : collect) {
+            cachedDistances.addAll(distanceRepository.findByAddressFrom(store.getAddress()));
+        }
+
+        List<Warehouse> warehouses = routeList.stream().map(Route::getWarehouse).collect(Collectors.toList());
+        for (Warehouse warehouse : warehouses) {
+            cachedDistances.addAll(distanceRepository.findByAddressFrom(warehouse.getAddress()));
+        }
+        return cachedDistances;
     }
 
     private void cleanStoreOrders(List<DistributionEntry> distributionEntries) {
@@ -112,6 +122,7 @@ public class TransportationProcessor {
 
             for (List<Waybill> waybills : waybillGroupedByStore.values()) {
                 Waybill mainWaybill = waybills.get(0);
+                mainWaybill.setStoreMain(true);
                 BigDecimal mainDeliveryCost = new BigDecimal(0);
 
                 accumulatedDistance.setDistance(accumulatedDistance.getDistance() +

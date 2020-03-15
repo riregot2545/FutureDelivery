@@ -15,6 +15,7 @@ public class Station {
     public Station(Address address, boolean isWarehouse) {
         this.x = address.getPointLocation().getLatitude();
         this.y = address.getPointLocation().getLongitude();
+        this.address = address;
         this.isWarehouse = isWarehouse;
     }
 }

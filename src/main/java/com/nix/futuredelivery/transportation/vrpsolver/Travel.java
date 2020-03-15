@@ -6,6 +6,7 @@ import com.nix.futuredelivery.entity.Store;
 import com.nix.futuredelivery.entity.Warehouse;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -21,6 +22,7 @@ public class Travel {
     private final Random random = new Random();
 
     public Travel(List<Store> stores, Warehouse warehouse, List<Distance> distances) {
+        travelList = new ArrayList<>();
         travelList.add(new Station(warehouse.getAddress(), true));
         for (Store store : stores) {
             travelList.add(new Station(store.getAddress(), false));
@@ -48,8 +50,11 @@ public class Travel {
     }
 
     private double getDistanceBetween(Station stationFrom, Station stationTo) {
-        Optional<Distance> distance = distances.stream().filter(d -> d.getAddressFrom().equals(stationFrom.getAddress()) &&
-                d.getAddressTo().equals(stationTo.getAddress())).findFirst();
+        Optional<Distance> distance = distances.stream().filter(d ->
+                d.getAddressFrom().equals(stationFrom.getAddress()) &&
+                        d.getAddressTo().equals(stationTo.getAddress()) ||
+                        d.getAddressFrom().equals(stationTo.getAddress()) &&
+                                d.getAddressTo().equals(stationFrom.getAddress())).findFirst();
         if (distance.isPresent())
             return distance.get().getDistance();
         else
