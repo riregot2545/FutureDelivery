@@ -25,4 +25,15 @@ public class Route {
     private List<Waybill> waybillList;
     @ManyToOne
     private Warehouse warehouse;
+
+    @Transient
+    private List<Store> routePoints;
+
+    private boolean isClosed;
+
+    public Route(boolean isClosed, Driver driver, Car car){
+        this.isClosed = isClosed;
+        this.driver = driver;
+        this.car = car;
+    }
 }

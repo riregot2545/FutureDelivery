@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -57,8 +58,8 @@ class TransportationProcessorTest {
         assertEquals(expectedQuantitySum, realQuantitySum);
 
 
-        double expectedVolumeSum = orders.stream().flatMap(ord -> ord.getProductLines().stream()).mapToDouble(line -> line.getQuantity() * line.getProduct().getVolume().getVolume()).sum();
-        double realVolumeSum = routes.stream().flatMap(r -> r.getWaybillList().stream()).flatMap(w -> w.getProductLines().stream()).mapToDouble(line -> line.getQuantity() * line.getProduct().getVolume().getVolume()).sum();
+        double expectedVolumeSum = orders.stream().flatMap(ord -> ord.getProductLines().stream()).mapToDouble(line -> line.getQuantity() * line.getProduct().getVolume().getVolumeWeight()).sum();
+        double realVolumeSum = routes.stream().flatMap(r -> r.getWaybillList().stream()).flatMap(w -> w.getProductLines().stream()).mapToDouble(line -> line.getQuantity() * line.getProduct().getVolume().getVolumeWeight()).sum();
 
         assertEquals(expectedVolumeSum, realVolumeSum);
 
@@ -71,5 +72,6 @@ class TransportationProcessorTest {
             }
         }
 
+        TestTransaction.flagForCommit();
     }
 }

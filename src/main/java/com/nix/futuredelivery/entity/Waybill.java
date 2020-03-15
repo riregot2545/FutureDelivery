@@ -35,6 +35,8 @@ public class Waybill {
     private BigDecimal productCost;
     private BigDecimal deliveryCost;
 
+    private boolean isStoreMain;
+
     public void updateProductCost() {
         BigDecimal cost = new BigDecimal(0);
         cost = productLines.stream()
@@ -42,4 +44,5 @@ public class Waybill {
                 .reduce(cost, BigDecimal::add);
         productCost = cost;
     }
+
 }

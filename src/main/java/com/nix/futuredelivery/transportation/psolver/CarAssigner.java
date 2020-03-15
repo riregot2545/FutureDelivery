@@ -36,8 +36,8 @@ public class CarAssigner {
             } else if (i < (sortedKeys.size() - 1)) {
                 carAssignGroup.setNextGroupCapacity(mappedGroups.get(sortedKeys.get(i + 1)).get(0).getCapacity());
             } else {
-                double previousCapacity = mappedGroups.get(sortedKeys.get(i - 1)).get(0).getCapacity().getMaxVolume().getVolume();
-                double currentCapacity = carAssignGroup.getCapacity().getMaxVolume().getVolume();
+                double previousCapacity = mappedGroups.get(sortedKeys.get(i - 1)).get(0).getCapacity().getMaxVolume().getVolumeWeight();
+                double currentCapacity = carAssignGroup.getCapacity().getMaxVolume().getVolumeWeight();
                 carAssignGroup.setNextGroupCapacity(new Capacity(new Volume(2 * currentCapacity - previousCapacity)));
             }
             carGroups.add(carAssignGroup);
@@ -46,7 +46,7 @@ public class CarAssigner {
 
     private List<Capacity> getSortedKeys(Map<Capacity, List<Car>> mappedGroups) {
         return mappedGroups.keySet().stream()
-                .sorted(Comparator.comparingDouble(c -> c.getMaxVolume().getVolume()))
+                .sorted(Comparator.comparingDouble(c -> c.getMaxVolume().getVolumeWeight()))
                 .collect(Collectors.toList());
     }
 

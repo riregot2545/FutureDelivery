@@ -34,12 +34,11 @@ public class CycleMover {
         if (checkColumnOnFilling(cell.getY()) > 0) {
             secondWay = makeCycle(cell, usedPositions, false);
         } else
-            log.warn("CAN'T BUILD CYCLE");
+            log.warn("Can't build cycle");
         cell.setFullnessEmpty();
 
         if (!firstWay.isPresent() && !secondWay.isPresent()) {
-            log.warn("CAN'T BUILD CYCLE");
-            log.warn("ADDING FICTIVE CELL TO BASIS");
+            log.warn("Can't build cycle, adding fictive cell to basis");
             firstWay = addBasisCellAndRebuildCycle(usedPositions, cell);
         }
 
