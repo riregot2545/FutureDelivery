@@ -13,10 +13,7 @@ import com.nix.futuredelivery.transportation.model.DistributionEntry.Distributio
 import com.nix.futuredelivery.transportation.model.ProductKeyListGroup;
 import com.nix.futuredelivery.transportation.model.exceptions.ProductsIsOverselledException;
 import com.nix.futuredelivery.transportation.tsolver.ProductDistributor;
-import com.nix.futuredelivery.transportation.tsolver.model.DistributionCell;
-import com.nix.futuredelivery.transportation.tsolver.model.DistributionCostMatrixBuilder;
-import com.nix.futuredelivery.transportation.tsolver.model.DistributionParticipants;
-import com.nix.futuredelivery.transportation.tsolver.model.DistributionPlan;
+import com.nix.futuredelivery.transportation.tsolver.model.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -63,7 +60,16 @@ public class TransportationGrouper {
                 DistributionCell[][] costMatrix = costMatrixBuilder.build();
 
                 ProductDistributor distributor = new ProductDistributor(costMatrix, participants);
-                DistributionPlan distributionPlan = distributor.distribute();
+                DistributionPlan distributionPlan;
+                try {
+                    distributionPlan = distributor.distribute();
+                } catch (PotentialConflictException e) {
+                    log.warn("Unresolved potential conflict, making shuffle.");
+                    Collections.shuffle(orderGroupCatalog);
+                    productDistributionEntries.clear();
+                    i = -1;
+                    continue;
+                }
 
                 decodeDistributionPlan(distributionPlan, currentProduct, storeProductLinesMap);
 

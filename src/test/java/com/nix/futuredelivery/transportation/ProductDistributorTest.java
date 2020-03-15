@@ -1,10 +1,7 @@
 package com.nix.futuredelivery.transportation;
 
 import com.nix.futuredelivery.transportation.tsolver.ProductDistributor;
-import com.nix.futuredelivery.transportation.tsolver.model.Consumer;
-import com.nix.futuredelivery.transportation.tsolver.model.DistributionParticipants;
-import com.nix.futuredelivery.transportation.tsolver.model.DistributionPlan;
-import com.nix.futuredelivery.transportation.tsolver.model.Supplier;
+import com.nix.futuredelivery.transportation.tsolver.model.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -28,7 +25,7 @@ class ProductDistributorTest {
     }
 
     @Test
-    public void testMedium4x4() {
+    public void testMedium4x4() throws PotentialConflictException {
         DistributionParticipants participants = new DistributionParticipants(
                 Arrays.stream(new int[]{105, 60, 165, 90})
                         .mapToObj(d->new Consumer(d,null,true)).toArray(Consumer[]::new),
@@ -65,7 +62,7 @@ class ProductDistributorTest {
 
 
     @Test
-    public void testSimple4x4(){
+    public void testSimple4x4() throws PotentialConflictException {
         DistributionParticipants participants = new DistributionParticipants(
                 Arrays.stream(new int[]{40,30,35,15})
                         .mapToObj(d->new Consumer(d,null,true)).toArray(Consumer[]::new),
@@ -111,7 +108,7 @@ class ProductDistributorTest {
 
 
     @Test
-    public void testSimple4x3(){
+    public void testSimple4x3() throws PotentialConflictException {
         DistributionParticipants participants = new DistributionParticipants(
                 Arrays.stream(new int[]{15, 15, 40, 30})
                         .mapToObj(d->new Consumer(d,null,true)).toArray(Consumer[]::new),
@@ -151,7 +148,7 @@ class ProductDistributorTest {
     }
 
     @Test
-    public void testBrokenCycle(){
+    public void testBrokenCycle() throws PotentialConflictException {
         DistributionParticipants participants = new DistributionParticipants(
                 Arrays.stream(new int[]{10,8,12,14,16})
                         .mapToObj(d->new Consumer(d,null,true)).toArray(Consumer[]::new),
@@ -186,7 +183,7 @@ class ProductDistributorTest {
     }
 
     @Test
-    public void testMedium4x3(){
+    public void testMedium4x3() throws PotentialConflictException {
         DistributionParticipants participants = new DistributionParticipants(
                 Arrays.stream(new int[]{30, 10, 20, 40})
                         .mapToObj(d->new Consumer(d,null,true)).toArray(Consumer[]::new),
@@ -219,7 +216,7 @@ class ProductDistributorTest {
     }
 
     @Test
-    public void testHard12x12(){
+    public void testHard12x12() throws PotentialConflictException {
         DistributionParticipants participants = new DistributionParticipants(
                 Arrays.stream(
                         new int[]{1000,1000,1000,1050,1070,1130,1110,1170,1120,1050,1150,1150})

@@ -2,16 +2,22 @@ package com.nix.futuredelivery.transportation.vrpsolver;
 
 import com.nix.futuredelivery.entity.Distance;
 import com.nix.futuredelivery.entity.Route;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
+@Slf4j
 public class SimulatedVehicleRouter implements VehicleRoutingSolver {
     @Override
     public List<Route> setOrderInWaybills(List<Route> routeList, List<Distance> distances) {
-        for (Route route : routeList) {
+        log.info("Starting routes optimization");
+        for (int i = 0; i < routeList.size(); i++) {
+            log.info("Processing route {}/{}", (i + 1), routeList.size());
+            Route route = routeList.get(i);
             SimulatedAnnealing simulatedAnnealing = new SimulatedAnnealing(route, distances);
-            Route sortedRoute = simulatedAnnealing.simulateAnnealing();
+            simulatedAnnealing.simulateAnnealing();
         }
+        log.info("End route optimization");
         return routeList;
     }
 }

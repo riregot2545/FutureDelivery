@@ -31,8 +31,8 @@ public class SimulatedAnnealing {
     private final double coolingRate = 0.9995;
 
     public Route simulateAnnealing() {
-        log.info("Building optimized distance for route: {}, {}, {}", route.getWarehouse().getName(), route.getCar().getModel(), route.getDriver().getFirstName());
-        log.info("Starting SA with temperature: {} , # of iterations: {} and colling rate: {}", startingTemperature, numberOfIterations, coolingRate);
+        log.debug("Building optimized distance for route: {}, {}, {}", route.getWarehouse().getName(), route.getCar().getModel(), route.getDriver().getFirstName());
+        log.debug("Starting SA with temperature: {} , # of iterations: {} and colling rate: {}", startingTemperature, numberOfIterations, coolingRate);
         double temperature = startingTemperature;
 
         double bestDistance = travel.getDistance();
@@ -55,6 +55,7 @@ public class SimulatedAnnealing {
                 log.debug("Iteration #{}", i);
             }
         }
+        log.debug("Optimized route built with distance {}", bestDistance);
         return setTravelOrder();
     }
 
