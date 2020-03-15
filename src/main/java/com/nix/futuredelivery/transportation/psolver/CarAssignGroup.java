@@ -23,7 +23,7 @@ public class CarAssignGroup {
 
     public void setNextGroupCapacity(Capacity nextGroupCapacity) {
         this.nextGroupCapacity = nextGroupCapacity;
-        this.groupPriority = nextGroupCapacity.getMaxVolume().getVolume() / capacity.getMaxVolume().getVolume();
+        this.groupPriority = nextGroupCapacity.getMaxVolume().getVolumeWeight() / capacity.getMaxVolume().getVolumeWeight();
     }
 
     public CarAssignGroup(List<Car> carList) {
@@ -52,6 +52,6 @@ public class CarAssignGroup {
 
     public double getGroupLoad() {
         int assignSum = assignList.stream().mapToInt(AssignCar::getAssignedCount).sum();
-        return groupPriority * capacity.getMaxVolume().getVolume() + assignSum * nextGroupCapacity.getMaxVolume().getVolume();
+        return groupPriority * capacity.getMaxVolume().getVolumeWeight() + assignSum * nextGroupCapacity.getMaxVolume().getVolumeWeight();
     }
 }

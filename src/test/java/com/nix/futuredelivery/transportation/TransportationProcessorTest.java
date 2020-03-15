@@ -58,8 +58,8 @@ class TransportationProcessorTest {
         assertEquals(expectedQuantitySum, realQuantitySum);
 
 
-        double expectedVolumeSum = orders.stream().flatMap(ord -> ord.getProductLines().stream()).mapToDouble(line -> line.getQuantity() * line.getProduct().getVolume().getVolume()).sum();
-        double realVolumeSum = routes.stream().flatMap(r -> r.getWaybillList().stream()).flatMap(w -> w.getProductLines().stream()).mapToDouble(line -> line.getQuantity() * line.getProduct().getVolume().getVolume()).sum();
+        double expectedVolumeSum = orders.stream().flatMap(ord -> ord.getProductLines().stream()).mapToDouble(line -> line.getQuantity() * line.getProduct().getVolume().getVolumeWeight()).sum();
+        double realVolumeSum = routes.stream().flatMap(r -> r.getWaybillList().stream()).flatMap(w -> w.getProductLines().stream()).mapToDouble(line -> line.getQuantity() * line.getProduct().getVolume().getVolumeWeight()).sum();
 
         assertEquals(expectedVolumeSum, realVolumeSum);
 

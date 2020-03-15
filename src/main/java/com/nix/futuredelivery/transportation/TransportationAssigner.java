@@ -6,7 +6,7 @@ import com.nix.futuredelivery.entity.value.Volume;
 import com.nix.futuredelivery.entity.value.WaybillProductLine;
 import com.nix.futuredelivery.transportation.model.AssignOrderLine;
 import com.nix.futuredelivery.transportation.model.DistributionEntry;
-import com.nix.futuredelivery.transportation.model.DriverLoad;
+import com.nix.futuredelivery.transportation.model.DriverAssignEntry;
 import com.nix.futuredelivery.transportation.model.WarehouseKeyListGroup;
 import com.nix.futuredelivery.transportation.psolver.CarAssigner;
 import com.nix.futuredelivery.transportation.psolver.PolarDistributionSolver;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TransportationAssigner {
     private final CarAssigner carAssigner;
-    private final Queue<DriverLoad> drivers;
+    private final Queue<DriverAssignEntry> drivers;
     private final List<WarehouseKeyListGroup> mappedWarehouses;
     private final List<Route> routes;
     private Car currentCar;
@@ -28,7 +28,7 @@ public class TransportationAssigner {
 
     private StationPoint currentPoint;
 
-    public TransportationAssigner(List<Car> cars, Queue<DriverLoad> drivers, List<DistributionEntry> distributionEntries) {
+    public TransportationAssigner(List<Car> cars, Queue<DriverAssignEntry> drivers, List<DistributionEntry> distributionEntries) {
         this.carAssigner = new CarAssigner(cars);
         this.mappedWarehouses = groupEntriesByWarehouse(distributionEntries);
         this.drivers = drivers;
@@ -63,7 +63,7 @@ public class TransportationAssigner {
                 for (AssignOrderLine productLine : currentPoint.getProductLines()) {
 
                     if (productLine.getRemainQuantity() > 0) {
-                        double oneProductVolume = productLine.getProduct().getVolume().getVolume();
+                        double oneProductVolume = productLine.getProduct().getVolume().getVolumeWeight();
                         if (currentCar.getFreeVolume() >= oneProductVolume) {
                             appendLineToWaybill(productLine);
                         } else {
@@ -102,7 +102,7 @@ public class TransportationAssigner {
 
     private void appendLineToWaybill(AssignOrderLine productLine) {
         StoreOrder order = productLine.getStoreOrder();
-        double oneProductVolume = productLine.getProduct().getVolume().getVolume();
+        double oneProductVolume = productLine.getProduct().getVolume().getVolumeWeight();
         int possibleQuantity = (int) (currentCar.getFreeVolume() / oneProductVolume);
         int acceptedQuantity = Math.min(possibleQuantity, productLine.getRemainQuantity());
 
@@ -119,7 +119,7 @@ public class TransportationAssigner {
         productLine.addAssignQuantity(acceptedQuantity);
 
         currentCar.fillVolume(new Volume(waybillLine.getQuantity() *
-                waybillLine.getProduct().getVolume().getVolume()));
+                waybillLine.getProduct().getVolume().getVolumeWeight()));
 
         if (!tackedStationPoints.contains(currentPoint))
             tackedStationPoints.add(currentPoint);
@@ -192,10 +192,10 @@ public class TransportationAssigner {
     }
 
     private Driver getNextDriver() {
-        DriverLoad driverLoad = drivers.poll();
-        driverLoad.incrementLoad();
-        drivers.add(driverLoad);
-        return driverLoad.getDriver();
+        DriverAssignEntry driverAssignEntry = drivers.poll();
+        driverAssignEntry.incrementAssign();
+        drivers.add(driverAssignEntry);
+        return driverAssignEntry.getDriver();
     }
 
     private Map<Store, List<DistributionEntry>> groupEntriesByStore(List<DistributionEntry> entries) {

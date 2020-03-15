@@ -6,11 +6,11 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class DriverLoad {
+public class DriverAssignEntry {
     private Driver driver;
-    private Long load;
+    private Long assignCount;
 
-    public void incrementLoad() {
-        load++;
+    public void incrementAssign() {
+        assignCount++;
     }
 }

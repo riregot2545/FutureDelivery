@@ -11,7 +11,7 @@ import javax.persistence.Embeddable;
 @AllArgsConstructor
 @Embeddable
 public class Volume {
-    private double volume;
+    private double volumeWeight;
 
     public static Volume empty() {
         return new Volume(0D);
