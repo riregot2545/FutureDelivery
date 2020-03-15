@@ -15,7 +15,6 @@ public class Route {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private boolean closed;
     @ManyToOne
     private Driver driver;
     @ManyToOne

@@ -3,10 +3,7 @@ package com.nix.futuredelivery.service;
 import com.nix.futuredelivery.entity.*;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
 import com.nix.futuredelivery.entity.value.WaybillProductLine;
-import com.nix.futuredelivery.repository.DriverRepository;
-import com.nix.futuredelivery.repository.RouteRepository;
-import com.nix.futuredelivery.repository.WarehouseRepository;
-import com.nix.futuredelivery.repository.WaybillRepository;
+import com.nix.futuredelivery.repository.*;
 import com.nix.futuredelivery.service.exceptions.InvalidDeliveryOrderException;
 import com.nix.futuredelivery.service.exceptions.NoRouteFoundException;
 import com.nix.futuredelivery.service.exceptions.SomeWaybillsNotFoundException;
@@ -25,6 +22,7 @@ public class DriverService {
     private RouteRepository routeRepository;
     private WarehouseRepository warehouseRepository;
     private WaybillRepository waybillRepository;
+    private StoreOrderRepository orderRepository;
 
     public DriverService(DriverRepository driverRepository, RouteRepository routeRepository, WarehouseRepository warehouseRepository, WaybillRepository waybillRepository) {
         this.driverRepository = driverRepository;
@@ -81,14 +79,23 @@ public class DriverService {
                             .stream()
                             .filter(w -> w.getProduct().equals(productLine.getProduct()))
                             .findFirst();
-                    if (!warehouseProductLine.isPresent())
-
-
-                        warehouseProductLine.get().setQuantity(warehouseProductLine.get().getQuantity() - productLine.getQuantity());
+                    warehouseProductLine.ifPresent(line -> line.setQuantity(line.getQuantity() - productLine.getQuantity()));
                 }
             }
+            List<StoreOrder> affectedOrders = waybills.stream().map(Waybill::getStoreOrder).collect(Collectors.toList());
+            for (StoreOrder order : affectedOrders) {
+                List<Waybill> waybillsByStoreOrder = waybillRepository.findByStoreOrder(order);
+                if (waybillsByStoreOrder
+                        .stream()
+                        .flatMap(w -> w.getProductLines().stream())
+                        .allMatch(WaybillProductLine::isDelivered)) {
+                    order.setClosed(true);
+                }
+            }
+
             warehouseRepository.save(warehouse);
             waybillRepository.saveAll(waybills);
+            orderRepository.saveAll(affectedOrders);
 
         }
         throw new NoRouteFoundException(waybills.get(0).getRoute().getId());
