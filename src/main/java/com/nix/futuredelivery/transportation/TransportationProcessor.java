@@ -60,19 +60,10 @@ public class TransportationProcessor {
            }
 
 
-//        Optional<Distance> oneByAddressFromAndAddressTo = distanceRepository.findOneByAddressFromAndAddressTo(collect.get(0).getAddress(), collect.get(1).getAddress());
-//        oneByAddressFromAndAddressTo.get().getDistance();
-//
-//        Map<Store, List<Waybill>> collect1 = assignedRoutes.get(0).getWaybillList().stream().collect(Collectors.groupingBy(w -> w.getStoreOrder().getStore()));
-//
-//        for (Waybill waybill : assignedRoutes.get(0).getWaybillList()) {
-//            waybill.setDeliveryQueuePlace();
-//        }
-
  */
 
         routingSolver = new TestVehicleRouter();
-        List<Route> sortedRoutes = routingSolver.setOrderInWaybills(assignedRoutes);
+        List<Route> sortedRoutes = routingSolver.setOrderInWaybills(assignedRoutes, new ArrayList<>());
         List<Route> calculateRoutes = calculateRouteCosts(sortedRoutes);
         saveRoutes(calculateRoutes);
         cleanStoreOrders(distributionEntries);

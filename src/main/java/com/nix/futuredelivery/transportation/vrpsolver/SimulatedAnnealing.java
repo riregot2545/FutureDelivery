@@ -1,34 +1,57 @@
 package com.nix.futuredelivery.transportation.vrpsolver;
+
+import com.nix.futuredelivery.entity.Distance;
+import com.nix.futuredelivery.entity.Route;
+import com.nix.futuredelivery.entity.Store;
+import com.nix.futuredelivery.entity.Warehouse;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+
+@Slf4j
 public class SimulatedAnnealing {
+    private final Route route;
+    private final Warehouse warehouse;
+    private final List<Store> stores;
 
-    private static Travel travel = new Travel(40);
+    private Travel travel;
 
-    public static double simulateAnnealing(double startingTemperature, int numberOfIterations, double coolingRate) {
-        System.out.println("Starting SA with temperature: " + startingTemperature + ", # of iterations: " + numberOfIterations + " and colling rate: " + coolingRate);
-        double t = startingTemperature;
 
-        // traver = new Travel(->List<Store>, List<Distance>)
-        travel.generateInitialTravel();
+    public SimulatedAnnealing(Route route, List<Distance> distances) {
+        this.route = route;
+        this.warehouse = route.getWarehouse();
+        this.stores = route.getRoutePoints();
+        this.travel = new Travel(stores, warehouse, distances);
+    }
+
+    private final double startingTemperature = 10;
+    private final int numberOfIterations = 100000;
+    private final double coolingRate = 0.9995;
+
+    public double simulateAnnealing() {
+        log.info("Building optimized distance for route: {}", route);
+        log.info("Starting SA with temperature: {} , # of iterations: {} and colling rate: {}", startingTemperature, numberOfIterations, coolingRate);
+        double temperature = startingTemperature;
+
         double bestDistance = travel.getDistance();
-        System.out.println("Initial distance of travel: " + bestDistance);
-        Travel bestSolution = travel;
-        Travel currentSolution = bestSolution;
+        log.debug("Initial distance of travel: {}", bestDistance);
+        Travel currentSolution = travel;
 
         for (int i = 0; i < numberOfIterations; i++) {
-            if (t > 0.1) {
-                currentSolution.swapCities();
+            if (temperature > 0.1) {
+                currentSolution.swapStations();
                 double currentDistance = currentSolution.getDistance();
                 if (currentDistance < bestDistance) {
                     bestDistance = currentDistance;
-                } else if (Math.exp((bestDistance - currentDistance) / t) < Math.random()) {
+                } else if (Math.exp((bestDistance - currentDistance) / temperature) < Math.random()) {
                     currentSolution.revertSwap();
                 }
-                t *= coolingRate;
+                temperature *= coolingRate;
             } else {
-                continue;
+                break;
             }
             if (i % 100 == 0) {
-                System.out.println("Iteration #" + i);
+                log.debug("Iteration #{}", i);
             }
         }
         return bestDistance;
