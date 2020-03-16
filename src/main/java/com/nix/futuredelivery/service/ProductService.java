@@ -74,7 +74,7 @@ public class ProductService {
         warehouse.getProductLines().addAll(productLines);
     }
 
-    void createOrder(List<OrderProductLine> lines, Store store) {
+    Long createOrder(List<OrderProductLine> lines, Store store) {
         StoreOrder order = new StoreOrder(store, false, false);
         List<OrderProductLine> productLines = new ArrayList<>();
         for (OrderProductLine line : lines) {
@@ -86,6 +86,8 @@ public class ProductService {
         }
         order.setProductLines(productLines);
         store.addOrder(order);
+        StoreOrder storeOrder = storeOrderRepository.saveAndFlush(order);
+        return storeOrder.getId();
     }
 
     void editProductsOfWarehouse(List<WarehouseProductLine> lines, Warehouse warehouse) {

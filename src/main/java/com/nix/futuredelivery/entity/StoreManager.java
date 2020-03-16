@@ -3,6 +3,7 @@ package com.nix.futuredelivery.entity;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,7 +11,10 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,6 +30,7 @@ import java.util.List;
 public class StoreManager extends SystemUser{
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "store_id")
+    @ApiModelProperty(notes = "The store that belongs to this manager")
     private Store store;
 
     public StoreManager(Long id, String firstName, String lastName, String login, String password, String email, Store store) {

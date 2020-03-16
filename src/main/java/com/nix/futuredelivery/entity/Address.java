@@ -2,6 +2,7 @@ package com.nix.futuredelivery.entity;
 
 import com.nix.futuredelivery.entity.value.Location;
 import com.nix.futuredelivery.entity.value.LocationConverter;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,7 @@ import javax.persistence.*;
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @ApiModelProperty(notes = "The database generated product ID")
     private Long id;
 
     private String addressLine1;

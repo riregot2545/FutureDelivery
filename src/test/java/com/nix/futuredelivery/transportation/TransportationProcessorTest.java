@@ -48,7 +48,7 @@ class TransportationProcessorTest {
     @Test
     @Transactional
     void proceedOrders() throws NoneCarsExistsException, NoneDriversExistsException, ProductsIsOverselledException {
-        List<StoreOrder> orders = orderRepository.findByIsDistributedFalse();
+        List<StoreOrder> orders = orderRepository.findByisDistributedFalse();
         List<Route> routes = transportationProcessor.proceedOrders();
 
         int expectedQuantitySum = orders.stream().flatMap(ord -> ord.getProductLines().stream()).mapToInt(AbstractProductLine::getQuantity).sum();

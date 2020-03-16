@@ -2,6 +2,7 @@ package com.nix.futuredelivery.entity.value;
 
 import com.nix.futuredelivery.entity.Product;
 import com.nix.futuredelivery.exceptions.WrongQuantityException;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -18,7 +19,7 @@ public abstract class AbstractProductLine implements Serializable {
     @ManyToOne(cascade = CascadeType.MERGE)
     @Id
     protected Product product;
-
+    @ApiModelProperty(notes = "The quantity of the product")
     protected int quantity;
 
     public AbstractProductLine(Product product, int quantity) {

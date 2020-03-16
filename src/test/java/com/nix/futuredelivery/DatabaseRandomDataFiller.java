@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +34,8 @@ public class DatabaseRandomDataFiller {
     private DriverRepository driverRepository;
     @Autowired
     private WaybillRepository waybillRepository;
-
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     private DatabaseDataGenerator generator = new DatabaseDataGenerator();
 
     @Autowired
@@ -46,6 +48,9 @@ public class DatabaseRandomDataFiller {
         TestTransaction.flagForCommit();
     }
 
+    private void encode(List<? extends SystemUser> users) {
+        users.forEach(user -> user.setPassword(passwordEncoder.encode(user.getPassword())));
+    }
 
     @Test
     @Transactional
@@ -54,6 +59,7 @@ public class DatabaseRandomDataFiller {
         List<Car> cars = generator.cars(5, 4, 1000D, 1.1,
                 15, 0.001);
         List<Driver> drivers = generator.drivers(15);
+        encode(drivers);
         List<Store> stores = generator.storeAndManagers(20);
         List<Warehouse> warehouses = generator.warehouseAndManagers(5);
         List<Distance> distances = generator.distances(warehouses, stores);
@@ -83,6 +89,7 @@ public class DatabaseRandomDataFiller {
         List<Car> cars = generator.cars(10, 10, 1000D, 1.1,
                 15, 0.001);
         List<Driver> drivers = generator.drivers(30);
+        encode(drivers);
         List<Store> stores = generator.storeAndManagers(40);
         List<Warehouse> warehouses = generator.warehouseAndManagers(10);
         List<Distance> distances = generator.distances(warehouses, stores);

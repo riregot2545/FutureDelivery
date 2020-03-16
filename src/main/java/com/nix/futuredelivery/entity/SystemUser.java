@@ -1,14 +1,16 @@
 package com.nix.futuredelivery.entity;
 
-import com.nix.futuredelivery.entity.value.EmailAddress;
-import com.nix.futuredelivery.entity.value.EmailConverter;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import javax.persistence.*;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -21,6 +23,7 @@ import java.util.List;
 public abstract class SystemUser {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @ApiModelProperty(notes = "The database generated product ID")
     protected Long id;
 
     protected String firstName;

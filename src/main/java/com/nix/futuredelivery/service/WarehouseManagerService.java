@@ -28,10 +28,11 @@ public class WarehouseManagerService {
     }
 
     @Transactional
-    public void saveWarehouseManager(WarehouseManager manager) {
+    public Long saveWarehouseManager(WarehouseManager manager) {
         String password = manager.getPassword();
         manager.setPassword(passwordEncoder.encode(password));
-        warehouseManagerRepository.save(manager);
+        WarehouseManager warehouseManager = warehouseManagerRepository.saveAndFlush(manager);
+        return warehouseManager.getId();
     }
     @Transactional
     public List<WarehouseProductLine> getProductLines(Long id) {

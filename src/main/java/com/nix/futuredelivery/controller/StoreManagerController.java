@@ -6,7 +6,10 @@ import com.nix.futuredelivery.entity.SystemUser;
 import com.nix.futuredelivery.entity.value.AbstractProductLine;
 import com.nix.futuredelivery.entity.value.OrderProductLine;
 import com.nix.futuredelivery.service.StoreManagerService;
+import io.swagger.annotations.ApiOperation;
 import lombok.Data;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +23,7 @@ import java.util.List;
 @Data
 @RestController
 @RequestMapping("/store_manager")
+
 public class StoreManagerController {
     private StoreManagerService storeManagerService;
 
@@ -27,11 +31,14 @@ public class StoreManagerController {
         this.storeManagerService = storeManagerService;
     }
 
+    @ApiOperation(value = "Register new store manager")
     @PostMapping("/register")
-    public void registerStoreManager(@RequestBody StoreManager storeManager) {
-        storeManagerService.saveStoreManager(storeManager);
+    public ResponseEntity registerStoreManager(@RequestBody StoreManager storeManager) {
+        Long id = storeManagerService.saveStoreManager(storeManager);
+        return new ResponseEntity<>("Warehouse manager saved successfully with id " + id, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Get all order lines by order number")
     @PreAuthorize("hasAuthority('STORE_MANAGER')")
     @GetMapping("/{orderId}")
     public List<OrderProductLine> getProductLine(Authentication authentication, @PathVariable Long orderId) {
@@ -39,12 +46,14 @@ public class StoreManagerController {
         return storeManagerService.getProductLines(user.getId(), orderId);
     }
 
+    @ApiOperation(value = "Get a list of available products in warehouses")
     @PreAuthorize("hasAuthority('STORE_MANAGER')")
     @GetMapping("/products")
-    public List<AbstractProductLine> getAvaliableProducts() {
+    public List<AbstractProductLine> getAvailableProducts() {
         return storeManagerService.getProducts();
     }
 
+    @ApiOperation(value = "Get all orders that were made since the date defined in header 'Date' ")
     @PreAuthorize("hasAuthority('STORE_MANAGER')")
     @GetMapping()
     public List<StoreOrder> getOrders(Authentication authentication, @RequestHeader("Date") String stringDate) {
@@ -54,13 +63,16 @@ public class StoreManagerController {
         return storeManagerService.getOrders(user.getId(), date);
     }
 
+    @ApiOperation(value = "Add new order")
     @PreAuthorize("hasAuthority('STORE_MANAGER')")
     @PostMapping()
-    public void setOrder(Authentication authentication, @RequestBody List<OrderProductLine> productLines) {
+    public ResponseEntity<String> setOrder(Authentication authentication, @RequestBody List<OrderProductLine> productLines) {
         SystemUser user = (SystemUser) authentication.getPrincipal();
-        storeManagerService.makeNewOrder(user.getId(), productLines);
+        Long id = storeManagerService.makeNewOrder(user.getId(), productLines);
+        return new ResponseEntity<>("Store order saved successfully with id " + id, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Edit the order by order number")
     @PreAuthorize("hasAuthority('STORE_MANAGER')")
     @PatchMapping("/{orderId}")
     public void editOrder(Authentication authentication, @PathVariable Long orderId, @RequestBody List<OrderProductLine> productLines) {
@@ -72,6 +84,7 @@ public class StoreManagerController {
         storeManagerService.editOrder(user.getId(), orderId, correct);
     }
 
+    @ApiOperation(value = "Delete the order by order number")
     @PreAuthorize("hasAuthority('STORE_MANAGER')")
     @DeleteMapping("/{orderId}")
     public void deleteOrder(Authentication authentication, @PathVariable Long orderId) {

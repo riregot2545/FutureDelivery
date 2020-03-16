@@ -1,6 +1,6 @@
 package com.nix.futuredelivery.entity;
 
-import com.nix.futuredelivery.entity.value.Location;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +14,7 @@ import javax.persistence.*;
 public abstract class AbstractStation {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @ApiModelProperty(notes = "The database generated product ID")
     private Long id;
 
     @OneToOne(cascade = CascadeType.ALL)

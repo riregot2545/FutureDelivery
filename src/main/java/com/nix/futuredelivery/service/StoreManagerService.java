@@ -39,10 +39,11 @@ public class StoreManagerService {
     }
 
     @Transactional
-    public void saveStoreManager(StoreManager manager) {
+    public Long saveStoreManager(StoreManager manager) {
         String password = manager.getPassword();
         manager.setPassword(passwordEncoder.encode(password));
-        storeManagerRepository.save(manager);
+        StoreManager storeManager = storeManagerRepository.saveAndFlush(manager);
+        return storeManager.getId();
     }
     @Transactional
     public List<OrderProductLine> getProductLines(Long userId, Long orderId) {
@@ -55,10 +56,10 @@ public class StoreManagerService {
     }
 
     @Transactional
-    public void makeNewOrder(Long managerId, List<OrderProductLine> productLines) {
+    public Long makeNewOrder(Long managerId, List<OrderProductLine> productLines) {
         StoreManager manager = storeManagerRepository.findById(managerId).orElseThrow(() -> new NoPersonException("Store manager", managerId));
         if (!managerHasStore(manager)) throw new NoStationException(manager.getId());
-        productService.createOrder(productLines, manager.getStore());
+        return productService.createOrder(productLines, manager.getStore());
     }
 
     @Transactional
