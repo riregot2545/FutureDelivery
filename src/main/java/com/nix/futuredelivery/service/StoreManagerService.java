@@ -6,6 +6,7 @@ import com.nix.futuredelivery.entity.StoreManager;
 import com.nix.futuredelivery.entity.StoreOrder;
 import com.nix.futuredelivery.entity.value.AbstractProductLine;
 import com.nix.futuredelivery.entity.value.OrderProductLine;
+import com.nix.futuredelivery.entity.value.OrderStatus;
 import com.nix.futuredelivery.exceptions.*;
 import com.nix.futuredelivery.repository.StoreManagerRepository;
 import com.nix.futuredelivery.repository.StoreOrderRepository;
@@ -73,7 +74,7 @@ public class StoreManagerService {
     @Transactional
     public void deleteOrder(Long managerId, Long orderId) {
         StoreOrder storeOrder = getOrder(managerId, orderId);
-        if (storeOrder.isDistributed()) throw new OrderStateException(storeOrder.getId());
+        if (storeOrder.getOrderStatus() == OrderStatus.DISTRIBUTED) throw new OrderStateException(storeOrder.getId());
         StoreManager manager = storeManagerRepository.findById(managerId).orElseThrow(() -> new NoPersonException("Store manager", managerId));
         manager.getStore().getOrders().remove(storeOrder);
     }

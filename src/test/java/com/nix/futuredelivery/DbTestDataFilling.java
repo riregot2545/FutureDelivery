@@ -206,7 +206,7 @@ public class DbTestDataFilling {
         productCategoryRepository.findByName("testCategory").ifPresent(cat -> {
             for (int i = 0; i < 10; i++) {
                 Product product = new Product(
-                        null, cat, "product "+(i+1), new BigDecimal(random.nextInt(200) * Math.PI),
+                        null, false, cat, "product "+(i+1), new BigDecimal(random.nextInt(200) * Math.PI),
                         new Volume(random.nextInt(3) * Math.PI+random.nextInt(3) * Math.PI+1)
                 );
                 productRepository.save(product);
@@ -217,8 +217,7 @@ public class DbTestDataFilling {
     void createOrdersForStores() {
         List<Store> stores = storeRepository.findAll();
         stores.forEach(s -> orderRepository.save(new StoreOrder(
-                null, s, LocalDateTime.now(), null, false, false
-        )));
+                null, OrderStatus.NEW ,s, LocalDateTime.now(), null)));
     }
 
     void carAndDriverFilling(){

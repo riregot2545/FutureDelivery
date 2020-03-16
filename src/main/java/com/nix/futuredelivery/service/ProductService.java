@@ -6,6 +6,7 @@ import com.nix.futuredelivery.entity.StoreOrder;
 import com.nix.futuredelivery.entity.Warehouse;
 import com.nix.futuredelivery.entity.value.AbstractProductLine;
 import com.nix.futuredelivery.entity.value.OrderProductLine;
+import com.nix.futuredelivery.entity.value.OrderStatus;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
 import com.nix.futuredelivery.exceptions.NoProductException;
 import com.nix.futuredelivery.exceptions.NoProductInList;
@@ -75,7 +76,7 @@ public class ProductService {
     }
 
     Long createOrder(List<OrderProductLine> lines, Store store) {
-        StoreOrder order = new StoreOrder(store, false, false);
+        StoreOrder order = new StoreOrder(OrderStatus.NEW, store);
         List<OrderProductLine> productLines = new ArrayList<>();
         for (OrderProductLine line : lines) {
             Product product = getProduct(line.getProduct().getId());
@@ -126,7 +127,7 @@ public class ProductService {
 
         List<AbstractProductLine> menu = new ArrayList<>();
         List<Warehouse> warehouses = warehouseRepository.findAll();
-        List<StoreOrder> orders = storeOrderRepository.findByIsDistributedFalse();
+        List<StoreOrder> orders = storeOrderRepository.findByOrderStatus(OrderStatus.NEW);
         List<Product> products = productRepository.findAll();
         for (Product product : products) {
             int quantity = countProductInWarehouse(product, warehouses) - countProductInOrders(product, orders);

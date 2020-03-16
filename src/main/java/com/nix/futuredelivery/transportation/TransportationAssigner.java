@@ -127,11 +127,10 @@ public class TransportationAssigner {
 
     private void addNewRoute(Warehouse warehouse) {
         List<Store> allRoutePoints = waybillsByOrderMap.values().stream().map(w -> w.getStoreOrder().getStore()).distinct().collect(Collectors.toList());
-        Route route = new Route(null,
+        Route route = new Route(null, false,
                 getNextDriver(),
                 currentCar, new ArrayList<>(waybillsByOrderMap.values()),
-                warehouse,
-                allRoutePoints,
+                warehouse,allRoutePoints,
                 false);
         route.getWaybillList().forEach(w -> {
             w.setRoute(route);

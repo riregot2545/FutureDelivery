@@ -28,6 +28,9 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 public class StoreManager extends SystemUser{
+
+    private boolean isConfirmed;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "store_id")
     @ApiModelProperty(notes = "The store that belongs to this manager")

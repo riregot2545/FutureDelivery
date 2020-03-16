@@ -23,6 +23,7 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @ApiModelProperty(notes = "The database generated product ID")
     private Long id;
+    private boolean isConfirmed;
 
     @ManyToOne
     private ProductCategory productCategory;

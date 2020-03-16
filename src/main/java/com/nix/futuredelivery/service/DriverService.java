@@ -1,6 +1,7 @@
 package com.nix.futuredelivery.service;
 
 import com.nix.futuredelivery.entity.*;
+import com.nix.futuredelivery.entity.value.OrderStatus;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
 import com.nix.futuredelivery.entity.value.WaybillProductLine;
 import com.nix.futuredelivery.exceptions.InvalidDeliveryOrderException;
@@ -121,7 +122,7 @@ public class DriverService {
                     .stream()
                     .flatMap(w -> w.getProductLines().stream())
                     .allMatch(WaybillProductLine::isDelivered)) {
-                order.setClosed(true);
+                order.setOrderStatus(OrderStatus.DONE);
             }
         }
         return affectedOrders;

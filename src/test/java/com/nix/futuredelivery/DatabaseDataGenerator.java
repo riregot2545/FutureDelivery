@@ -44,8 +44,7 @@ public class DatabaseDataGenerator {
             Volume volume = new Volume(randDoubleBetween(minVolume, maxVolume));
 
 
-            Product product = new Product(
-                    null, category, "Product " + (i + 1), new BigDecimal(random.nextInt(200)), volume);
+            Product product = new Product(null,false, category, "Product " + (i + 1), new BigDecimal(random.nextInt(200)), volume);
             products.add(product);
         }
         return products;
@@ -114,7 +113,7 @@ public class DatabaseDataGenerator {
         for (int i = 0; i < count; i++) {
             Store store = stores.get(random.nextInt(stores.size()));
             StoreOrder order = new StoreOrder(
-                    null, store, LocalDateTime.now(), new ArrayList<>(), false, false);
+                    null, OrderStatus.NEW, store, LocalDateTime.now(), new ArrayList<>());
 
             int randomProductInOrderCount = random.nextInt(products.size()) + minPositionsQuantity;
             List<Product> localProducts = new ArrayList<>(products);
