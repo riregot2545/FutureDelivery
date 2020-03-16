@@ -25,7 +25,7 @@ import java.util.List;
 @Entity
 public class StoreManager extends SystemUser{
 
-    private boolean isValidated;
+    private boolean isConfirmed;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "store_id")

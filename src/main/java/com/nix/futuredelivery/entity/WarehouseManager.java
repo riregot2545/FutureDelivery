@@ -28,7 +28,7 @@ public class WarehouseManager extends SystemUser{
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "warehouse_id")
     private Warehouse warehouse;
-    private boolean isValidated;
+    private boolean isConfirmed;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities(){

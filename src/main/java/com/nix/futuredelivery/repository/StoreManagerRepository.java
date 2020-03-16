@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface StoreManagerRepository extends JpaRepository<StoreManager, Long> {
     StoreManager findByLogin(String login);
-    List<StoreManager> findByIsValidatedFalse();
+    List<StoreManager> findByIsConfirmedFalse();
 }

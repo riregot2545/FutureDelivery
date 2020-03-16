@@ -3,11 +3,10 @@ package com.nix.futuredelivery.service;
 import com.nix.futuredelivery.entity.*;
 import com.nix.futuredelivery.repository.*;
 import com.nix.futuredelivery.entity.Notification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -17,14 +16,20 @@ public class AdministratorService {
     private WarehouseManagerRepository warehouseManagerRepository;
     private StoreManagerRepository storeManagerRepository;
     private ProductRepository productRepository;
+    private PasswordEncoder passwordEncoder;
+    private DriverRepository driverRepository;
+    private CarRepository carRepository;
 
 
-    public AdministratorService(RouteRepository routeRepository, WarehouseRepository warehouseRepository, WarehouseManagerRepository warehouseManagerRepository, StoreManagerRepository storeManagerRepository, ProductRepository productRepository) {
+    public AdministratorService(RouteRepository routeRepository, WarehouseRepository warehouseRepository, WarehouseManagerRepository warehouseManagerRepository, StoreManagerRepository storeManagerRepository, ProductRepository productRepository, PasswordEncoder passwordEncoder, DriverRepository driverRepository, CarRepository carRepository) {
         this.routeRepository = routeRepository;
         this.warehouseRepository = warehouseRepository;
         this.storeManagerRepository = storeManagerRepository;
         this.warehouseManagerRepository = warehouseManagerRepository;
         this.productRepository = productRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.driverRepository = driverRepository;
+        this.carRepository = carRepository;
     }
 
     public List<Route> getActiveRoutes() {
@@ -36,28 +41,81 @@ public class AdministratorService {
     }
 
     public Notification getNotification() {
-        List<Product> products = productRepository.findByIsValidatedFalse();
-        List<WarehouseManager> warehouseManagers = warehouseManagerRepository.findByIsValidatedFalse();
-        List<StoreManager> storeManagers = storeManagerRepository.findByIsValidatedFalse();
+        List<Product> products = productRepository.findByIsConfirmedFalse();
+        List<WarehouseManager> warehouseManagers = warehouseManagerRepository.findByIsConfirmedFalse();
+        List<StoreManager> storeManagers = storeManagerRepository.findByIsConfirmedFalse();
         Notification notification;
         if (products.isEmpty() && warehouseManagers.isEmpty() &&
                 storeManagers.isEmpty()) {
-            notification = new Notification("Nothing to validate!", true, null, null, null);
+            notification = new Notification("Nothing to validate!", true);
         } else {
-            notification = new Notification("Have an unvalidated users or products!", false, products, storeManagers, warehouseManagers);
+            notification = new Notification("Have an unvalidated users or products!", false);
 
         }
         return notification;
     }
 
+    public List<Product> getUnconfirmedProducts() {
+        return productRepository.findByIsConfirmedFalse();
+    }
+
+    public List<StoreManager> getUnconfirmedStoreManagers() {
+        return storeManagerRepository.findByIsConfirmedFalse();
+    }
+
+    public List<WarehouseManager> getUnconfirmedWarehouseManagers() {
+        return warehouseManagerRepository.findByIsConfirmedFalse();
+    }
+
     @Transactional
-    public void confirmProduct(List<Product> productList) {
-        for (int i = 0; i != productList.size(); i++) {
-          Product  p = productRepository.findById(productList.get(i).getId()).orElseThrow(() -> new IllegalArgumentException("no"));
-            p.setValidated(true);
+    public void confirmProducts(List<Product> productList) {
+        for (Product p : productList) {
+            Long id = p.getId();
+            p = productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Product with id " + id + " does not exist"));
+            p.setConfirmed(true);
             productRepository.save(p);
         }
 
     }
+
+    @Transactional
+    public void confirmStoreManagers(List<StoreManager> storeManagers) {
+        for (StoreManager storeManager : storeManagers) {
+            Long id = storeManager.getId();
+            storeManager = storeManagerRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Manager with id " + id + " does not exist"));
+            storeManager.setConfirmed(true);
+            storeManagerRepository.save(storeManager);
+        }
+    }
+
+    @Transactional
+    public void confirmWarehouseManagers(List<WarehouseManager> warehouseManagerList) {
+        for (WarehouseManager warehouseManager : warehouseManagerList) {
+            Long id = warehouseManager.getId();
+            warehouseManager = warehouseManagerRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Manager with id " + id + " does not exist"));
+            warehouseManager.setConfirmed(true);
+            warehouseManagerRepository.save(warehouseManager);
+        }
+
+
+    }
+
+    @Transactional
+    public void addNewDriver(List<Driver> driverList) {
+        for (Driver driver : driverList) {
+            String password = driver.getPassword();
+            driver.setPassword(passwordEncoder.encode(password));
+            driverRepository.save(driver);
+        }
+    }
+
+    @Transactional
+    public void addNewCar(List<Car> carList) {
+        for (Car car : carList) {
+            carRepository.save(car);
+        }
+    }
+
+
 }
 

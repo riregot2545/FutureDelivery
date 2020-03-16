@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface WarehouseManagerRepository  extends JpaRepository<WarehouseManager, Long> {
     WarehouseManager findByLogin(String login);
-    List<WarehouseManager> findByIsValidatedFalse();
+    List<WarehouseManager> findByIsConfirmedFalse();
 }
 

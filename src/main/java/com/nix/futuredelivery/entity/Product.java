@@ -22,7 +22,7 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private boolean isValidated;
+    private boolean isConfirmed;
 
     @ManyToOne
     private ProductCategory productCategory;
