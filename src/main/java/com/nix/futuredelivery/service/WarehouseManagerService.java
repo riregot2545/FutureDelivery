@@ -1,62 +1,75 @@
 package com.nix.futuredelivery.service;
 
+import com.google.maps.errors.ApiException;
 import com.nix.futuredelivery.entity.Product;
 import com.nix.futuredelivery.entity.Warehouse;
 import com.nix.futuredelivery.entity.WarehouseManager;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
-import com.nix.futuredelivery.repository.ProductRepository;
+import com.nix.futuredelivery.exceptions.NoPersonException;
 import com.nix.futuredelivery.repository.WarehouseManagerRepository;
 import com.nix.futuredelivery.repository.WarehouseRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 
 @Service
 public class WarehouseManagerService {
     private WarehouseManagerRepository warehouseManagerRepository;
-    private ProductRepository productRepository;
-    private WarehouseRepository  warehouseRepository;
-    public WarehouseManagerService(WarehouseManagerRepository warehouseManagerRepository, ProductRepository productRepository, WarehouseRepository warehouseRepository){
+    private WarehouseRepository warehouseRepository;
+    private ProductService productService;
+    private PasswordEncoder passwordEncoder;
+    private DistanceService distanceService;
+
+    public WarehouseManagerService(WarehouseManagerRepository warehouseManagerRepository, WarehouseRepository warehouseRepository, ProductService productService, PasswordEncoder passwordEncoder, DistanceService distanceService) {
         this.warehouseManagerRepository = warehouseManagerRepository;
-        this.productRepository = productRepository;
         this.warehouseRepository = warehouseRepository;
+        this.productService = productService;
+        this.passwordEncoder = passwordEncoder;
+        this.distanceService = distanceService;
     }
+
     @Transactional
-    public List<WarehouseProductLine> getProductLines(Long id){
-        WarehouseManager manager = warehouseManagerRepository.findById(id).orElseThrow(()->new IllegalStateException("no"));;
-        Warehouse warehouse = manager.getWarehouse();
-        return warehouse.getProductLines();
-    }
-    @Transactional
-    public void saveWarehouseManager(WarehouseManager manager){
+    public void saveWarehouseManager(WarehouseManager manager) {
         String password = manager.getPassword();
-        manager.setPassword("{noop}"+password);
+        manager.setPassword(passwordEncoder.encode(password));
         warehouseManagerRepository.save(manager);
     }
     @Transactional
-    public WarehouseManager getManagerById(Long id){
-        return warehouseManagerRepository.findById(id).orElseThrow(()->new IllegalStateException("no"));
+    public List<WarehouseProductLine> getProductLines(Long id) {
+        WarehouseManager manager = warehouseManagerRepository.findById(id).orElseThrow(() -> new NoPersonException("Warehouse manager", id));
+        Warehouse warehouse = manager.getWarehouse();
+        return warehouse.getProductLines();
+    }
+
+
+
+    @Transactional
+    public boolean hasWarehouse(Long id) {
+        WarehouseManager manager = warehouseManagerRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Manager with id " + id + " does not exist"));
+        return manager.getWarehouse() != null;
+    }
+
+
+    @Transactional
+    public void saveProductLines(List<Product> lines, Long id) {
+        WarehouseManager manager = warehouseManagerRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Manager with id " + id + " does not exist"));
+        Warehouse warehouse = manager.getWarehouse();
+        productService.addProductsToWarehouse(lines, warehouse);
     }
 
     @Transactional
-    public void saveProductLines(List<Product> lines, Long id){
-        WarehouseManager manager = warehouseManagerRepository.findById(id).orElseThrow(()->new IllegalArgumentException("no"));
-
+    public void editProductLines(List<WarehouseProductLine> lines, Long id) {
+        WarehouseManager manager = warehouseManagerRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Manager with id " + id + " does not exist"));
         Warehouse warehouse = manager.getWarehouse();
-        List<WarehouseProductLine> productLines = new ArrayList<>();
-
-        for(int i = 0; productLines.size()!= lines.size(); i++){
-            Product p = productRepository.findById(lines.get(i).getId()).orElseThrow(()->new IllegalArgumentException("no"));
-            WarehouseProductLine productLine = new WarehouseProductLine(warehouse);
-            productLine.setProduct(p);
-            productLines.add(productLine);
-        }
-        warehouse.getProductLines().addAll(productLines);
+        productService.editProductsOfWarehouse(lines, warehouse);
     }
 
-    public void saveWarehouse(Warehouse warehouse){
+    @Transactional
+    public void saveWarehouse(Warehouse warehouse) throws InterruptedException, ApiException, IOException {
         warehouseRepository.save(warehouse);
+        distanceService.addNewPoint(warehouse.getAddress());
     }
 }

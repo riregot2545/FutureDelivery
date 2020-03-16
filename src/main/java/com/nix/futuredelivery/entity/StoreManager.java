@@ -1,6 +1,8 @@
 package com.nix.futuredelivery.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,6 +15,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
+        property  = "id",
+        scope     = Long.class)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
@@ -22,7 +27,8 @@ public class StoreManager extends SystemUser{
 
     private boolean isValidated;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "store_id")
     private Store store;
 
     public StoreManager(Long id, String firstName, String lastName, String login, String password, String email, Store store) {

@@ -5,6 +5,7 @@ import io.jsonwebtoken.*;
 import lombok.var;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,9 +24,11 @@ import java.util.stream.Collectors;
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private static final Logger log = LoggerFactory.getLogger(JwtAuthorizationFilter.class);
+    private SecurityConstants securityConstants;
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager) {
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager,SecurityConstants securityConstants) {
         super(authenticationManager);
+        this.securityConstants = securityConstants;
     }
 
     @Override
@@ -45,7 +48,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         var token = request.getHeader(SecurityConstants.TOKEN_HEADER);
         if (!StringUtils.isEmpty(token) && token.startsWith(SecurityConstants.TOKEN_PREFIX)) {
             try {
-                var signingKey = SecurityConstants.JWT_SECRET.getBytes();
+                var signingKey = securityConstants.JWT_SECRET.getBytes();
 
                 var parsedToken = Jwts.parser()
                         .setSigningKey(signingKey)

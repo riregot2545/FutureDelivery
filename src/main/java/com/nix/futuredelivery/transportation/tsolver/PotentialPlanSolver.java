@@ -1,9 +1,6 @@
 package com.nix.futuredelivery.transportation.tsolver;
 
-import com.nix.futuredelivery.transportation.tsolver.model.DistributionCell;
-import com.nix.futuredelivery.transportation.tsolver.model.DistributionParticipants;
-import com.nix.futuredelivery.transportation.tsolver.model.DistributionPlan;
-import com.nix.futuredelivery.transportation.tsolver.model.PotentialArray;
+import com.nix.futuredelivery.transportation.tsolver.model.*;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -15,6 +12,8 @@ public class PotentialPlanSolver {
     private PotentialArray uArray;
     private PotentialArray vArray;
 
+    private int potentialErrorCounter = 0;
+
     public PotentialPlanSolver(DistributionPlan firstDistributionPlan) {
         this.distributionPlan = firstDistributionPlan;
         this.participants = firstDistributionPlan.getParticipants();
@@ -24,7 +23,7 @@ public class PotentialPlanSolver {
         this.vArray = new PotentialArray(participants.suppliersCount());
     }
 
-    public DistributionPlan findOptimalPlan() {
+    public DistributionPlan findOptimalPlan() throws PotentialConflictException {
 
         if(isStartPlanOneColumnOrOneRow())
             return distributionPlan;
@@ -33,7 +32,7 @@ public class PotentialPlanSolver {
         DistributionCell maxPotentialCell = findMaxPotentialSum();
         while (maxPotentialCell.getPotentialSum() > 0) {
 
-            log.info("Max potential before cycle:" + maxPotentialCell.getPotentialSum() +
+            log.debug("Max potential before cycle:" + maxPotentialCell.getPotentialSum() +
                     " on [" + maxPotentialCell.getX()+ "," + maxPotentialCell.getY()+"]");
 
 
@@ -42,7 +41,7 @@ public class PotentialPlanSolver {
             makePotentials();
             maxPotentialCell = findMaxPotentialSum();
 
-            log.info("Max potential after cycle:" + maxPotentialCell.getPotentialSum() +
+            log.debug("Max potential after cycle:" + maxPotentialCell.getPotentialSum() +
                     " on [" + maxPotentialCell.getX()+ "," + maxPotentialCell.getY()+"]");
 
             uArray.clear();
@@ -58,7 +57,7 @@ public class PotentialPlanSolver {
     }
 
 
-    private void makePotentials() {
+    private void makePotentials() throws PotentialConflictException {
         uArray.set(0, 0);
         int iterations = 0;
         while (uArray.findIndexOfNull() > -1 || vArray.findIndexOfNull() > -1) {
@@ -75,7 +74,10 @@ public class PotentialPlanSolver {
             }
             iterations++;
             if (iterations > 20_000) {
-                log.warn("ITERATIONS > 20 000, maybe it is potentials conflict, resolving...");
+                potentialErrorCounter++;
+                if (potentialErrorCounter > 5)
+                    throw new PotentialConflictException("Potentials conflicting errors " + potentialErrorCounter);
+                log.warn("Potentials conflict detected, resolving...");
                 int uElementNullIndex = uArray.findIndexOfNull();
                 int vElementNullIndex = vArray.findIndexOfNull();
                 if (uElementNullIndex > -1) {
@@ -83,6 +85,7 @@ public class PotentialPlanSolver {
                 } else if (vElementNullIndex > -1) {
                     vArray.set(vElementNullIndex, 0);
                 }
+                iterations = 0;
             }
         }
     }

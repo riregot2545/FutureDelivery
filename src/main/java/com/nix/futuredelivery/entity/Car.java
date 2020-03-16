@@ -1,6 +1,7 @@
 package com.nix.futuredelivery.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nix.futuredelivery.entity.value.Capacity;
 import com.nix.futuredelivery.entity.value.Consumption;
 import com.nix.futuredelivery.entity.value.Volume;
@@ -37,18 +38,19 @@ public class Car {
         this.fullness = new Volume(0D);
     }
 
+    @JsonIgnore
     public double getFreeVolume() {
-        return capacity.getMaxVolume().getVolume() - fullness.getVolume();
+        return capacity.getMaxVolume().getVolumeWeight() - fullness.getVolumeWeight();
     }
 
     public void resetFullness() {
-        fullness.setVolume(0D);
+        fullness.setVolumeWeight(0D);
     }
 
     public void fillVolume(Volume volume) {
-        if (getFreeVolume() < volume.getVolume())
+        if (getFreeVolume() < volume.getVolumeWeight())
             throw new IllegalArgumentException("Filling volume is much than free volume");
-        fullness.setVolume(fullness.getVolume() + volume.getVolume());
+        fullness.setVolumeWeight(fullness.getVolumeWeight() + volume.getVolumeWeight());
     }
 
 }

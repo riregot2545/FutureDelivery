@@ -4,12 +4,12 @@ import com.nix.futuredelivery.entity.*;
 import com.nix.futuredelivery.entity.value.OrderProductLine;
 import com.nix.futuredelivery.repository.*;
 import com.nix.futuredelivery.transportation.model.DistributionEntry;
-import com.nix.futuredelivery.transportation.model.DriverLoad;
+import com.nix.futuredelivery.transportation.model.DriverAssignEntry;
 import com.nix.futuredelivery.transportation.model.RoadDriving;
 import com.nix.futuredelivery.transportation.model.exceptions.NoneCarsExistsException;
 import com.nix.futuredelivery.transportation.model.exceptions.NoneDriversExistsException;
 import com.nix.futuredelivery.transportation.model.exceptions.ProductsIsOverselledException;
-import com.nix.futuredelivery.transportation.vrpsolver.TestVehicleRouter;
+import com.nix.futuredelivery.transportation.vrpsolver.SimulatedVehicleRouter;
 import com.nix.futuredelivery.transportation.vrpsolver.VehicleRoutingSolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,9 +35,10 @@ public class TransportationProcessor {
     private final DistanceRepository distanceRepository;
     private final WaybillRepository waybillRepository;
 
+
     @Transactional
-    public void proceedOrders() throws NoneCarsExistsException, NoneDriversExistsException, ProductsIsOverselledException {
-        Queue<DriverLoad> drivers = getDriversQueue();
+    public List<Route> proceedOrders() throws NoneCarsExistsException, NoneDriversExistsException, ProductsIsOverselledException {
+        Queue<DriverAssignEntry> drivers = getDriversQueue();
         List<Car> cars = carRepository.findAll();
 
         if (cars.isEmpty())
@@ -46,16 +47,18 @@ public class TransportationProcessor {
         List<DistributionEntry> distributionEntries = transportationGrouper.distributeAllFreeOrders();
         if (distributionEntries.isEmpty()) {
             log.info("Distribution list is empty, nothing to assign, returning.");
-            return;
+            return new ArrayList<>();
         }
         transportationAssigner = new TransportationAssigner(cars, drivers, distributionEntries);
         List<Route> assignedRoutes = transportationAssigner.assign();
 
-        routingSolver = new TestVehicleRouter();
-        List<Route> sortedRoutes = routingSolver.setOrderInWaybills(assignedRoutes);
-        calculateRouteCosts(sortedRoutes);
-        saveRoutes(sortedRoutes);
+
+        routingSolver = new SimulatedVehicleRouter();
+        List<Route> sortedRoutes = routingSolver.setOrderInWaybills(assignedRoutes, cacheDistances(assignedRoutes));
+        List<Route> calculateRoutes = calculateRouteCosts(sortedRoutes);
+        saveRoutes(calculateRoutes);
         cleanStoreOrders(distributionEntries);
+        return calculateRoutes;
     }
 
     @Transactional
@@ -67,7 +70,27 @@ public class TransportationProcessor {
         }
     }
 
+    private List<Distance> cacheDistances(List<Route> routeList) {
+        List<Store> collect = routeList.stream()
+                .flatMap(r -> r.getWaybillList().stream())
+                .map(w -> w.getStoreOrder().getStore())
+                .distinct()
+                .collect(Collectors.toList());
+
+        ArrayList<Distance> cachedDistances = new ArrayList<>();
+        for (Store store : collect) {
+            cachedDistances.addAll(distanceRepository.findByAddressFrom(store.getAddress()));
+        }
+
+        List<Warehouse> warehouses = routeList.stream().map(Route::getWarehouse).collect(Collectors.toList());
+        for (Warehouse warehouse : warehouses) {
+            cachedDistances.addAll(distanceRepository.findByAddressFrom(warehouse.getAddress()));
+        }
+        return cachedDistances;
+    }
+
     private void cleanStoreOrders(List<DistributionEntry> distributionEntries) {
+        log.info("Starting order cleaning after route creation...");
         List<StoreOrder> storeOrders = distributionEntries.stream()
                 .flatMap(e -> e.getOrderProductLines().stream())
                 .map(OrderProductLine::getStoreOrder)
@@ -76,9 +99,12 @@ public class TransportationProcessor {
         storeOrders.forEach(ord -> ord.setDistributed(true));
 
         orderRepository.saveAll(storeOrders);
+
+        log.info("All assigned orders marked as distributed.");
     }
 
     private List<Route> calculateRouteCosts(List<Route> routes) {
+        log.info("Starting route cost calculation...");
         for (Route route : routes) {
             Car car = route.getCar();
             BigDecimal carBaseSubdivided = new BigDecimal(car.getConsumption().getBaseConsumption() /
@@ -96,6 +122,7 @@ public class TransportationProcessor {
 
             for (List<Waybill> waybills : waybillGroupedByStore.values()) {
                 Waybill mainWaybill = waybills.get(0);
+                mainWaybill.setStoreMain(true);
                 BigDecimal mainDeliveryCost = new BigDecimal(0);
 
                 accumulatedDistance.setDistance(accumulatedDistance.getDistance() +
@@ -103,7 +130,7 @@ public class TransportationProcessor {
 
 
                 BigDecimal mainReducedCost = mainWaybill.getProductLines().stream()
-                        .map(line -> new BigDecimal(line.getProduct().getVolume().getVolume() *
+                        .map(line -> new BigDecimal(line.getProduct().getVolume().getVolumeWeight() *
                                 line.getQuantity() *
                                 car.getConsumption().getRelativeConsumption() *
                                 accumulatedDistance.getDistance()))
@@ -115,13 +142,13 @@ public class TransportationProcessor {
                 mainWaybill.setDeliveryCost(mainDeliveryCost);
 
                 for (int i = 1; i < waybills.size(); i++) {
-                    Waybill waybill = waybills.get(0);
+                    Waybill waybill = waybills.get(i);
 
                     BigDecimal deliveryCost = new BigDecimal(0);
 
 
-                    BigDecimal reducedCost = mainWaybill.getProductLines().stream()
-                            .map(line -> new BigDecimal(line.getProduct().getVolume().getVolume() *
+                    BigDecimal reducedCost = waybill.getProductLines().stream()
+                            .map(line -> new BigDecimal(line.getProduct().getVolume().getVolumeWeight() *
                                     line.getQuantity() *
                                     car.getConsumption().getRelativeConsumption() *
                                     accumulatedDistance.getDistance()))
@@ -131,8 +158,8 @@ public class TransportationProcessor {
                     waybill.setDeliveryCost(deliveryCost);
                 }
             }
-
         }
+        log.info("Successfully calculated routes {}", routes.size());
         return routes;
     }
 
@@ -169,12 +196,12 @@ public class TransportationProcessor {
                 .collect(Collectors.toList());
     }
 
-    private Queue<DriverLoad> getDriversQueue() throws NoneDriversExistsException {
-        List<DriverLoad> driverLoads = driverRepository.aggregateDriverByLoad();
-        if (driverLoads.isEmpty())
+    private Queue<DriverAssignEntry> getDriversQueue() throws NoneDriversExistsException {
+        List<DriverAssignEntry> driverAssignEntries = driverRepository.aggregateDriverByLoad();
+        if (driverAssignEntries.isEmpty())
             throw new NoneDriversExistsException();
-        PriorityQueue<DriverLoad> driverQueue = new PriorityQueue<>(Comparator.comparingLong(DriverLoad::getLoad));
-        driverQueue.addAll(driverLoads);
+        PriorityQueue<DriverAssignEntry> driverQueue = new PriorityQueue<>(Comparator.comparingLong(DriverAssignEntry::getAssignCount));
+        driverQueue.addAll(driverAssignEntries);
         return driverQueue;
     }
 }

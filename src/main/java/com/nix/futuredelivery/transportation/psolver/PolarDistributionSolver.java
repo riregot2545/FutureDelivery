@@ -25,7 +25,6 @@ public class PolarDistributionSolver {
                     store,
                     center,
                     null,
-                    null,
                     Volume.empty()
             );
             sortedPoints.add(point);

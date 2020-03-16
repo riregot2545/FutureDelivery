@@ -6,6 +6,7 @@ import com.nix.futuredelivery.transportation.tsolver.model.DistributionPlan;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,12 +34,11 @@ public class CycleMover {
         if (checkColumnOnFilling(cell.getY()) > 0) {
             secondWay = makeCycle(cell, usedPositions, false);
         } else
-            log.warn("CAN'T BUILD CYCLE");
+            log.warn("Can't build cycle");
         cell.setFullnessEmpty();
 
         if (!firstWay.isPresent() && !secondWay.isPresent()) {
-            log.warn("CAN'T BUILD CYCLE");
-            log.warn("ADDING FICTIVE CELL TO BASIS");
+            log.warn("Can't build cycle, adding fictive cell to basis");
             firstWay = addBasisCellAndRebuildCycle(usedPositions, cell);
         }
 
@@ -110,6 +110,7 @@ public class CycleMover {
     private Optional<List<DistributionCell>> addBasisCellAndRebuildCycle(List<DistributionCell> usedPositions,
                                              DistributionCell cell) {
         List<DistributionCell> tryFillCellList = findEmptyCells(cell);
+        Collections.shuffle(tryFillCellList);
         for (DistributionCell emptyCell :
                 tryFillCellList) {
             emptyCell.setFullness(0);
