@@ -19,6 +19,9 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 public class StoreManager extends SystemUser{
+
+    private boolean isValidated;
+
     @OneToOne
     private Store store;
 

@@ -24,6 +24,7 @@ public class WarehouseManager extends SystemUser{
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "warehouse_id")
     private Warehouse warehouse;
+    private boolean isValidated;
 
     public WarehouseManager(Long id, String firstName, String lastName, String login, String password, String email, Warehouse warehouse) {
         super(id, firstName, lastName, login, password, email);

@@ -50,7 +50,7 @@ class TransportationAssignerTest {
         int randomProductCount = random.nextInt(10) + 1;
 
         for (int i = 0; i < randomProductCount; i++) {
-            productList.add(new Product((long) i, null, "product" + (i + 1), new BigDecimal(i), new Volume(1)));
+            productList.add(new Product((long) i, false,  null, "product" + (i + 1), new BigDecimal(i), new Volume(1)));
         }
 
         for (int i = 0; i < storeLocations.size(); i++) {
@@ -124,7 +124,7 @@ class TransportationAssignerTest {
         int randomProductCount = random.nextInt(10) + 1;
 
         for (int i = 0; i < randomProductCount; i++) {
-            productList.add(new Product((long) i, null, "product" + (i + 1),
+            productList.add(new Product((long) i, false, null, "product" + (i + 1),
                     new BigDecimal(i),
                     new Volume(random.nextInt(5) + 1)));
         }
@@ -199,7 +199,7 @@ class TransportationAssignerTest {
         int randomProductCount = random.nextInt(10) + 1;
 
         for (int i = 0; i < randomProductCount; i++) {
-            productList.add(new Product((long) i, null, "product" + (i + 1),
+            productList.add(new Product((long) i, false, null, "product" + (i + 1),
                     new BigDecimal(i),
                     new Volume(random.nextInt(5) + 1)));
         }
