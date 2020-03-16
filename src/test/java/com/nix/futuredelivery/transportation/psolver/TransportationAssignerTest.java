@@ -50,7 +50,7 @@ class TransportationAssignerTest {
         int randomProductCount = random.nextInt(10) + 1;
 
         for (int i = 0; i < randomProductCount; i++) {
-            productList.add(new Product((long) i, false,  null, "product" + (i + 1), new BigDecimal(i), new Volume(1)));
+            productList.add(new Product((long) i, false, null, "product" + (i + 1), new BigDecimal(i), new Volume(1)));
         }
 
         for (int i = 0; i < storeLocations.size(); i++) {
@@ -64,7 +64,7 @@ class TransportationAssignerTest {
             randomProductCount = random.nextInt(3) + 1;
             Product product = productList.get(random.nextInt(productList.size()));
             for (int j = 0; j < randomProductCount; j++) {
-                StoreOrder order = new StoreOrder(store, false, false);
+                StoreOrder order = new StoreOrder(OrderStatus.NEW, store);
                 orderProductLines.add(new OrderProductLine(
                         product, random.nextInt(50) + 1, order
                 ));
@@ -140,7 +140,7 @@ class TransportationAssignerTest {
             randomProductCount = random.nextInt(3) + 1;
             Product product = productList.get(random.nextInt(productList.size()));
             for (int j = 0; j < randomProductCount; j++) {
-                StoreOrder order = new StoreOrder(store, false, false);
+                StoreOrder order = new StoreOrder(OrderStatus.NEW, store);
                 order.setId((long) j);
                 orderProductLines.add(new OrderProductLine(
                         product, random.nextInt(100) + 1, order
@@ -215,7 +215,7 @@ class TransportationAssignerTest {
             randomProductCount = random.nextInt(3) + 1;
             Product product = productList.get(random.nextInt(productList.size()));
             for (int j = 0; j < randomProductCount; j++) {
-                StoreOrder order = new StoreOrder(store, false, false);
+                StoreOrder order = new StoreOrder(OrderStatus.NEW, store);
                 order.setId((long) j);
                 orderProductLines.add(new OrderProductLine(
                         product, random.nextInt(20) + 1, order

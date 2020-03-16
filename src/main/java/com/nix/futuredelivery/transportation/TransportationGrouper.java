@@ -3,6 +3,7 @@ package com.nix.futuredelivery.transportation;
 import com.nix.futuredelivery.entity.*;
 import com.nix.futuredelivery.entity.value.AbstractProductLine;
 import com.nix.futuredelivery.entity.value.OrderProductLine;
+import com.nix.futuredelivery.entity.value.OrderStatus;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
 import com.nix.futuredelivery.repository.DistanceRepository;
 import com.nix.futuredelivery.repository.StoreOrderRepository;
@@ -161,7 +162,7 @@ public class TransportationGrouper {
     }
 
     private List<ProductLineGroup<OrderProductLine>> groupOrderLinesByProduct() {
-        List<StoreOrder> orders = orderRepository.findByIsDistributedFalse();
+        List<StoreOrder> orders = orderRepository.findByOrderStatus(OrderStatus.NEW);
 
         return orders.stream()
                 .flatMap(ord -> ord.getProductLines().stream())

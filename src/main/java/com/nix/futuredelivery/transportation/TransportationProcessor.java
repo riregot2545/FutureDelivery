@@ -2,6 +2,7 @@ package com.nix.futuredelivery.transportation;
 
 import com.nix.futuredelivery.entity.*;
 import com.nix.futuredelivery.entity.value.OrderProductLine;
+import com.nix.futuredelivery.entity.value.OrderStatus;
 import com.nix.futuredelivery.repository.*;
 import com.nix.futuredelivery.transportation.model.DistributionEntry;
 import com.nix.futuredelivery.transportation.model.DriverAssignEntry;
@@ -96,7 +97,7 @@ public class TransportationProcessor {
                 .map(OrderProductLine::getStoreOrder)
                 .distinct()
                 .collect(Collectors.toList());
-        storeOrders.forEach(ord -> ord.setDistributed(true));
+        storeOrders.forEach(ord -> ord.setOrderStatus(OrderStatus.DISTRIBUTED));
 
         orderRepository.saveAll(storeOrders);
 

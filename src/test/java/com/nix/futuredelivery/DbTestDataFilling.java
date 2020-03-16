@@ -217,8 +217,7 @@ public class DbTestDataFilling {
     void createOrdersForStores() {
         List<Store> stores = storeRepository.findAll();
         stores.forEach(s -> orderRepository.save(new StoreOrder(
-                null, s, LocalDateTime.now(), null, false, false
-        )));
+                null, OrderStatus.NEW ,s, LocalDateTime.now(), null)));
     }
 
     void carAndDriverFilling(){

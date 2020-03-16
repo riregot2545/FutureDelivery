@@ -113,7 +113,7 @@ public class DatabaseDataGenerator {
         for (int i = 0; i < count; i++) {
             Store store = stores.get(random.nextInt(stores.size()));
             StoreOrder order = new StoreOrder(
-                    null, store, LocalDateTime.now(), new ArrayList<>(), false, false);
+                    null, OrderStatus.NEW, store, LocalDateTime.now(), new ArrayList<>());
 
             int randomProductInOrderCount = random.nextInt(products.size()) + minPositionsQuantity;
             List<Product> localProducts = new ArrayList<>(products);

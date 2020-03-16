@@ -1,6 +1,7 @@
 package com.nix.futuredelivery.service;
 
 import com.nix.futuredelivery.entity.*;
+import com.nix.futuredelivery.entity.value.OrderStatus;
 import com.nix.futuredelivery.repository.*;
 import com.nix.futuredelivery.entity.Notification;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,9 +20,11 @@ public class AdministratorService {
     private PasswordEncoder passwordEncoder;
     private DriverRepository driverRepository;
     private CarRepository carRepository;
+    private StoreOrderRepository storeOrderRepository;
+    private AdminRepository adminRepository;
 
 
-    public AdministratorService(RouteRepository routeRepository, WarehouseRepository warehouseRepository, WarehouseManagerRepository warehouseManagerRepository, StoreManagerRepository storeManagerRepository, ProductRepository productRepository, PasswordEncoder passwordEncoder, DriverRepository driverRepository, CarRepository carRepository) {
+    public AdministratorService(RouteRepository routeRepository, WarehouseRepository warehouseRepository, WarehouseManagerRepository warehouseManagerRepository, StoreManagerRepository storeManagerRepository, ProductRepository productRepository, PasswordEncoder passwordEncoder, DriverRepository driverRepository, CarRepository carRepository, StoreOrderRepository storeOrderRepository) {
         this.routeRepository = routeRepository;
         this.warehouseRepository = warehouseRepository;
         this.storeManagerRepository = storeManagerRepository;
@@ -30,6 +33,7 @@ public class AdministratorService {
         this.passwordEncoder = passwordEncoder;
         this.driverRepository = driverRepository;
         this.carRepository = carRepository;
+        this.storeOrderRepository = storeOrderRepository;
     }
 
     public List<Route> getActiveRoutes() {
@@ -96,8 +100,6 @@ public class AdministratorService {
             warehouseManager.setConfirmed(true);
             warehouseManagerRepository.save(warehouseManager);
         }
-
-
     }
 
     @Transactional
@@ -116,6 +118,9 @@ public class AdministratorService {
         }
     }
 
-
+    @Transactional
+    public List<StoreOrder> getUndistributedOrders() {
+        return storeOrderRepository.findByOrderStatus(OrderStatus.NEW);
+    }
 }
 

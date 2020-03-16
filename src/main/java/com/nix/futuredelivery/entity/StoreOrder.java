@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.nix.futuredelivery.entity.value.AbstractProductLine;
 import com.nix.futuredelivery.entity.value.OrderProductLine;
+import com.nix.futuredelivery.entity.value.OrderStatus;
 import com.nix.futuredelivery.exceptions.NoProductInList;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,10 +27,10 @@ public class StoreOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
+    @Enumerated(EnumType.STRING)
+    private OrderStatus orderStatus;
     @ManyToOne
     private Store store;
-
     private LocalDateTime creationDate;
 
     @OneToMany(
@@ -38,13 +39,9 @@ public class StoreOrder {
     )
     private List<OrderProductLine> productLines = new ArrayList<>();
 
-    private boolean isClosed;
-    private boolean isDistributed;
-
-    public StoreOrder(Store store, boolean isClosed, boolean isDistributed) {
+    public StoreOrder(OrderStatus orderStatus, Store store) {
+        this.orderStatus = orderStatus;
         this.store = store;
-        this.isClosed = isClosed;
-        this.isDistributed = isDistributed;
         this.creationDate = LocalDateTime.now();
     }
 

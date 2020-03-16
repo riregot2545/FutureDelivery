@@ -5,6 +5,7 @@ import com.nix.futuredelivery.entity.StoreOrder;
 import com.nix.futuredelivery.entity.Waybill;
 import com.nix.futuredelivery.entity.value.AbstractProductLine;
 import com.nix.futuredelivery.entity.value.OrderProductLine;
+import com.nix.futuredelivery.entity.value.OrderStatus;
 import com.nix.futuredelivery.repository.*;
 import com.nix.futuredelivery.transportation.model.exceptions.NoneCarsExistsException;
 import com.nix.futuredelivery.transportation.model.exceptions.NoneDriversExistsException;
@@ -49,7 +50,7 @@ class TransportationProcessorTest {
     @Test
     @Transactional
     void proceedOrders() throws NoneCarsExistsException, NoneDriversExistsException, ProductsIsOverselledException {
-        List<StoreOrder> orders = orderRepository.findByIsDistributedFalse();
+        List<StoreOrder> orders = orderRepository.findByOrderStatus(OrderStatus.NEW);
         List<Route> routes = transportationProcessor.proceedOrders();
 
         int expectedQuantitySum = orders.stream().flatMap(ord -> ord.getProductLines().stream()).mapToInt(AbstractProductLine::getQuantity).sum();

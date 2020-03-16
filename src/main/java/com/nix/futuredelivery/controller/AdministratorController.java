@@ -19,6 +19,7 @@ public class AdministratorController {
         this.administratorService = administratorService;
     }
 
+
     @GetMapping("/active_routes")
     public List<Route> getActiveRoutes() {
         return administratorService.getActiveRoutes();
@@ -54,6 +55,11 @@ public class AdministratorController {
         return administratorService.getUnconfirmedWarehouseManagers();
     }
 
+    @GetMapping("new_store_orders")
+    public List<StoreOrder> getNewStoreOrders() {
+        return administratorService.getUndistributedOrders();
+    }
+
     @PostMapping("/confirm_product")
     public void confirmProduct(@RequestBody List<Product> productList) {
         administratorService.confirmProducts(productList);
@@ -75,7 +81,7 @@ public class AdministratorController {
     }
 
     @PostMapping("/new_car")
-    public void addNewCar(@RequestBody List<Car> carList)  {
+    public void addNewCar(@RequestBody List<Car> carList) {
         administratorService.addNewCar(carList);
     }
 
