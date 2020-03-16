@@ -126,7 +126,7 @@ public class ProductService {
 
         List<AbstractProductLine> menu = new ArrayList<>();
         List<Warehouse> warehouses = warehouseRepository.findAll();
-        List<StoreOrder> orders = storeOrderRepository.findByisDistributedFalse();
+        List<StoreOrder> orders = storeOrderRepository.findByIsDistributedFalse();
         List<Product> products = productRepository.findAll();
         for (Product product : products) {
             int quantity = countProductInWarehouse(product, warehouses) - countProductInOrders(product, orders);

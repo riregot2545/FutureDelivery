@@ -1,5 +1,6 @@
 package com.nix.futuredelivery.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.nix.futuredelivery.entity.value.WaybillProductLine;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,13 +19,14 @@ public class Waybill {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @JsonIgnoreProperties({"productLines", "store"})
     @ManyToOne
     private StoreOrder storeOrder;
 
+    @JsonIgnoreProperties({"waybill"})
     @OneToMany(
             mappedBy = "waybill",
-            cascade = CascadeType.ALL
-    )
+            cascade = CascadeType.ALL)
     private List<WaybillProductLine> productLines;
 
     @ManyToOne
@@ -35,6 +37,8 @@ public class Waybill {
     private BigDecimal productCost;
     private BigDecimal deliveryCost;
 
+    private boolean isStoreMain;
+
     public void updateProductCost() {
         BigDecimal cost = new BigDecimal(0);
         cost = productLines.stream()
@@ -42,4 +46,5 @@ public class Waybill {
                 .reduce(cost, BigDecimal::add);
         productCost = cost;
     }
+
 }

@@ -18,23 +18,14 @@ public class StationPoint {
     private List<AssignOrderLine> productLines;
 
     private Volume allProductsVolume;
-    private Volume satisfaction;
 
     public void setAllProductsVolume() {
         if (productLines != null && productLines.size() > 0)
             allProductsVolume = new Volume(productLines.stream()
-                    .mapToDouble(e -> e.getProduct().getVolume().getVolume() * e.getQuantity())
+                    .mapToDouble(e -> e.getProduct().getVolume().getVolumeWeight() * e.getQuantity())
                     .sum());
         else
             allProductsVolume = Volume.empty();
-    }
-
-    public Volume getRemain() {
-        return new Volume(allProductsVolume.getVolume() - satisfaction.getVolume());
-    }
-
-    public void addSatisfaction(Volume volume) {
-        satisfaction.setVolume(satisfaction.getVolume() + volume.getVolume());
     }
 
     public boolean hasDemand() {

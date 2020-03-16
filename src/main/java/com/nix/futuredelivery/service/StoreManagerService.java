@@ -1,5 +1,7 @@
 package com.nix.futuredelivery.service;
 
+import com.google.maps.errors.ApiException;
+import com.nix.futuredelivery.entity.Store;
 import com.nix.futuredelivery.entity.StoreManager;
 import com.nix.futuredelivery.entity.StoreOrder;
 import com.nix.futuredelivery.entity.value.AbstractProductLine;
@@ -7,10 +9,12 @@ import com.nix.futuredelivery.entity.value.OrderProductLine;
 import com.nix.futuredelivery.exceptions.*;
 import com.nix.futuredelivery.repository.StoreManagerRepository;
 import com.nix.futuredelivery.repository.StoreOrderRepository;
+import com.nix.futuredelivery.repository.StoreRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,16 +23,20 @@ import java.util.stream.Collectors;
 public class StoreManagerService {
 
     private StoreManagerRepository storeManagerRepository;
+    private StoreRepository storeRepository;
     private ProductService productService;
     private StoreOrderRepository storeOrderRepository;
     private PasswordEncoder passwordEncoder;
+    private DistanceService distanceService;
 
 
-    public StoreManagerService(StoreManagerRepository storeManagerRepository, ProductService productService, StoreOrderRepository storeOrderRepository, PasswordEncoder passwordEncoder) {
+    public StoreManagerService(StoreManagerRepository storeManagerRepository, StoreRepository storeRepository, ProductService productService, StoreOrderRepository storeOrderRepository, PasswordEncoder passwordEncoder, DistanceService distanceService) {
         this.storeManagerRepository = storeManagerRepository;
+        this.storeRepository = storeRepository;
         this.productService = productService;
         this.storeOrderRepository = storeOrderRepository;
         this.passwordEncoder = passwordEncoder;
+        this.distanceService = distanceService;
     }
 
     private boolean storeHasOrder(StoreManager storeManager, StoreOrder storeOrder) {
@@ -93,5 +101,11 @@ public class StoreManagerService {
 
     public List<AbstractProductLine> getProducts() {
         return productService.getProducts();
+    }
+
+    @Transactional
+    public void saveStore(Store store) throws InterruptedException, ApiException, IOException {
+        storeRepository.save(store);
+        distanceService.addNewPoint(store.getAddress());
     }
 }

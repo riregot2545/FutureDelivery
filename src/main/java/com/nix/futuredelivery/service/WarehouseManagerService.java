@@ -1,5 +1,6 @@
 package com.nix.futuredelivery.service;
 
+import com.google.maps.errors.ApiException;
 import com.nix.futuredelivery.entity.Product;
 import com.nix.futuredelivery.entity.Warehouse;
 import com.nix.futuredelivery.entity.WarehouseManager;
@@ -11,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -19,12 +21,14 @@ public class WarehouseManagerService {
     private WarehouseRepository warehouseRepository;
     private ProductService productService;
     private PasswordEncoder passwordEncoder;
+    private DistanceService distanceService;
 
-    public WarehouseManagerService(WarehouseManagerRepository warehouseManagerRepository, WarehouseRepository warehouseRepository, ProductService productService, PasswordEncoder passwordEncoder) {
+    public WarehouseManagerService(WarehouseManagerRepository warehouseManagerRepository, WarehouseRepository warehouseRepository, ProductService productService, PasswordEncoder passwordEncoder, DistanceService distanceService) {
         this.warehouseManagerRepository = warehouseManagerRepository;
         this.warehouseRepository = warehouseRepository;
         this.productService = productService;
         this.passwordEncoder = passwordEncoder;
+        this.distanceService = distanceService;
     }
 
     @Transactional
@@ -65,7 +69,8 @@ public class WarehouseManagerService {
     }
 
     @Transactional
-    public void saveWarehouse(Warehouse warehouse) {
+    public void saveWarehouse(Warehouse warehouse) throws InterruptedException, ApiException, IOException {
         warehouseRepository.save(warehouse);
+        distanceService.addNewPoint(warehouse.getAddress());
     }
 }

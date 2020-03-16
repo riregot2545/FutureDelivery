@@ -10,13 +10,10 @@ import com.nix.futuredelivery.repository.WarehouseRepository;
 import com.nix.futuredelivery.transportation.model.AssignOrderLine;
 import com.nix.futuredelivery.transportation.model.DistributionEntry;
 import com.nix.futuredelivery.transportation.model.DistributionEntry.DistributionKey;
-import com.nix.futuredelivery.transportation.model.ProductKeyListGroup;
+import com.nix.futuredelivery.transportation.model.ProductLineGroup;
 import com.nix.futuredelivery.transportation.model.exceptions.ProductsIsOverselledException;
 import com.nix.futuredelivery.transportation.tsolver.ProductDistributor;
-import com.nix.futuredelivery.transportation.tsolver.model.DistributionCell;
-import com.nix.futuredelivery.transportation.tsolver.model.DistributionCostMatrixBuilder;
-import com.nix.futuredelivery.transportation.tsolver.model.DistributionParticipants;
-import com.nix.futuredelivery.transportation.tsolver.model.DistributionPlan;
+import com.nix.futuredelivery.transportation.tsolver.model.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,8 +32,8 @@ public class TransportationGrouper {
     private final Map<DistributionKey, DistributionEntry> productDistributionEntries;
 
     public List<DistributionEntry> distributeAllFreeOrders() throws ProductsIsOverselledException {
-        List<ProductKeyListGroup<OrderProductLine>> orderGroupCatalog = groupOrderLinesByProduct();
-        List<ProductKeyListGroup<WarehouseProductLine>> warehouseGroupCatalog = groupWarehouseLinesByProduct();
+        List<ProductLineGroup<OrderProductLine>> orderGroupCatalog = groupOrderLinesByProduct();
+        List<ProductLineGroup<WarehouseProductLine>> warehouseGroupCatalog = groupWarehouseLinesByProduct();
         Map<Warehouse, List<Distance>> cachedDistances = cacheDistances(warehouseGroupCatalog);
 
         if (orderGroupCatalog.isEmpty()) {
@@ -49,11 +46,12 @@ public class TransportationGrouper {
 
         if (isProductPositionsEquals(orderGroupCatalog, warehouseGroupCatalog)) {
             log.info("Starting product distribution...");
+            Collections.shuffle(orderGroupCatalog);
             for (int i = 0; i < orderGroupCatalog.size(); i++) {
                 log.info("Product distribution {}/{}", i, orderGroupCatalog.size());
-                ProductKeyListGroup<OrderProductLine> orderProductGroup = orderGroupCatalog.get(i);
+                ProductLineGroup<OrderProductLine> orderProductGroup = orderGroupCatalog.get(i);
                 Product currentProduct = orderProductGroup.getKey();
-                ProductKeyListGroup<WarehouseProductLine> warehouseProductGroup = getProductGroupByKey(warehouseGroupCatalog, currentProduct).get();
+                ProductLineGroup<WarehouseProductLine> warehouseProductGroup = getProductGroupByKey(warehouseGroupCatalog, currentProduct).get();
 
                 Map<Store, List<AssignOrderLine>> storeProductLinesMap = groupOrderLinesByStore(orderProductGroup.getList());
                 DistributionParticipants participants = makeDistributionParticipants(warehouseProductGroup, storeProductLinesMap);
@@ -62,7 +60,16 @@ public class TransportationGrouper {
                 DistributionCell[][] costMatrix = costMatrixBuilder.build();
 
                 ProductDistributor distributor = new ProductDistributor(costMatrix, participants);
-                DistributionPlan distributionPlan = distributor.distribute();
+                DistributionPlan distributionPlan;
+                try {
+                    distributionPlan = distributor.distribute();
+                } catch (PotentialConflictException e) {
+                    log.warn("Unresolved potential conflict, making shuffle.");
+                    Collections.shuffle(orderGroupCatalog);
+                    productDistributionEntries.clear();
+                    i = -1;
+                    continue;
+                }
 
                 decodeDistributionPlan(distributionPlan, currentProduct, storeProductLinesMap);
 
@@ -113,7 +120,7 @@ public class TransportationGrouper {
         }
     }
 
-    private DistributionParticipants makeDistributionParticipants(ProductKeyListGroup<WarehouseProductLine> warehouseProductGroup,
+    private DistributionParticipants makeDistributionParticipants(ProductLineGroup<WarehouseProductLine> warehouseProductGroup,
                                                                   Map<Store, List<AssignOrderLine>> storeProductLinesMap) {
         DistributionParticipants.Builder participantsBuilder =
                 new DistributionParticipants.Builder();
@@ -128,18 +135,18 @@ public class TransportationGrouper {
         return participantsBuilder.build();
     }
 
-    private boolean isProductPositionsEquals(List<ProductKeyListGroup<OrderProductLine>> orderGroupList,
-                                             List<ProductKeyListGroup<WarehouseProductLine>> warehouseGroupList) {
-        Set<Product> ordSet = orderGroupList.stream().map(ProductKeyListGroup::getKey).collect(Collectors.toSet());
-        Set<Product> warSet = warehouseGroupList.stream().map(ProductKeyListGroup::getKey).collect(Collectors.toSet());
+    private boolean isProductPositionsEquals(List<ProductLineGroup<OrderProductLine>> orderGroupList,
+                                             List<ProductLineGroup<WarehouseProductLine>> warehouseGroupList) {
+        Set<Product> ordSet = orderGroupList.stream().map(ProductLineGroup::getKey).collect(Collectors.toSet());
+        Set<Product> warSet = warehouseGroupList.stream().map(ProductLineGroup::getKey).collect(Collectors.toSet());
         return warSet.containsAll(ordSet);
     }
 
-    private Optional<ProductsIsOverselledException> isProductQuantityEnough(List<ProductKeyListGroup<OrderProductLine>> orderGroupList,
-                                                                            List<ProductKeyListGroup<WarehouseProductLine>> warehouseGroupList) {
-        for (ProductKeyListGroup<OrderProductLine> productGroup : orderGroupList) {
+    private Optional<ProductsIsOverselledException> isProductQuantityEnough(List<ProductLineGroup<OrderProductLine>> orderGroupList,
+                                                                            List<ProductLineGroup<WarehouseProductLine>> warehouseGroupList) {
+        for (ProductLineGroup<OrderProductLine> productGroup : orderGroupList) {
             Product key = productGroup.getKey();
-            ProductKeyListGroup<WarehouseProductLine> warehouseGroup = warehouseGroupList.stream().filter(g -> g.getKey().equals(key)).findFirst().get();
+            ProductLineGroup<WarehouseProductLine> warehouseGroup = warehouseGroupList.stream().filter(g -> g.getKey().equals(key)).findFirst().get();
             int productSum = productGroup.getList().stream().mapToInt(AbstractProductLine::getQuantity).sum();
             int warehouseStock = warehouseGroup.getList().stream().mapToInt(AbstractProductLine::getQuantity).sum();
             if (productSum > warehouseStock)
@@ -148,24 +155,24 @@ public class TransportationGrouper {
         return Optional.empty();
     }
 
-    private <T extends AbstractProductLine> Optional<ProductKeyListGroup<T>> getProductGroupByKey(List<ProductKeyListGroup<T>> groupList,
-                                                                                                  Product key) {
+    private <T extends AbstractProductLine> Optional<ProductLineGroup<T>> getProductGroupByKey(List<ProductLineGroup<T>> groupList,
+                                                                                               Product key) {
         return groupList.stream().filter(group -> group.getKey().equals(key)).findFirst();
     }
 
-    private List<ProductKeyListGroup<OrderProductLine>> groupOrderLinesByProduct() {
-        List<StoreOrder> orders = orderRepository.findByisDistributedFalse();
+    private List<ProductLineGroup<OrderProductLine>> groupOrderLinesByProduct() {
+        List<StoreOrder> orders = orderRepository.findByIsDistributedFalse();
 
         return orders.stream()
                 .flatMap(ord -> ord.getProductLines().stream())
                 .collect(Collectors.groupingBy(AbstractProductLine::getProduct))
                 .entrySet()
                 .stream()
-                .map(entry -> new ProductKeyListGroup<>(entry.getKey(), entry.getValue()))
+                .map(entry -> new ProductLineGroup<>(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
     }
 
-    private List<ProductKeyListGroup<WarehouseProductLine>> groupWarehouseLinesByProduct() {
+    private List<ProductLineGroup<WarehouseProductLine>> groupWarehouseLinesByProduct() {
         List<Warehouse> warehouses = warehouseRepository.findAll();
 
         return warehouses.stream()
@@ -173,7 +180,7 @@ public class TransportationGrouper {
                 .collect(Collectors.groupingBy(AbstractProductLine::getProduct))
                 .entrySet()
                 .stream()
-                .map(entry -> new ProductKeyListGroup<>(entry.getKey(), entry.getValue()))
+                .map(entry -> new ProductLineGroup<>(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
     }
 
@@ -184,7 +191,7 @@ public class TransportationGrouper {
 
     }
 
-    private Map<Warehouse, List<Distance>> cacheDistances(List<ProductKeyListGroup<WarehouseProductLine>> warehouseGroupCatalog) {
+    private Map<Warehouse, List<Distance>> cacheDistances(List<ProductLineGroup<WarehouseProductLine>> warehouseGroupCatalog) {
         List<Warehouse> warehouses = warehouseGroupCatalog.stream()
                 .flatMap(g -> g.getList().stream())
                 .map(WarehouseProductLine::getWarehouse)

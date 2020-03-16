@@ -1,9 +1,6 @@
 package com.nix.futuredelivery.transportation.tsolver;
 
-import com.nix.futuredelivery.transportation.tsolver.model.DistributionCell;
-import com.nix.futuredelivery.transportation.tsolver.model.DistributionParticipants;
-import com.nix.futuredelivery.transportation.tsolver.model.DistributionPlan;
-import com.nix.futuredelivery.transportation.tsolver.model.MatrixPosition;
+import com.nix.futuredelivery.transportation.tsolver.model.*;
 
 public class ProductDistributor {
     private final DistributionCell[][] distributionCells;
@@ -24,7 +21,7 @@ public class ProductDistributor {
         this.distributionParticipants = distributionParticipants;
     }
 
-    public DistributionPlan distribute() {
+    public DistributionPlan distribute() throws PotentialConflictException {
         MinElementPlanSolver minElementPlanSolver = new MinElementPlanSolver(distributionCells, distributionParticipants);
         DistributionPlan firstDistributionPlan = minElementPlanSolver.findPlan();
         PotentialPlanSolver potentialPlanSolver = new PotentialPlanSolver(firstDistributionPlan);
