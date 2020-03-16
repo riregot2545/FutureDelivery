@@ -7,7 +7,7 @@ import com.nix.futuredelivery.entity.value.WaybillProductLine;
 import com.nix.futuredelivery.transportation.model.AssignOrderLine;
 import com.nix.futuredelivery.transportation.model.DistributionEntry;
 import com.nix.futuredelivery.transportation.model.DriverAssignEntry;
-import com.nix.futuredelivery.transportation.model.WarehouseKeyListGroup;
+import com.nix.futuredelivery.transportation.model.WarehouseEntryGroup;
 import com.nix.futuredelivery.transportation.psolver.CarAssigner;
 import com.nix.futuredelivery.transportation.psolver.PolarDistributionSolver;
 import com.nix.futuredelivery.transportation.psolver.model.StationPoint;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class TransportationAssigner {
     private final CarAssigner carAssigner;
     private final Queue<DriverAssignEntry> drivers;
-    private final List<WarehouseKeyListGroup> mappedWarehouses;
+    private final List<WarehouseEntryGroup> mappedWarehouses;
     private final List<Route> routes;
     private Car currentCar;
     private List<StationPoint> tackedStationPoints;
@@ -39,7 +39,7 @@ public class TransportationAssigner {
 
     public List<Route> assign() {
         log.info("Starting route creation and car assigning. Warehouse count {}.", mappedWarehouses.size());
-        for (WarehouseKeyListGroup warehouseGroup : mappedWarehouses) {
+        for (WarehouseEntryGroup warehouseGroup : mappedWarehouses) {
             Warehouse warehouse = warehouseGroup.getKey();
             List<DistributionEntry> entries = warehouseGroup.getList();
 
@@ -182,12 +182,12 @@ public class TransportationAssigner {
                 .collect(Collectors.toList());
     }
 
-    private List<WarehouseKeyListGroup> groupEntriesByWarehouse(List<DistributionEntry> entries) {
+    private List<WarehouseEntryGroup> groupEntriesByWarehouse(List<DistributionEntry> entries) {
         return entries.stream()
                 .collect(Collectors.groupingBy(e -> e.getDistributionKey().getWarehouse()))
                 .entrySet()
                 .stream()
-                .map(e -> new WarehouseKeyListGroup(e.getKey(), e.getValue()))
+                .map(e -> new WarehouseEntryGroup(e.getKey(), e.getValue()))
                 .collect(Collectors.toList());
     }
 

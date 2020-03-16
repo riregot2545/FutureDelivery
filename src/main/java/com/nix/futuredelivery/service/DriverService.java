@@ -3,10 +3,10 @@ package com.nix.futuredelivery.service;
 import com.nix.futuredelivery.entity.*;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
 import com.nix.futuredelivery.entity.value.WaybillProductLine;
+import com.nix.futuredelivery.exceptions.InvalidDeliveryOrderException;
+import com.nix.futuredelivery.exceptions.NoRouteFoundException;
+import com.nix.futuredelivery.exceptions.SomeWaybillsNotFoundException;
 import com.nix.futuredelivery.repository.*;
-import com.nix.futuredelivery.service.exceptions.InvalidDeliveryOrderException;
-import com.nix.futuredelivery.service.exceptions.NoRouteFoundException;
-import com.nix.futuredelivery.service.exceptions.SomeWaybillsNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,11 +24,12 @@ public class DriverService {
     private WaybillRepository waybillRepository;
     private StoreOrderRepository orderRepository;
 
-    public DriverService(DriverRepository driverRepository, RouteRepository routeRepository, WarehouseRepository warehouseRepository, WaybillRepository waybillRepository) {
+    public DriverService(DriverRepository driverRepository, RouteRepository routeRepository, WarehouseRepository warehouseRepository, WaybillRepository waybillRepository, StoreOrderRepository orderRepository) {
         this.driverRepository = driverRepository;
         this.routeRepository = routeRepository;
         this.warehouseRepository = warehouseRepository;
         this.waybillRepository = waybillRepository;
+        this.orderRepository = orderRepository;
     }
 
     @Transactional
@@ -43,6 +44,8 @@ public class DriverService {
                     .distinct()
                     .collect(Collectors.toList());
             route.setRoutePoints(stores);
+
+            route.getWaybillList().forEach(w -> w.getStoreOrder().setProductLines(null));
         }
         return routes;
     }
@@ -97,7 +100,7 @@ public class DriverService {
             waybillRepository.saveAll(waybills);
             orderRepository.saveAll(affectedOrders);
 
-        }
-        throw new NoRouteFoundException(waybills.get(0).getRoute().getId());
+        } else
+            throw new NoRouteFoundException(waybills.get(0).getRoute().getId());
     }
 }

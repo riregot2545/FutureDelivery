@@ -1,4 +1,4 @@
-package com.nix.futuredelivery.service.exceptions;
+package com.nix.futuredelivery.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;

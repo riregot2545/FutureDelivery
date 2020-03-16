@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
-public class WarehouseKeyListGroup implements KeyListGroup<Warehouse, List<DistributionEntry>> {
+public class WarehouseEntryGroup implements KeyListGroup<Warehouse, List<DistributionEntry>> {
     private final Warehouse warehouse;
     private final List<DistributionEntry> list;
 
-    public WarehouseKeyListGroup(Warehouse warehouse) {
+    public WarehouseEntryGroup(Warehouse warehouse) {
         this.warehouse = warehouse;
         this.list = new ArrayList<>();
     }

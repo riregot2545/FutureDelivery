@@ -21,6 +21,7 @@ public class DriverController {
     public DriverController(DriverService driverService){
         this.driverService = driverService;
     }
+
     @GetMapping("/get_all_routes")
     public List<Route> getDriversRoute(Authentication authentication){
         SystemUser user = (SystemUser) authentication.getPrincipal();

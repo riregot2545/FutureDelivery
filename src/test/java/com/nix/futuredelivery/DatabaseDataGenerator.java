@@ -32,7 +32,7 @@ public class DatabaseDataGenerator {
         List<Driver> drivers = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             Driver driver = new Driver(null, "Driver " + i, "",
-                    "driver", "pass", "driver@mail.ua");
+                    "driver" + i, "pass", "driver@mail.ua");
             drivers.add(driver);
         }
         return drivers;

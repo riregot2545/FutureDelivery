@@ -1,6 +1,7 @@
 package com.nix.futuredelivery.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nix.futuredelivery.entity.value.Capacity;
 import com.nix.futuredelivery.entity.value.Consumption;
 import com.nix.futuredelivery.entity.value.Volume;
@@ -37,6 +38,7 @@ public class Car {
         this.fullness = new Volume(0D);
     }
 
+    @JsonIgnore
     public double getFreeVolume() {
         return capacity.getMaxVolume().getVolumeWeight() - fullness.getVolumeWeight();
     }

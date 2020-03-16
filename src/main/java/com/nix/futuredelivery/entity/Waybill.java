@@ -1,5 +1,6 @@
 package com.nix.futuredelivery.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.nix.futuredelivery.entity.value.WaybillProductLine;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,13 +19,14 @@ public class Waybill {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @JsonIgnoreProperties({"productLines", "store"})
     @ManyToOne
     private StoreOrder storeOrder;
 
+    @JsonIgnoreProperties({"waybill"})
     @OneToMany(
             mappedBy = "waybill",
-            cascade = CascadeType.ALL
-    )
+            cascade = CascadeType.ALL)
     private List<WaybillProductLine> productLines;
 
     @ManyToOne
