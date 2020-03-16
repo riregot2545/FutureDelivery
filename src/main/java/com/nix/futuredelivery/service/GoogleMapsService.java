@@ -10,6 +10,7 @@ import com.google.maps.model.TravelMode;
 import com.nix.futuredelivery.entity.Address;
 import com.nix.futuredelivery.entity.value.AddressFormatter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import java.io.IOException;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class GoogleMapsService {
 
     @Value("${third-party.google.api-key}")
@@ -38,9 +40,14 @@ public class GoogleMapsService {
                 .language("en-US")
                 .await();
 
-        double distance = result.rows[0].elements[0].distance.inMeters / 1000D;
+        try {
+            double distance = result.rows[0].elements[0].distance.inMeters / 1000D;
 
-        return distance;
+            return distance;
+        } catch (NullPointerException ex) {
+            log.error("Can't found distance between 2 point address {} and {}.", addressFrom, addressTo);
+            return -1;
+        }
     }
 
     public double getDistanceBetweenNativeAddress(Address addressFrom, Address addressTo) throws InterruptedException, ApiException, IOException {
@@ -56,8 +63,13 @@ public class GoogleMapsService {
                 .language("en-US")
                 .await();
 
-        double distance = result.rows[0].elements[0].distance.inMeters / 1000D;
+        try {
+            double distance = result.rows[0].elements[0].distance.inMeters / 1000D;
 
-        return distance;
+            return distance;
+        } catch (NullPointerException ex) {
+            log.error("Can't found distance between 2 native address {} and {}.", addressFrom, addressTo);
+            return -1;
+        }
     }
 }

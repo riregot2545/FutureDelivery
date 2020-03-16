@@ -65,42 +65,65 @@ public class DriverService {
 
             Map<Integer, List<Waybill>> collectedWaybillsByQueuePlace = route.getWaybillList().stream().collect(Collectors.groupingBy(Waybill::getDeliveryQueuePlace));
 
-            if (waybills.get(0).getDeliveryQueuePlace() != 0) {
-                List<Waybill> previousWaybillsToCheck = collectedWaybillsByQueuePlace.get(waybills.get(0).getDeliveryQueuePlace() - 1);
-                if (!previousWaybillsToCheck.get(0).getProductLines().get(0).isDelivered()) {
-                    throw new InvalidDeliveryOrderException(previousWaybillsToCheck.get(0).getDeliveryQueuePlace(),
-                            waybills.get(0).getDeliveryQueuePlace());
-                }
-            }
+            checkDeliveryOrder(waybills, collectedWaybillsByQueuePlace);
 
-            Warehouse warehouse = route.getWarehouse();
-            for (Waybill waybill : waybills) {
-                for (WaybillProductLine productLine : waybill.getProductLines()) {
-                    productLine.setDelivered(true);
+            Warehouse warehouse = updateWarehouse(waybills, route);
 
-                    Optional<WarehouseProductLine> warehouseProductLine = warehouse.getProductLines()
-                            .stream()
-                            .filter(w -> w.getProduct().equals(productLine.getProduct()))
-                            .findFirst();
-                    warehouseProductLine.ifPresent(line -> line.setQuantity(line.getQuantity() - productLine.getQuantity()));
-                }
-            }
-            List<StoreOrder> affectedOrders = waybills.stream().map(Waybill::getStoreOrder).collect(Collectors.toList());
-            for (StoreOrder order : affectedOrders) {
-                List<Waybill> waybillsByStoreOrder = waybillRepository.findByStoreOrder(order);
-                if (waybillsByStoreOrder
-                        .stream()
-                        .flatMap(w -> w.getProductLines().stream())
-                        .allMatch(WaybillProductLine::isDelivered)) {
-                    order.setClosed(true);
-                }
-            }
+            List<StoreOrder> orders = updateAffectedOrders(waybills);
 
             warehouseRepository.save(warehouse);
             waybillRepository.saveAll(waybills);
-            orderRepository.saveAll(affectedOrders);
+            orderRepository.saveAll(orders);
 
         } else
             throw new NoRouteFoundException(waybills.get(0).getRoute().getId());
+    }
+
+
+    private void checkDeliveryOrder(List<Waybill> waybills, Map<Integer, List<Waybill>> collectedWaybillsByQueuePlace) {
+
+        if (waybills.get(0).getDeliveryQueuePlace() != 0) {
+            List<Waybill> previousWaybillsToCheck = collectedWaybillsByQueuePlace.get(waybills.get(0).getDeliveryQueuePlace() - 1);
+            if (!previousWaybillsToCheck.get(0).getProductLines().get(0).isDelivered()) {
+                throw new InvalidDeliveryOrderException(previousWaybillsToCheck.get(0).getDeliveryQueuePlace(),
+                        waybills.get(0).getDeliveryQueuePlace());
+            }
+        } else {
+            if (waybills.get(0).getProductLines().get(0).isDelivered()) {
+                throw new InvalidDeliveryOrderException(waybills.get(0).getDeliveryQueuePlace() + 1,
+                        waybills.get(0).getDeliveryQueuePlace());
+            }
+        }
+    }
+
+    private Warehouse updateWarehouse(List<Waybill> waybills, Route route) {
+        Warehouse warehouse = route.getWarehouse();
+        for (Waybill waybill : waybills) {
+            for (WaybillProductLine productLine : waybill.getProductLines()) {
+                productLine.setDelivered(true);
+
+                Optional<WarehouseProductLine> warehouseProductLine = warehouse.getProductLines()
+                        .stream()
+                        .filter(w -> w.getProduct().equals(productLine.getProduct()))
+                        .findFirst();
+                warehouseProductLine.ifPresent(line -> line.setQuantity(line.getQuantity() - productLine.getQuantity()));
+            }
+        }
+
+        return warehouse;
+    }
+
+    private List<StoreOrder> updateAffectedOrders(List<Waybill> waybills) {
+        List<StoreOrder> affectedOrders = waybills.stream().map(Waybill::getStoreOrder).collect(Collectors.toList());
+        for (StoreOrder order : affectedOrders) {
+            List<Waybill> waybillsByStoreOrder = waybillRepository.findByStoreOrder(order);
+            if (waybillsByStoreOrder
+                    .stream()
+                    .flatMap(w -> w.getProductLines().stream())
+                    .allMatch(WaybillProductLine::isDelivered)) {
+                order.setClosed(true);
+            }
+        }
+        return affectedOrders;
     }
 }
