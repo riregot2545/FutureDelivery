@@ -1,4 +1,4 @@
-package com.nix.futuredelivery.transportation.tsolver.model;
+package com.nix.futuredelivery.transportation.model.exceptions;
 
 public class PotentialConflictException extends Exception {
     public PotentialConflictException(String message) {

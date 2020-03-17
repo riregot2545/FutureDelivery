@@ -2,6 +2,9 @@ package com.nix.futuredelivery.transportation.tsolver.model;
 
 import lombok.*;
 
+/**
+ * Transportation solver model that represent one logical unit of distribution plan.
+ */
 @RequiredArgsConstructor
 @EqualsAndHashCode
 @ToString
@@ -19,7 +22,11 @@ public class DistributionCell {
     @Setter
     private double potentialSum;
 
-
+    /**
+     * Returns cell cost depend on tariff cost and it's fullness
+     *
+     * @return product of tariffCost and fullness.
+     */
     public double getCellCost() {
         return fullness == EMPTY_FULLNESS_PLACEHOLDER ? 0 : tariffCost * fullness;
     }
@@ -31,6 +38,7 @@ public class DistributionCell {
     public boolean isFullnessEmpty(){
         return fullness == 0;
     }
+
     public void setFullnessEmpty(){
         fullness = EMPTY_FULLNESS_PLACEHOLDER;
     }

@@ -1,8 +1,15 @@
 package com.nix.futuredelivery.transportation.tsolver;
 
-import com.nix.futuredelivery.transportation.tsolver.model.*;
+import com.nix.futuredelivery.transportation.model.exceptions.PotentialConflictException;
+import com.nix.futuredelivery.transportation.tsolver.model.DistributionCell;
+import com.nix.futuredelivery.transportation.tsolver.model.DistributionParticipants;
+import com.nix.futuredelivery.transportation.tsolver.model.DistributionPlan;
+import com.nix.futuredelivery.transportation.tsolver.model.PotentialArray;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Class where distribution plan improvement algorithm is implemented
+ */
 @Slf4j
 public class PotentialPlanSolver {
     private DistributionPlan distributionPlan;
@@ -14,6 +21,11 @@ public class PotentialPlanSolver {
 
     private int potentialErrorCounter = 0;
 
+    /**
+     * Construct plan solver from initial distribution plan created by {@code MinElementPlanSolver}
+     *
+     * @param firstDistributionPlan not empty distribution plan
+     */
     public PotentialPlanSolver(DistributionPlan firstDistributionPlan) {
         this.distributionPlan = firstDistributionPlan;
         this.participants = firstDistributionPlan.getParticipants();
@@ -23,6 +35,17 @@ public class PotentialPlanSolver {
         this.vArray = new PotentialArray(participants.suppliersCount());
     }
 
+    /**
+     * Entry point of plan optimization. First of all algorithm checks is distribution plan
+     * one dimensional, because one dimensional plan after {@code MinElementPlanSolver} will be always
+     * optimal. Then it calculates potentials sums and takes bigger one. It must perform cycle moves of
+     * products until the biggest sum be grater than zero. After that plan will be optimal.
+     *
+     * Warning: sometimes two equal initial plans after optimization will not be equal by cell distribution, but them
+     * always equal by full plan cost.
+     * @return optimized distribution plan. Empty cell fullness is filled by empty placeholder.
+     * @throws PotentialConflictException f potential conflicts in cycles cannot be resolved without shuffle of product distribution.
+     */
     public DistributionPlan findOptimalPlan() throws PotentialConflictException {
 
         if(isStartPlanOneColumnOrOneRow())
@@ -52,11 +75,19 @@ public class PotentialPlanSolver {
         return distributionPlan;
     }
 
+    /**
+     * Internal check for one-dimensional plan
+     * @return true if plan one-dimensional.
+     */
     private boolean isStartPlanOneColumnOrOneRow() {
         return distributionPlan.getHeight()==1 || distributionPlan.getWidth() == 1;
     }
 
-
+    /**
+     * Method that calculates potentials for each row and column. It fill potential arrays until there
+     * is at least one empty cell or potential conflict occurred.
+     * @throws PotentialConflictException if potential conflicts in cycles cannot be resolved without shuffle of product distribution.
+     */
     private void makePotentials() throws PotentialConflictException {
         uArray.set(0, 0);
         int iterations = 0;
@@ -90,6 +121,10 @@ public class PotentialPlanSolver {
         }
     }
 
+    /**
+     * Finds cell with maximum potential sum.
+     * @return cell with max potential sum or null if all cells not empty.
+     */
     private DistributionCell findMaxPotentialSum() {
         double maxElementSum = Integer.MIN_VALUE;
 

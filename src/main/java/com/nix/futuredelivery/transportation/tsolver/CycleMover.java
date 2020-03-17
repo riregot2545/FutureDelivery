@@ -10,17 +10,33 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Product mover and distribution cycle builder class
+ */
 @Slf4j
 public class CycleMover {
     private DistributionPlan potentialPlan;
     private DistributionParticipants participants;
 
-
+    /**
+     * Constructs mover for specified potential plan with participants.
+     *
+     * @param potentialPlan distribution plan where cycle will be build.
+     * @param participants  distribution participants.
+     */
     public CycleMover(DistributionPlan potentialPlan, DistributionParticipants participants) {
         this.potentialPlan = potentialPlan;
         this.participants = participants;
     }
 
+    /**
+     * Start cycle building from specified cell using 2 ways: by row and by column. If all ways is empty,
+     * because build cycle with current cycle basis is impossible, algorithm add new random cell to basis and
+     * try to build cycle again.
+     * After that it moves products by built cycle.
+     * @param cell max potential cell from distribution plan.
+     * @return distribution plan with moved product fullness.
+     */
     public DistributionPlan cycle(DistributionCell cell) {
         List<DistributionCell> usedPositions = new ArrayList<>();
         Optional<List<DistributionCell>> firstWay = Optional.empty();
@@ -38,7 +54,7 @@ public class CycleMover {
         cell.setFullnessEmpty();
 
         if (!firstWay.isPresent() && !secondWay.isPresent()) {
-            log.warn("Can't build cycle, adding fictive cell to basis");
+            log.info("Can't build cycle, adding fictive cell to basis");
             firstWay = addBasisCellAndRebuildCycle(usedPositions, cell);
         }
 
@@ -53,6 +69,13 @@ public class CycleMover {
         return potentialPlan;
     }
 
+    /**
+     * Recursive cycle path finder, that can go by row and column, depend on {@code isRow} parameter.
+     * @param position starting distribution basis cell.
+     * @param used list of used cells in cycle path, used for recursion.
+     * @param isRow next move direction parameter.
+     * @return optional of corner distribution cells used in path.
+     */
     private Optional<List<DistributionCell>> makeCycle(DistributionCell position, List<DistributionCell> used, boolean isRow) {
         used.add(position);
         if (used.size() == 1)
@@ -107,8 +130,14 @@ public class CycleMover {
         return Optional.empty();
     }
 
+    /**
+     * Method that adds to basis random empty distribution cell using shuffle.
+     * @param usedPositions list of used cells in cycle path, used for down {@code makeCycle} recursion.
+     * @param cell starting distribution cell.
+     * @return optional of corner distribution cells used in path.
+     */
     private Optional<List<DistributionCell>> addBasisCellAndRebuildCycle(List<DistributionCell> usedPositions,
-                                             DistributionCell cell) {
+                                                                         DistributionCell cell) {
         List<DistributionCell> tryFillCellList = findEmptyCells(cell);
         Collections.shuffle(tryFillCellList);
         for (DistributionCell emptyCell :
@@ -117,22 +146,25 @@ public class CycleMover {
             Optional<List<DistributionCell>> fw = makeCycle(cell, usedPositions, true);
             usedPositions.clear();
             Optional<List<DistributionCell>> sw = makeCycle(cell, usedPositions, false);
-            if (fw.isPresent() || sw.isPresent())
-            {
+            if (fw.isPresent() || sw.isPresent()) {
                 if(fw.isPresent()){
                     return fw;
                 }else{
                     return sw;
                 }
-            }
-            else
+            } else
                 emptyCell.setFullnessEmpty();
             usedPositions.clear();
         }
         return Optional.empty();
     }
 
-    private void moveProductsUsingCycle(List<DistributionCell> way,DistributionCell cell) {
+    /**
+     * Method that moves product using found cycle way.
+     * @param way list of corner of distribution cycle way.
+     * @param cell starting distribution basis cell.
+     */
+    private void moveProductsUsingCycle(List<DistributionCell> way, DistributionCell cell) {
         DistributionCell minCost = way.get(1);
         for (int i = 2; i < way.size(); i++) {
             if (i % 2 != 0 && way.get(i).getFullness() < minCost.getFullness())
@@ -151,6 +183,11 @@ public class CycleMover {
         }
     }
 
+    /**
+     * Used cells in row counter for cycle mover.
+     * @param row row index, starting from 0.
+     * @return count of cycle corners in row.
+     */
     private int checkRowOnFilling(int row) {
         int count = 0;
         for (int i = 0; i < potentialPlan.getWidth(); i++) {
@@ -161,6 +198,11 @@ public class CycleMover {
         return count;
     }
 
+    /**
+     * Used cells in column counter for cycle mover.
+     * @param column column index, starting from 0.
+     * @return count of cycle corners in column.
+     */
     private int checkColumnOnFilling(int column) {
         int count = 0;
         for (int i = 0; i < potentialPlan.getHeight(); i++) {
@@ -170,6 +212,11 @@ public class CycleMover {
         return count;
     }
 
+    /**
+     * Find all cells with empty fullness in distribution plan, except {@code forbiddenCell}
+     * @param minForbiddenCell exception cell.
+     * @return list of all empty cells in plan.
+     */
     private List<DistributionCell> findEmptyCells(DistributionCell minForbiddenCell) {
         List<DistributionCell> resultList = new ArrayList<>();
         for (int i = 0; i < participants.suppliersCount(); i++) {

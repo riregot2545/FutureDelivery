@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Model that compose consumers and suppliers together
+ */
 @RequiredArgsConstructor
 public class DistributionParticipants {
     private final Consumer[] consumers;
@@ -17,12 +20,13 @@ public class DistributionParticipants {
     public int consumersCount(){
         return consumers.length;
     }
+
     public int suppliersCount(){
         return suppliers.length;
     }
 
     public int getConsumerDemand(int index){
-       checkConsumerIndex(index);
+        checkConsumerIndex(index);
         return consumers[index].getDemand();
     }
 
@@ -83,6 +87,10 @@ public class DistributionParticipants {
             throw new IllegalArgumentException("Consumer array index must be positive integer and be less than count.");
     }
 
+    /**
+     * Builder class for {@code DistributionParticipants}. Provide
+     * functionality of normalization participants supply and demand.
+     */
     public static class Builder{
         private List<Consumer> consumers;
         private List<Supplier> suppliers;
@@ -107,10 +115,20 @@ public class DistributionParticipants {
             return this;
         }
 
+        /**
+         * Builds {@code DistributionParticipants} instance using normalization by default.
+         *
+         * @return new {@code DistributionParticipants} instance.
+         */
         public DistributionParticipants build() {
             return build(true);
         }
 
+        /**
+         * Builds {@code DistributionParticipants} instance using parameter normalization.
+         * @param normalize boolean value for using normalization
+         * @return new {@code DistributionParticipants} instance.
+         */
         public DistributionParticipants build(boolean normalize){
             if(normalize)
                 normalize();
@@ -121,6 +139,10 @@ public class DistributionParticipants {
             return new DistributionParticipants(consumersArray,suppliersArray);
         }
 
+        /**
+         * Normalize participant demand and supply using fictive consumer. May throw {@code IllegalStateException} if
+         * consumptions is bigger than available stock.
+         */
         public void normalize(){
             int consumerSum = consumers.stream().map(Consumer::getDemand).reduce(Integer::sum).orElse(0);
             int supplierSum = suppliers.stream().map(Supplier::getSupply).reduce(Integer::sum).orElse(0);

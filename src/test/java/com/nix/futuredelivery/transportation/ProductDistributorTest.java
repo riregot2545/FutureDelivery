@@ -1,7 +1,11 @@
 package com.nix.futuredelivery.transportation;
 
+import com.nix.futuredelivery.transportation.model.exceptions.PotentialConflictException;
 import com.nix.futuredelivery.transportation.tsolver.ProductDistributor;
-import com.nix.futuredelivery.transportation.tsolver.model.*;
+import com.nix.futuredelivery.transportation.tsolver.model.Consumer;
+import com.nix.futuredelivery.transportation.tsolver.model.DistributionParticipants;
+import com.nix.futuredelivery.transportation.tsolver.model.DistributionPlan;
+import com.nix.futuredelivery.transportation.tsolver.model.Supplier;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;

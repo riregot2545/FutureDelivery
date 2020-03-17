@@ -12,9 +12,14 @@ import com.nix.futuredelivery.transportation.model.AssignOrderLine;
 import com.nix.futuredelivery.transportation.model.DistributionEntry;
 import com.nix.futuredelivery.transportation.model.DistributionEntry.DistributionKey;
 import com.nix.futuredelivery.transportation.model.ProductLineGroup;
+import com.nix.futuredelivery.transportation.model.exceptions.PotentialConflictException;
+import com.nix.futuredelivery.transportation.model.exceptions.ProductPositionNotExistException;
 import com.nix.futuredelivery.transportation.model.exceptions.ProductsIsOversellsException;
 import com.nix.futuredelivery.transportation.tsolver.ProductDistributor;
-import com.nix.futuredelivery.transportation.tsolver.model.*;
+import com.nix.futuredelivery.transportation.tsolver.model.DistributionCell;
+import com.nix.futuredelivery.transportation.tsolver.model.DistributionCostMatrixBuilder;
+import com.nix.futuredelivery.transportation.tsolver.model.DistributionParticipants;
+import com.nix.futuredelivery.transportation.tsolver.model.DistributionPlan;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,7 +28,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Class which group undistributed orders
+ * Service class which group undistributed orders into distribution entries {@code DistributionEntry}
  */
 @Service
 @AllArgsConstructor
@@ -35,7 +40,17 @@ public class TransportationGrouper {
 
     private final Map<DistributionKey, DistributionEntry> productDistributionEntries;
 
-    public List<DistributionEntry> distributeAllFreeOrders() throws ProductsIsOversellsException {
+    /**
+     * Entry point of distribution process. First of all we group product lines in orders and warehouses
+     * by product. Then we build distribution plans for every product using transportation solver {@code ProductDistributor}.
+     * Its method {@code distribute} return optimal distribution plan. Then we decode plan and get distribution entries.
+     *
+     * @return list of distribution entries that contain transportation points and one product line or empty list of there is not any
+     * undistributed orders in the order repository.
+     * @throws ProductsIsOversellsException     if product quantity in orders bigger than available stock on warehouse.
+     * @throws ProductPositionNotExistException if product positions in order group does not compliance warehouse stock.
+     */
+    public List<DistributionEntry> distributeAllNewOrders() throws ProductsIsOversellsException, ProductPositionNotExistException {
         List<ProductLineGroup<OrderProductLine>> orderGroupCatalog = groupOrderLinesByProduct();
         List<ProductLineGroup<WarehouseProductLine>> warehouseGroupCatalog = groupWarehouseLinesByProduct();
         Map<Warehouse, List<Distance>> cachedDistances = cacheDistances(warehouseGroupCatalog);
@@ -81,10 +96,18 @@ public class TransportationGrouper {
             log.info("Product distribution done.");
             return new ArrayList<>(productDistributionEntries.values());
         } else {
-            throw new IllegalStateException("Product positions in order and warehouse does not match.");
+            throw new ProductPositionNotExistException();
         }
     }
 
+    /**
+     * Decoding {@code DistributionPlan} means that algorithm retrieves needed product quantity for each store and linking
+     * it with warehouse. As a result it fill {@code productDistributionEntries} map.
+     *
+     * @param distributionPlan     not empty plan to decode.
+     * @param currentProduct       product that distributing now.
+     * @param storeProductLinesMap map that contains order lines to fill.
+     */
     private void decodeDistributionPlan(DistributionPlan distributionPlan, Product currentProduct,
                                         Map<Store, List<AssignOrderLine>> storeProductLinesMap) {
         DistributionParticipants participants = distributionPlan.getParticipants();
@@ -124,6 +147,14 @@ public class TransportationGrouper {
         }
     }
 
+    /**
+     * Method that converts group representation of transportation participants - {@code Store} and {@code Warehouse}
+     * to distribution representation - {@code Consumer} and {@code Supplier} using {@code DistributionParticipants.Builder}.
+     *
+     * @param warehouseProductGroup group of warehouses that contain distribution product in stock.
+     * @param storeProductLinesMap  map of the store order lines that contain only one distribution product.
+     * @return new instance of {@code DistributionParticipants} prepared for specific product.
+     */
     private DistributionParticipants makeDistributionParticipants(ProductLineGroup<WarehouseProductLine> warehouseProductGroup,
                                                                   Map<Store, List<AssignOrderLine>> storeProductLinesMap) {
         DistributionParticipants.Builder participantsBuilder =
@@ -139,6 +170,14 @@ public class TransportationGrouper {
         return participantsBuilder.build();
     }
 
+    /**
+     * Internal check for compliance of product positions in the order and warehouse stock.
+     *
+     * @param orderGroupList     groups that represent all needed products.
+     * @param warehouseGroupList groups that represent all available products.
+     * @return true if all product positions equal and/or warehouse contain some another positions. Return if false
+     * at least one position not exists.
+     */
     private boolean isProductPositionsEquals(List<ProductLineGroup<OrderProductLine>> orderGroupList,
                                              List<ProductLineGroup<WarehouseProductLine>> warehouseGroupList) {
         Set<Product> ordSet = orderGroupList.stream().map(ProductLineGroup::getKey).collect(Collectors.toSet());
@@ -146,6 +185,13 @@ public class TransportationGrouper {
         return warSet.containsAll(ordSet);
     }
 
+    /**
+     * Internal oversell check for all order products.
+     *
+     * @param orderGroupList     groups that represent all needed products.
+     * @param warehouseGroupList groups that represent all available products.
+     * @return optional exception that must be thrown if optional not empty.
+     */
     private Optional<ProductsIsOversellsException> isProductQuantityEnough(List<ProductLineGroup<OrderProductLine>> orderGroupList,
                                                                            List<ProductLineGroup<WarehouseProductLine>> warehouseGroupList) {
         for (ProductLineGroup<OrderProductLine> productGroup : orderGroupList) {
@@ -159,11 +205,26 @@ public class TransportationGrouper {
         return Optional.empty();
     }
 
+    /**
+     * Retrieves {@code ProductLineGroup} from list of product line groups.
+     *
+     * @param groupList list of {@code ProductLineGroup} groups to retrieve.
+     * @param key       any instance of {@code Product} class.
+     * @param <T>       all child class of {@code AbstractProductLine}.
+     * @return optional {@code ProductLineGroup} of specified product.
+     */
     private <T extends AbstractProductLine> Optional<ProductLineGroup<T>> getProductGroupByKey(List<ProductLineGroup<T>> groupList,
                                                                                                Product key) {
         return groupList.stream().filter(group -> group.getKey().equals(key)).findFirst();
     }
 
+    /**
+     * Gets {@code List<StoreOrder>} with status {@code OrderStatus.NEW} from order repository
+     * and make {@code List<ProductLineGroup>} from it.
+     *
+     * @return {@code List<ProductLineGroup>} by {@code WarehouseProductLine} or empty list,
+     * if there is not any new orders.
+     */
     private List<ProductLineGroup<OrderProductLine>> groupOrderLinesByProduct() {
         List<StoreOrder> orders = orderRepository.findByOrderStatus(OrderStatus.NEW);
 
@@ -176,6 +237,13 @@ public class TransportationGrouper {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Gets {@code List<Warehouse>} from warehouse repository
+     * and make {@code List<ProductLineGroup>} from it using flat map.
+     *
+     * @return {@code List<ProductLineGroup>} by {@code WarehouseProductLine} or empty list,
+     * if all warehouse out of stock.
+     */
     private List<ProductLineGroup<WarehouseProductLine>> groupWarehouseLinesByProduct() {
         List<Warehouse> warehouses = warehouseRepository.findAll();
 
@@ -188,6 +256,12 @@ public class TransportationGrouper {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Group order lines by store and transform it into {@code AssignOrderLine}.
+     *
+     * @param lines input lines from all stores, but with one product.
+     * @return map of grouped {@code AssignOrderLine} by {@code Store}.
+     */
     private Map<Store, List<AssignOrderLine>> groupOrderLinesByStore(List<OrderProductLine> lines) {
         List<AssignOrderLine> collect = lines.stream()
                 .map(line -> new AssignOrderLine(line.getProduct(), line.getQuantity(), line.getStoreOrder(), 0)).collect(Collectors.toList());
@@ -195,6 +269,11 @@ public class TransportationGrouper {
 
     }
 
+    /**
+     * First caching of distances from warehouse to stores using distance repository.
+     * @param warehouseGroupCatalog groups which contains all warehouse.
+     * @return map of warehouse and distance list between any store and this one.
+     */
     private Map<Warehouse, List<Distance>> cacheDistances(List<ProductLineGroup<WarehouseProductLine>> warehouseGroupCatalog) {
         List<Warehouse> warehouses = warehouseGroupCatalog.stream()
                 .flatMap(g -> g.getList().stream())

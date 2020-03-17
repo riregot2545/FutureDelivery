@@ -8,12 +8,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Builder class of distribution cell matrix
+ */
 @RequiredArgsConstructor
 public class DistributionCostMatrixBuilder {
 
     private final DistributionParticipants participants;
     private final Map<Warehouse, List<Distance>> distances;
 
+    /**
+     * Build cell matrix depend on distribution participants and distance map. If distance doesn't
+     * contains in map will be thrown {@code IllegalStateException}.
+     *
+     * @return distribution cell matrix depend on participants.
+     */
     public DistributionCell[][] build(){
         DistributionCell[][] cells = new DistributionCell[participants.suppliersCount()][participants.consumersCount()];
         for (int i = 0; i < participants.suppliersCount(); i++) {

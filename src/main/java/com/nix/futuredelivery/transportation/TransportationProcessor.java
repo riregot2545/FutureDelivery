@@ -9,6 +9,7 @@ import com.nix.futuredelivery.transportation.model.DriverAssignEntry;
 import com.nix.futuredelivery.transportation.model.RoadDriving;
 import com.nix.futuredelivery.transportation.model.exceptions.NoneCarsExistsException;
 import com.nix.futuredelivery.transportation.model.exceptions.NoneDriversExistsException;
+import com.nix.futuredelivery.transportation.model.exceptions.ProductPositionNotExistException;
 import com.nix.futuredelivery.transportation.model.exceptions.ProductsIsOversellsException;
 import com.nix.futuredelivery.transportation.vrpsolver.SimulatedVehicleRouter;
 import com.nix.futuredelivery.transportation.vrpsolver.VehicleRoutingSolver;
@@ -22,7 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Class which controls all transportation process
+ * Service class which controls all transportation process
  */
 @Service
 @RequiredArgsConstructor
@@ -39,11 +40,14 @@ public class TransportationProcessor {
     private final DistanceRepository distanceRepository;
     private final WaybillRepository waybillRepository;
 
+    /**
+     * Cached distances for vrp and cost calculations
+     */
     private List<Distance> distances;
 
 
     /**
-     * Method to begin transportation calculation process.
+     * Transactional method to begin transportation calculation process.
      * First of all system fill driver and car queue for future assigning.
      * Then {@code TransportationGrouper} aggregate all undistributed orders, build
      * and resolve distribution plans. After that {@code TransportationAssigner} assign
@@ -53,17 +57,18 @@ public class TransportationProcessor {
      * @return a list that contain all built routes or empty list if nothing to assign.
      * @throws NoneCarsExistsException      if car repository is empty.
      * @throws NoneDriversExistsException   if driver repository is empty.
-     * @throws ProductsIsOversellsException if product quantity in orders bigger than available stock on warehouse
+     * @throws ProductsIsOversellsException if product quantity in orders bigger than available stock on warehouse.
+     * @throws ProductPositionNotExistException if product positions in order group does not compliance warehouse stock.
      */
     @Transactional
-    public List<Route> proceedOrders() throws NoneCarsExistsException, NoneDriversExistsException, ProductsIsOversellsException {
+    public List<Route> proceedOrders() throws NoneCarsExistsException, NoneDriversExistsException, ProductsIsOversellsException, ProductPositionNotExistException {
         Queue<DriverAssignEntry> drivers = getDriversQueue();
         List<Car> cars = carRepository.findAll();
 
         if (cars.isEmpty())
             throw new NoneCarsExistsException();
 
-        List<DistributionEntry> distributionEntries = transportationGrouper.distributeAllFreeOrders();
+        List<DistributionEntry> distributionEntries = transportationGrouper.distributeAllNewOrders();
         if (distributionEntries.isEmpty()) {
             log.info("Distribution list is empty, nothing to assign, returning.");
             return new ArrayList<>();
@@ -82,7 +87,7 @@ public class TransportationProcessor {
     }
 
     /**
-     * Method that saves routes to repository
+     * Transactional method that saves routes to repository
      * @param routeList that contains routes to save
      */
     @Transactional

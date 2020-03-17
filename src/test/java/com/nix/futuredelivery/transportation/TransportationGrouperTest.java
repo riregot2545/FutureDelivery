@@ -18,6 +18,6 @@ class TransportationGrouperTest {
 
     @Test
     void distributeAllOrders() throws ProductsIsOversellsException {
-        List<DistributionEntry> distributionEntries = transportationGrouper.distributeAllFreeOrders();
+        List<DistributionEntry> distributionEntries = transportationGrouper.distributeAllNewOrders();
     }
 }

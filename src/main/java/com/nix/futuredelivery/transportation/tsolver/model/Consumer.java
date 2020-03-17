@@ -4,6 +4,10 @@ import com.nix.futuredelivery.entity.Store;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+/**
+ * Transportation solver model that used as consumer transformation (stores for example). It is connected with transformation by {@code store} field.
+ * May be fictive, that means it was created to consume extra supply.
+ */
 @Data
 @AllArgsConstructor
 public class Consumer {
