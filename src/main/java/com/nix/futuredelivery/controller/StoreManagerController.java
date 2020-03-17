@@ -33,6 +33,13 @@ public class StoreManagerController {
         this.storeManagerService = storeManagerService;
     }
 
+    @ApiOperation(value = "Register new store")
+    @PreAuthorize("hasAuthority('STORE_MANAGER')")
+    @PostMapping("/store")
+    public void registerStore(@RequestBody Store store) throws InterruptedException, ApiException, IOException {
+        storeManagerService.saveStore(store);
+    }
+
     @ApiOperation(value = "Register new store manager")
     @PostMapping("/register")
     public ResponseEntity registerStoreManager(@RequestBody StoreManager storeManager) {
@@ -74,7 +81,6 @@ public class StoreManagerController {
         return new ResponseEntity<>("Store order saved successfully with id " + id, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Edit the order by order number")
     @PreAuthorize("hasAuthority('STORE_MANAGER')")
     @PatchMapping("/{orderId}")
     public void editOrder(Authentication authentication, @PathVariable Long orderId, @RequestBody List<OrderProductLine> productLines) {

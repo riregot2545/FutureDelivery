@@ -39,7 +39,7 @@ public class WarehouseManagerController {
     @ApiOperation(value = "Register a warehouse")
     @PreAuthorize("hasAuthority('WAREHOUSE_MANAGER')")
     @PostMapping("/warehouse")
-    public void registerWarehouse(@RequestBody Warehouse warehouse) {
+    public void registerWarehouse(@RequestBody Warehouse warehouse) throws InterruptedException, ApiException, IOException {
         warehouseManagerService.saveWarehouse(warehouse);
     }
 

@@ -9,7 +9,7 @@ import com.nix.futuredelivery.entity.value.OrderStatus;
 import com.nix.futuredelivery.repository.*;
 import com.nix.futuredelivery.transportation.model.exceptions.NoneCarsExistsException;
 import com.nix.futuredelivery.transportation.model.exceptions.NoneDriversExistsException;
-import com.nix.futuredelivery.transportation.model.exceptions.ProductsIsOverselledException;
+import com.nix.futuredelivery.transportation.model.exceptions.ProductsIsOversellsException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +49,7 @@ class TransportationProcessorTest {
 
     @Test
     @Transactional
-    void proceedOrders() throws NoneCarsExistsException, NoneDriversExistsException, ProductsIsOverselledException {
+    void proceedOrders() throws NoneCarsExistsException, NoneDriversExistsException, ProductsIsOversellsException {
         List<StoreOrder> orders = orderRepository.findByOrderStatus(OrderStatus.NEW);
         List<Route> routes = transportationProcessor.proceedOrders();
 

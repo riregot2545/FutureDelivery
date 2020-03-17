@@ -12,7 +12,7 @@ import com.nix.futuredelivery.transportation.model.AssignOrderLine;
 import com.nix.futuredelivery.transportation.model.DistributionEntry;
 import com.nix.futuredelivery.transportation.model.DistributionEntry.DistributionKey;
 import com.nix.futuredelivery.transportation.model.ProductLineGroup;
-import com.nix.futuredelivery.transportation.model.exceptions.ProductsIsOverselledException;
+import com.nix.futuredelivery.transportation.model.exceptions.ProductsIsOversellsException;
 import com.nix.futuredelivery.transportation.tsolver.ProductDistributor;
 import com.nix.futuredelivery.transportation.tsolver.model.*;
 import lombok.AllArgsConstructor;
@@ -22,6 +22,9 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Class which group undistributed orders
+ */
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -32,7 +35,7 @@ public class TransportationGrouper {
 
     private final Map<DistributionKey, DistributionEntry> productDistributionEntries;
 
-    public List<DistributionEntry> distributeAllFreeOrders() throws ProductsIsOverselledException {
+    public List<DistributionEntry> distributeAllFreeOrders() throws ProductsIsOversellsException {
         List<ProductLineGroup<OrderProductLine>> orderGroupCatalog = groupOrderLinesByProduct();
         List<ProductLineGroup<WarehouseProductLine>> warehouseGroupCatalog = groupWarehouseLinesByProduct();
         Map<Warehouse, List<Distance>> cachedDistances = cacheDistances(warehouseGroupCatalog);
@@ -41,7 +44,7 @@ public class TransportationGrouper {
             log.info("There is not any undistributed orders in database");
             return new ArrayList<>();
         }
-        Optional<ProductsIsOverselledException> isOversells = isProductQuantityEnough(orderGroupCatalog, warehouseGroupCatalog);
+        Optional<ProductsIsOversellsException> isOversells = isProductQuantityEnough(orderGroupCatalog, warehouseGroupCatalog);
         if (isOversells.isPresent())
             throw isOversells.get();
 
@@ -143,15 +146,15 @@ public class TransportationGrouper {
         return warSet.containsAll(ordSet);
     }
 
-    private Optional<ProductsIsOverselledException> isProductQuantityEnough(List<ProductLineGroup<OrderProductLine>> orderGroupList,
-                                                                            List<ProductLineGroup<WarehouseProductLine>> warehouseGroupList) {
+    private Optional<ProductsIsOversellsException> isProductQuantityEnough(List<ProductLineGroup<OrderProductLine>> orderGroupList,
+                                                                           List<ProductLineGroup<WarehouseProductLine>> warehouseGroupList) {
         for (ProductLineGroup<OrderProductLine> productGroup : orderGroupList) {
             Product key = productGroup.getKey();
             ProductLineGroup<WarehouseProductLine> warehouseGroup = warehouseGroupList.stream().filter(g -> g.getKey().equals(key)).findFirst().get();
             int productSum = productGroup.getList().stream().mapToInt(AbstractProductLine::getQuantity).sum();
             int warehouseStock = warehouseGroup.getList().stream().mapToInt(AbstractProductLine::getQuantity).sum();
             if (productSum > warehouseStock)
-                return Optional.of(new ProductsIsOverselledException(productSum, warehouseStock));
+                return Optional.of(new ProductsIsOversellsException(productSum, warehouseStock));
         }
         return Optional.empty();
     }

@@ -1,7 +1,7 @@
 package com.nix.futuredelivery.transportation;
 
 import com.nix.futuredelivery.transportation.model.DistributionEntry;
-import com.nix.futuredelivery.transportation.model.exceptions.ProductsIsOverselledException;
+import com.nix.futuredelivery.transportation.model.exceptions.ProductsIsOversellsException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ class TransportationGrouperTest {
 
 
     @Test
-    void distributeAllOrders() throws ProductsIsOverselledException {
+    void distributeAllOrders() throws ProductsIsOversellsException {
         List<DistributionEntry> distributionEntries = transportationGrouper.distributeAllFreeOrders();
     }
 }
