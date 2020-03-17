@@ -3,7 +3,9 @@ package com.nix.futuredelivery.transportation.psolver.model;
 import com.nix.futuredelivery.entity.Car;
 import lombok.Getter;
 
-
+/**
+ * Polar solver model class used to compose car and it's load in group.
+ */
 public class AssignCar {
     @Getter
     private Car car;

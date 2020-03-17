@@ -1,6 +1,7 @@
 package com.nix.futuredelivery.transportation;
 
 import com.nix.futuredelivery.transportation.model.DistributionEntry;
+import com.nix.futuredelivery.transportation.model.exceptions.ProductPositionNotExistException;
 import com.nix.futuredelivery.transportation.model.exceptions.ProductsIsOversellsException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -17,7 +18,7 @@ class TransportationGrouperTest {
 
 
     @Test
-    void distributeAllOrders() throws ProductsIsOversellsException {
+    void distributeAllOrders() throws ProductsIsOversellsException, ProductPositionNotExistException {
         List<DistributionEntry> distributionEntries = transportationGrouper.distributeAllNewOrders();
     }
 }

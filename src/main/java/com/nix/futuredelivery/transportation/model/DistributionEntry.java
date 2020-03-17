@@ -8,6 +8,10 @@ import lombok.*;
 
 import java.util.List;
 
+/**
+ * Transportation model class that aggregate transportation points and
+ * order lines, that may be delivered.
+ */
 @Data
 @AllArgsConstructor
 public class DistributionEntry {

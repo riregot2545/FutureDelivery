@@ -5,6 +5,10 @@ import com.nix.futuredelivery.entity.Distance;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * Transportation model class that represent driven way with start and
+ * destination with specified distance.
+ */
 @AllArgsConstructor
 @Getter
 public class RoadDriving {

@@ -16,6 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Class that create route list from distribution entries and assign drivers and cars for it.
+ */
 @Slf4j
 public class TransportationAssigner {
     private final CarAssigner carAssigner;
@@ -66,7 +69,6 @@ public class TransportationAssigner {
                 StationPoint stationPoint = stationPoints.get(i);
                 List<AssignOrderLine> collectedOrderLines = getOrderLinesFromEntryList(lists.get(i));
                 stationPoint.setProductLines(collectedOrderLines);
-                stationPoint.setAllProductsVolume();
                 stationPoints.add(stationPoint);
             }
 
@@ -84,7 +86,7 @@ public class TransportationAssigner {
                             if (tackedStationPoints.size() < 2) {
                                 Optional<Capacity> groupIncrementResult = carAssigner.incrementGroupLevel();
                                 if (groupIncrementResult.isPresent()) {
-                                    carAssigner.resetAssignCar(currentCar);
+                                    carAssigner.decrementCarAssign(currentCar);
                                     currentCar = carAssigner.getNextMostFreeCar(false);
                                     i = -1;
                                     resetAssignFromTacked();
