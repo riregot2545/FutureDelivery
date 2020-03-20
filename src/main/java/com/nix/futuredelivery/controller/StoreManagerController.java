@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -85,11 +84,7 @@ public class StoreManagerController {
     @PatchMapping("/{orderId}")
     public void editOrder(Authentication authentication, @PathVariable Long orderId, @RequestBody List<OrderProductLine> productLines) {
         SystemUser user = (SystemUser) authentication.getPrincipal();
-        List<OrderProductLine> correct = new ArrayList<>();
-        for (AbstractProductLine wrongLine : productLines) {
-            correct.add(new OrderProductLine(wrongLine.getProduct(), wrongLine.getQuantity()));
-        }
-        storeManagerService.editOrder(user.getId(), orderId, correct);
+        storeManagerService.editOrder(user.getId(), orderId, productLines);
     }
 
     @ApiOperation(value = "Delete the order by order number")

@@ -2,6 +2,7 @@ package com.nix.futuredelivery;
 
 import com.nix.futuredelivery.entity.*;
 import com.nix.futuredelivery.entity.value.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -11,7 +12,15 @@ import java.util.stream.Collectors;
 public class DatabaseDataGenerator {
 
     private Random random = new Random();
+    private PasswordEncoder passwordEncoder;
 
+    public DatabaseDataGenerator(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    private void encode(List<? extends SystemUser> users) {
+        users.forEach(user -> user.setPassword(passwordEncoder.encode(user.getPassword())));
+    }
     public List<Car> cars(int countInGroup, int countOfGroups, double baseCapacity, double capacityGroupModificator,
                           double baseConsumption, double relativeConsumption) {
         List<Car> cars = new ArrayList<>(countInGroup);
@@ -35,6 +44,7 @@ public class DatabaseDataGenerator {
                     "driver" + i, "pass", "driver@mail.ua");
             drivers.add(driver);
         }
+        encode(drivers);
         return drivers;
     }
 
@@ -59,7 +69,7 @@ public class DatabaseDataGenerator {
                     null, "Store " + i + " addr", "",
                     "Kyiv", "Kyiv", "UA", "10000",
                     new Location(randDoubleBetween(20, 60), randDoubleBetween(20, 60)));
-
+            storeManager.setPassword(passwordEncoder.encode(storeManager.getPassword()));
             Store store = new Store(null, address, "Store " + i, storeManager);
             storeManager.setStore(store);
             stores.add(store);
@@ -76,7 +86,7 @@ public class DatabaseDataGenerator {
                     null, "Warehouse " + i + " addr", "",
                     "Kyiv", "Kyiv", "UA", "10000",
                     new Location(randDoubleBetween(20, 60), randDoubleBetween(20, 60)));
-
+            warehouseManager.setPassword(passwordEncoder.encode(warehouseManager.getPassword()));
             Warehouse store = new Warehouse(null, address, "Warehouse " + i, warehouseManager);
             warehouseManager.setWarehouse(store);
             warehouses.add(store);

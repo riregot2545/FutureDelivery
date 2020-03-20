@@ -2,6 +2,7 @@ package com.nix.futuredelivery;
 
 import com.nix.futuredelivery.entity.*;
 import com.nix.futuredelivery.repository.*;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -36,11 +37,15 @@ public class DatabaseRandomDataFiller {
     private WaybillRepository waybillRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
-    private DatabaseDataGenerator generator = new DatabaseDataGenerator();
+    private DatabaseDataGenerator generator;
 
     @Autowired
     private DatabaseCleaner cleaner = new DatabaseCleaner();
 
+    @BeforeAll
+    void setEncoder() {
+        generator = new DatabaseDataGenerator(passwordEncoder);
+    }
     @BeforeEach
     @Transactional
     void clean() {
@@ -48,9 +53,6 @@ public class DatabaseRandomDataFiller {
         TestTransaction.flagForCommit();
     }
 
-    private void encode(List<? extends SystemUser> users) {
-        users.forEach(user -> user.setPassword(passwordEncoder.encode(user.getPassword())));
-    }
 
     @Test
     @Transactional
@@ -59,7 +61,6 @@ public class DatabaseRandomDataFiller {
         List<Car> cars = generator.cars(5, 4, 1000D, 1.1,
                 15, 0.001);
         List<Driver> drivers = generator.drivers(15);
-        encode(drivers);
         List<Store> stores = generator.storeAndManagers(20);
         List<Warehouse> warehouses = generator.warehouseAndManagers(5);
         List<Distance> distances = generator.distances(warehouses, stores);
@@ -89,7 +90,6 @@ public class DatabaseRandomDataFiller {
         List<Car> cars = generator.cars(10, 10, 10000D, 1.1,
                 15, 0.001);
         List<Driver> drivers = generator.drivers(30);
-        encode(drivers);
         List<Store> stores = generator.storeAndManagers(40);
         List<Warehouse> warehouses = generator.warehouseAndManagers(10);
         List<Distance> distances = generator.distances(warehouses, stores);
