@@ -46,5 +46,5 @@ public class WarehouseManager extends SystemUser {
         return authorities;
     }
 
- 
+
 }
