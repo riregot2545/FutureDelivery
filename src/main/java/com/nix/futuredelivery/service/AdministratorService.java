@@ -2,6 +2,8 @@ package com.nix.futuredelivery.service;
 
 import com.nix.futuredelivery.entity.*;
 import com.nix.futuredelivery.entity.value.OrderStatus;
+import com.nix.futuredelivery.exceptions.NoPersonException;
+import com.nix.futuredelivery.exceptions.NoProductException;
 import com.nix.futuredelivery.repository.*;
 import com.nix.futuredelivery.entity.Notification;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -75,7 +77,7 @@ public class AdministratorService {
     public void confirmProducts(List<Product> productList) {
         for (Product p : productList) {
             Long id = p.getId();
-            p = productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Product with id " + id + " does not exist"));
+            p = productRepository.findById(id).orElseThrow(() -> new NoProductException(id));
             p.setConfirmed(true);
             productRepository.save(p);
         }
@@ -86,7 +88,7 @@ public class AdministratorService {
     public void confirmStoreManagers(List<StoreManager> storeManagers) {
         for (StoreManager storeManager : storeManagers) {
             Long id = storeManager.getId();
-            storeManager = storeManagerRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Manager with id " + id + " does not exist"));
+            storeManager = storeManagerRepository.findById(id).orElseThrow(() -> new NoPersonException("Store manager", id));
             storeManager.setConfirmed(true);
             storeManagerRepository.save(storeManager);
         }
@@ -96,7 +98,7 @@ public class AdministratorService {
     public void confirmWarehouseManagers(List<WarehouseManager> warehouseManagerList) {
         for (WarehouseManager warehouseManager : warehouseManagerList) {
             Long id = warehouseManager.getId();
-            warehouseManager = warehouseManagerRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Manager with id " + id + " does not exist"));
+            warehouseManager = warehouseManagerRepository.findById(id).orElseThrow(() -> new NoPersonException("Warehouse manager", id));
             warehouseManager.setConfirmed(true);
             warehouseManagerRepository.save(warehouseManager);
         }
