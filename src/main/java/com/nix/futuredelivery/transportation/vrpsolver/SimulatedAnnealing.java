@@ -10,6 +10,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * Service class which uses the SA algorithm to calculate routes
+ */
 @Slf4j
 public class SimulatedAnnealing {
     private final Route route;

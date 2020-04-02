@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+/**
+ * Class that calculates the distance between the coordinates for the route
+ */
 @Data
 public class Travel {
 

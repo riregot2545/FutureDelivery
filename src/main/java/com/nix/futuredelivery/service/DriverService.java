@@ -5,6 +5,7 @@ import com.nix.futuredelivery.entity.value.OrderStatus;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
 import com.nix.futuredelivery.entity.value.WaybillProductLine;
 import com.nix.futuredelivery.exceptions.InvalidDeliveryOrderException;
+import com.nix.futuredelivery.exceptions.NoPersonException;
 import com.nix.futuredelivery.exceptions.NoRouteFoundException;
 import com.nix.futuredelivery.exceptions.SomeWaybillsNotFoundException;
 import com.nix.futuredelivery.repository.*;
@@ -35,7 +36,7 @@ public class DriverService {
 
     @Transactional
     public List<Route> getDriversRoutes(Long id) {
-        Driver driver = driverRepository.findById(id).orElseThrow(() -> new IllegalStateException("Driver with id=" + id + " is not exist."));
+        Driver driver = driverRepository.findById(id).orElseThrow(() -> new NoPersonException("Driver", id));
         List<Route> routes = routeRepository.findByDriverAndIsClosedFalse(driver);
         for (Route route : routes) {
             List<Store> stores = route.getWaybillList()

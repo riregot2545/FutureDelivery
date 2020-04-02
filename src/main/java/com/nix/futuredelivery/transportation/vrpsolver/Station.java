@@ -3,6 +3,9 @@ package com.nix.futuredelivery.transportation.vrpsolver;
 import com.nix.futuredelivery.entity.Address;
 import lombok.Data;
 
+/**
+ * Service class which contains coordinates for SA algorithm
+ */
 @Data
 public class Station {
 
