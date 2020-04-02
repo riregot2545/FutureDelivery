@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -29,6 +30,7 @@ import java.util.List;
 @Entity
 public class StoreManager extends SystemUser{
 
+    @ColumnDefault("false")
     private boolean isConfirmed;
 
     @OneToOne(cascade = CascadeType.ALL)

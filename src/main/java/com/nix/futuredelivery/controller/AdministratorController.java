@@ -1,11 +1,14 @@
 package com.nix.futuredelivery.controller;
 
 import com.nix.futuredelivery.entity.*;
+import com.nix.futuredelivery.exceptions.InvalidRequestEntityException;
 import com.nix.futuredelivery.service.AdministratorService;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -91,15 +94,23 @@ public class AdministratorController {
     @ApiOperation(value = "Register new driver")
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/register_driver")
-    public void registerDriver(@RequestBody List<Driver> driverList) {
-        administratorService.addNewDriver(driverList);
+    public void registerDriver(@Valid @RequestBody List<Driver> driverList, BindingResult bindingResult) {
+        if (bindingResult.getErrorCount() > 0)
+            throw new InvalidRequestEntityException(bindingResult.getAllErrors());
+        else {
+            administratorService.addNewDriver(driverList);
+        }
     }
 
     @ApiOperation(value = "Add new car")
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/new_car")
-    public void addNewCar(@RequestBody List<Car> carList) {
-        administratorService.addNewCar(carList);
+    public void addNewCar(@Valid @RequestBody List<Car> carList, BindingResult bindingResult) {
+        if (bindingResult.getErrorCount() > 0)
+            throw new InvalidRequestEntityException(bindingResult.getAllErrors());
+        else {
+            administratorService.addNewCar(carList);
+        }
     }
 
 

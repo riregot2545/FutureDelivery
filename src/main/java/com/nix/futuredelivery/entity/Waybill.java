@@ -5,8 +5,11 @@ import com.nix.futuredelivery.entity.value.WaybillProductLine;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -21,6 +24,7 @@ public class Waybill {
 
     @JsonIgnoreProperties({"productLines", "store"})
     @ManyToOne
+    @NotNull(message = "Waybill order is null.")
     private StoreOrder storeOrder;
 
     @JsonIgnoreProperties({"waybill"})
@@ -30,13 +34,20 @@ public class Waybill {
     private List<WaybillProductLine> productLines;
 
     @ManyToOne
+    @NotNull(message = "Waybill route is null.")
     private Route route;
 
+    @ColumnDefault("0")
     private int deliveryQueuePlace;
 
+    @NotNull(message = "Waybill product cost is null.")
+    @Positive(message = "Waybill product cost is negative")
     private BigDecimal productCost;
+    @NotNull(message = "Waybill delivery cost is null.")
+    @Positive(message = "Waybill delivery cost is negative")
     private BigDecimal deliveryCost;
 
+    @ColumnDefault("false")
     private boolean isStoreMain;
 
     public void updateProductCost() {

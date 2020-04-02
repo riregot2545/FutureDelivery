@@ -54,7 +54,7 @@ public class DatabaseDataGenerator {
             Volume volume = new Volume(randDoubleBetween(minVolume, maxVolume));
 
 
-            Product product = new Product(null,false, category, "Product " + (i + 1), new BigDecimal(random.nextInt(200)), volume);
+            Product product = new Product(null, false, category, "Product " + (i + 1), new BigDecimal(random.nextInt(200) + 1), volume);
             products.add(product);
         }
         return products;

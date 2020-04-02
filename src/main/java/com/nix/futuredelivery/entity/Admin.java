@@ -6,7 +6,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import javax.persistence.Entity;
-import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -15,7 +14,6 @@ import java.util.List;
 @Data
 @Entity
 public class Admin extends SystemUser{
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities(){

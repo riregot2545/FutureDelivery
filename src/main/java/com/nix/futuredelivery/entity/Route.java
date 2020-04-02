@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
@@ -16,12 +17,14 @@ public class Route {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @NotNull(message = "Route close state is null.")
     private boolean closed;
     @JsonIgnoreProperties({"authorities", "password"})
-
     @ManyToOne
     private Driver driver;
 
+    @NotNull(message = "Route car is null.")
     @ManyToOne
     private Car car;
 
@@ -29,6 +32,7 @@ public class Route {
     @OneToMany(mappedBy = "route")
     private List<Waybill> waybillList;
 
+    @NotNull(message = "Route start warehouse is null.")
     @JsonIgnoreProperties({"warehouseManager", "productLines"})
     @ManyToOne
     private Warehouse warehouse;

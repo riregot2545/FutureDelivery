@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
+import javax.validation.Valid;
 
 @Data
 @NoArgsConstructor
@@ -13,5 +14,6 @@ import javax.persistence.Embedded;
 @Embeddable
 public class Capacity {
     @Embedded
+    @Valid
     private Volume maxVolume;
 }

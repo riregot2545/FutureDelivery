@@ -4,6 +4,7 @@ import com.nix.futuredelivery.entity.Waybill;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -20,5 +21,6 @@ public class WaybillProductLine extends AbstractProductLine {
     @Id
     private Waybill waybill;
 
+    @ColumnDefault("false")
     private boolean isDelivered;
 }

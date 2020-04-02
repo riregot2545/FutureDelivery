@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -31,6 +32,8 @@ public class WarehouseManager extends SystemUser {
     @JoinColumn(name = "warehouse_id")
     @ApiModelProperty(notes = "The warehouse that belongs to this manager")
     private Warehouse warehouse;
+
+    @ColumnDefault("false")
     private boolean isConfirmed;
 
     public WarehouseManager(Long id, String firstName, String lastName, String login, String password, String email, Warehouse warehouse) {

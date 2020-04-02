@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,10 +28,16 @@ public class StoreOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "Store order order status is null.")
     private OrderStatus orderStatus;
+
     @ManyToOne
+    @NotNull(message = "Store order store is null.")
     private Store store;
+
+    @NotNull(message = "Store order creation time is null.")
     private LocalDateTime creationDate;
 
     @OneToMany(

@@ -10,6 +10,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
+import javax.validation.constraints.Positive;
 import java.io.Serializable;
 
 @Data
@@ -19,6 +20,8 @@ public abstract class AbstractProductLine implements Serializable {
     @ManyToOne(cascade = CascadeType.MERGE)
     @Id
     protected Product product;
+
+    @Positive(message = "Product quantity is negative.")
     @ApiModelProperty(notes = "The quantity of the product")
     protected int quantity;
 

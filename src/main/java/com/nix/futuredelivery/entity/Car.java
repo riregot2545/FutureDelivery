@@ -9,6 +9,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Data
 @NoArgsConstructor
@@ -18,15 +21,20 @@ public class Car {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @NotEmpty(message = "Car model is empty.")
+    @NotNull(message = "Car model is null.")
     private String model;
 
+    @Valid
+    @NotNull(message = "Car capacity is null.")
     @Embedded
     private Capacity capacity;
-
 
     @Transient
     private Volume fullness;
 
+    @Valid
+    @NotNull(message = "Car consumption is null.")
     @Embedded
     private Consumption consumption;
 

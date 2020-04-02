@@ -11,6 +11,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,13 +28,18 @@ public abstract class SystemUser {
     @ApiModelProperty(notes = "The database generated product ID")
     protected Long id;
 
+    @NotNull(message = "First name is null.")
     protected String firstName;
+    @NotNull(message = "Last name is null.")
     protected String lastName;
 
+    @NotNull(message = "Login is null.")
     protected String login;
+    @NotNull(message = "Password is null.")
     protected String password;
 
-
+    @NotNull(message = "Email is null.")
+    @Email
     protected String email;
 
     public SystemUser(Long id, String username, String password) {
