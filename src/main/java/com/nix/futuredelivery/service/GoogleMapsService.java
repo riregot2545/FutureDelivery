@@ -9,6 +9,7 @@ import com.google.maps.model.LatLng;
 import com.google.maps.model.TravelMode;
 import com.nix.futuredelivery.entity.Address;
 import com.nix.futuredelivery.entity.value.AddressFormatter;
+import com.nix.futuredelivery.exceptions.DistanceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +25,7 @@ public class GoogleMapsService {
     @Value("${third-party.google.api-key}")
     private String API_KEY;
 
-    public double getDistanceBetweenCords(Address addressFrom, Address addressTo) throws InterruptedException, ApiException, IOException {
+    public double getDistanceBetweenCords(Address addressFrom, Address addressTo) throws InterruptedException, ApiException, IOException, DistanceNotFoundException {
         GeoApiContext apiContext = new GeoApiContext.Builder()
                 .apiKey(API_KEY)
                 .build();
@@ -45,12 +46,11 @@ public class GoogleMapsService {
 
             return distance;
         } catch (NullPointerException ex) {
-            log.error("Can't found distance between 2 point address {} and {}.", addressFrom, addressTo);
-            return -1;
+            throw new DistanceNotFoundException(addressFrom, addressTo);
         }
     }
 
-    public double getDistanceBetweenNativeAddress(Address addressFrom, Address addressTo) throws InterruptedException, ApiException, IOException {
+    public double getDistanceBetweenNativeAddress(Address addressFrom, Address addressTo) throws InterruptedException, ApiException, IOException, DistanceNotFoundException {
         GeoApiContext apiContext = new GeoApiContext.Builder()
                 .apiKey(API_KEY)
                 .build();
@@ -68,8 +68,7 @@ public class GoogleMapsService {
 
             return distance;
         } catch (NullPointerException ex) {
-            log.error("Can't found distance between 2 native address {} and {}.", addressFrom, addressTo);
-            return -1;
+            throw new DistanceNotFoundException(addressFrom, addressTo);
         }
     }
 }

@@ -3,6 +3,7 @@ package com.nix.futuredelivery.service;
 import com.google.maps.errors.ApiException;
 import com.nix.futuredelivery.entity.Address;
 import com.nix.futuredelivery.entity.value.Location;
+import com.nix.futuredelivery.exceptions.DistanceNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,7 +19,7 @@ class GoogleMapsServiceTest {
     private GoogleMapsService mapsService;
 
     @Test
-    void getDistanceByCords() throws InterruptedException, ApiException, IOException {
+    void getDistanceByCords() throws InterruptedException, ApiException, IOException, DistanceNotFoundException {
         Address addressCenter = new Address(null, "", "", "", "", "", "",
                 new Location(49.9997807, 36.2460375));
 
@@ -30,7 +31,7 @@ class GoogleMapsServiceTest {
     }
 
     @Test
-    void getDistanceByNative() throws InterruptedException, ApiException, IOException {
+    void getDistanceByNative() throws InterruptedException, ApiException, IOException, DistanceNotFoundException {
         Address addressCenter = new Address(null, "Богдана Хмельницкого ул., 24", "", "Переяслав",
                 "Киевская область", "Украина", "08400",
                 new Location(0, 0));
