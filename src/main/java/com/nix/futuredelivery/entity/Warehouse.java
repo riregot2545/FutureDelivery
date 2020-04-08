@@ -1,16 +1,10 @@
 package com.nix.futuredelivery.entity;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.nix.futuredelivery.entity.value.AbstractProductLine;
 import com.nix.futuredelivery.entity.value.WarehouseProductLine;
 import com.nix.futuredelivery.exceptions.NoProductInList;
 import lombok.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.CascadeType;
@@ -43,12 +37,18 @@ public class Warehouse extends AbstractStation{
     }
 
     public boolean warehouseContainsProduct(Product product) {
-        return productLines.stream().map(AbstractProductLine::getProduct).anyMatch(warehouseProduct -> warehouseProduct.equals(product));
+        for (WarehouseProductLine productLine : productLines) {
+            Product warehouseProduct = productLine.getProduct();
+            if (warehouseProduct.getId().equals(product.getId())) {
+                return true;
+            }
+        }
+        return false;
     }
     @Transactional
     public WarehouseProductLine getWarehouseProductLine(Product product) {
         for (WarehouseProductLine line : productLines) {
-            if (line.getProduct().equals(product)) return line;
+            if (line.getProduct().getId().equals(product.getId())) return line;
         }
         throw new NoProductInList(product.getId(), getId(), "Warehouse");
     }

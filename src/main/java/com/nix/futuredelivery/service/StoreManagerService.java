@@ -17,8 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class StoreManagerService {
@@ -61,7 +61,9 @@ public class StoreManagerService {
         StoreOrder storeOrder = storeOrderRepository.findById(orderId).orElseThrow(() -> new NoOrderException(orderId));
         if (!storeHasOrder(manager, storeOrder))
             throw new NoOrderInStoreException(manager.getStore().getId(), storeOrder.getId());
-        return storeOrder.getProductLines();
+        List<OrderProductLine> lines = storeOrder.getProductLines();
+        lines.size();
+        return lines;
     }
 
     @Transactional
@@ -76,7 +78,7 @@ public class StoreManagerService {
         StoreOrder storeOrder = getOrder(managerId, orderId);
         if (storeOrder.getOrderStatus() == OrderStatus.DISTRIBUTED) throw new OrderStateException(storeOrder.getId());
         StoreManager manager = storeManagerRepository.findById(managerId).orElseThrow(() -> new NoPersonException("Store manager", managerId));
-        manager.getStore().getOrders().remove(storeOrder);
+        storeOrder.setOrderStatus(OrderStatus.DELETED);
     }
     @Transactional
     public StoreOrder getOrder(Long id, Long orderId) {
@@ -84,6 +86,7 @@ public class StoreManagerService {
         if (!managerHasStore(manager)) throw new NoStationException(manager.getId());
         StoreOrder storeOrder = storeOrderRepository.findById(orderId).orElseThrow(() -> new NoOrderException(orderId));
         if (!storeHasOrder(manager, storeOrder)) throw new NoOrderInStoreException(manager.getStore().getId(), orderId);
+        storeOrder.getProductLines().size();
         return storeOrder;
     }
     @Transactional
@@ -91,7 +94,13 @@ public class StoreManagerService {
         StoreManager manager = storeManagerRepository.findById(managerId).orElseThrow(() -> new NoPersonException("Store manager", managerId));
         if (!managerHasStore(manager)) throw new NoStationException(manager.getId());
         List<StoreOrder> orders = manager.getStore().getOrders();
-        return orders.stream().filter(order -> order.getCreationDate().isAfter(date)).collect(Collectors.toList());
+        List<StoreOrder> list = new ArrayList<>();
+        for (StoreOrder order : orders) {
+            if (order.getCreationDate().isAfter(date)) {
+                if (!order.getProductLines().isEmpty()) list.add(order);
+            }
+        }
+        return list;
     }
 
     @Transactional
@@ -100,8 +109,11 @@ public class StoreManagerService {
         productService.editStoreOrder(storeOrder, productLines);
     }
 
+    @Transactional
     public List<AbstractProductLine> getProducts() {
-        return productService.getProducts();
+        List<AbstractProductLine> lines = productService.getProducts();
+        //lines.size();
+        return lines;
     }
 
     @Transactional

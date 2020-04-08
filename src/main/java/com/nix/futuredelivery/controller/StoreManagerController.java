@@ -52,7 +52,7 @@ public class StoreManagerController {
             throw new InvalidRequestEntityException(bindingResult.getAllErrors());
         else {
             Long id = storeManagerService.saveStoreManager(storeManager);
-            return new ResponseEntity<>("Warehouse manager saved successfully with id " + id, HttpStatus.OK);
+            return new ResponseEntity<>("Store manager saved successfully with id " + id, HttpStatus.OK);
         }
     }
 

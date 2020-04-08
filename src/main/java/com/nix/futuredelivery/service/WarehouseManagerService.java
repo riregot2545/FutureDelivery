@@ -42,7 +42,9 @@ public class WarehouseManagerService {
     public List<WarehouseProductLine> getProductLines(Long id) {
         WarehouseManager manager = warehouseManagerRepository.findById(id).orElseThrow(() -> new NoPersonException("Warehouse manager", id));
         Warehouse warehouse = manager.getWarehouse();
-        return warehouse.getProductLines();
+        List<WarehouseProductLine> lines = warehouse.getProductLines();
+        lines.size();
+        return lines;
     }
 
 

@@ -15,6 +15,7 @@ import com.nix.futuredelivery.repository.ProductRepository;
 import com.nix.futuredelivery.repository.StoreOrderRepository;
 import com.nix.futuredelivery.repository.WarehouseRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,6 +92,7 @@ public class ProductService {
         return storeOrder.getId();
     }
 
+    @Transactional
     void editProductsOfWarehouse(List<WarehouseProductLine> lines, Warehouse warehouse) {
         lines.forEach(line -> {
             if (warehouse.warehouseContainsProduct(line.getProduct())) {
@@ -113,12 +115,13 @@ public class ProductService {
                 throw new WrongQuantityException(productLine.getProduct().getId(), productLine.getQuantity());
             storeOrder.setOrderLineQuantity(productLine);
         }
+        storeOrderRepository.saveAndFlush(storeOrder);
     }
 
     private AbstractProductLine getLineByProductInMenu(Product product) {
         List<AbstractProductLine> menu = getProducts();
         for (AbstractProductLine line : menu) {
-            if (line.getProduct().equals(product)) return line;
+            if (line.getProduct().getId().equals(product.getId())) return line;
         }
         throw new NoProductInList(product.getId(), (long) 0, "Menu");
     }
